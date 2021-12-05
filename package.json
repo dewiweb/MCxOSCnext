@@ -51,6 +51,12 @@
             "linux",
             "win32"
           ]
+        },
+        {
+        "github_repository": {
+          "owner": "dewiweb",
+          "name": "MCxOSCnext"
+        }
         }
       ],
       "publishers": [
