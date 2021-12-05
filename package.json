@@ -57,7 +57,7 @@
         {
           "name": "@electron-forge/publisher-github",
           "config": {
-            "repository": {
+            "github_repository": {
               "owner": "dewiweb",
               "name": "MCxOSCnext"
             }
