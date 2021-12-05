@@ -11,6 +11,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2       
     - uses: actions/setup-node@master
+      with:
+        always-auth: true
     - uses: actions/labeler@v2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -26,6 +28,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@master
+      with:
+        always-auth: true
     - uses: actions/labeler@v2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
@@ -41,6 +45,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2       
     - uses: actions/setup-node@master
+      with:
+        always-auth: true
     - uses: actions/labeler@v2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
