@@ -2583,7 +2583,7 @@ editions@^2.2.0:
     errlop "^2.0.0"
     semver "^6.3.0"
 
-electron-compile@*:
+electron-compile@*, electron-compile@^6.4.4:
   version "6.4.4"
   resolved "https://registry.yarnpkg.com/electron-compile/-/electron-compile-6.4.4.tgz#24c5bc4c937856fcc9141cf3cc7251172e0205df"
   integrity sha512-LEOq5Tt7fAfONEyYLR0Ue1kL6/H8NAX6s9ouw4g6Azhu6onWh166fnf2O7Y3f9qkQEqYzwZl49Rd/QWxLG2AYw==
