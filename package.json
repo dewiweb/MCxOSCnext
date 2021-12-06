@@ -62,7 +62,7 @@
         "owner": "dewiweb",
         "name": "MCxOSCnext"
         },
-        "authToken": "${{secrets.GITHUB_TOKEN}}",
+        "authToken": ${{secrets.GITHUB_TOKEN}},
         "prerelease": "true"
         }
         }
