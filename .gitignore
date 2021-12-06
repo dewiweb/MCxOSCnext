@@ -90,3 +90,6 @@ out/
 
 # Code Workspace
 *.code-workspace
+
+#github extension settings
+settings.json
