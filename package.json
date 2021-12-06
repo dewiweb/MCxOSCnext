@@ -2,12 +2,13 @@
   "name": "mcxoscnext",
   "productName": "mcxoscnext",
   "version": "0.0.2",
-  "description": "My Electron application description",
+  "description": "A bridge between emberplus and OSC protocols",
   "main": "src/main.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
+    "build": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
@@ -20,10 +21,6 @@
   "config": {
     "forge": {
       "packagerConfig": {},
-      "github_repository": {
-        "owner": "dewiweb",
-        "name": "MCxOSCnext"
-      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -59,15 +56,17 @@
       ],
       "publishers": [
         {
-          "name": "@electron-forge/publisher-github",
-          "config": {
-            "github_repository": {
-              "owner": "dewiweb",
-              "name": "MCxOSCnext"
-            }
-          }
+        "name": "@electron-forge/publisher-github",
+        "config": {
+        "repository": {
+        "owner": "dewiweb",
+        "name": "MCxOSCnext"
+        },
+        "authToken": "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",
+        "prerelease": "true"
         }
-      ]
+        }
+        ]
     }
   },
   "dependencies": {
