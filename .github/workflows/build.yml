@@ -3,7 +3,7 @@ on: push
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@vmaster
+        uses: actions/setup-node@master
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
