@@ -19,14 +19,9 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@master
 
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          max_attempts: 5
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      - name: install dependencies
+        run: yarn add electron-builder --dev
+      - name: yarn install
+        run: yarn install
+      - name: publish
+        run: yarn run publish
