@@ -1,7 +1,7 @@
 {
   "name": "mcxoscnext",
   "productName": "mcxoscnext",
-  "version": "0.0.3",
+  "version": "0.0.2",
   "description": "A bridge between emberplus and OSC protocols",
   "main": "src/main.js",
   "scripts": {
@@ -62,7 +62,6 @@
         "owner": "dewiweb",
         "name": "MCxOSCnext"
         },
-        "authToken": "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",
         "prerelease": "true"
         }
         }
