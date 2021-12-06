@@ -24,4 +24,5 @@ jobs:
       - name: yarn install
         run: yarn install
       - name: publish
+      
         run: yarn run publish

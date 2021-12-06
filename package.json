@@ -9,7 +9,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "build": "yarn add electron-builder",
-    "publish": "electron-forge publish --auth-token=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",
+    "publish": "electron-forge publish ",
     "lint": "echo \"No linting configured\""
   },
   "keywords": [],
@@ -62,7 +62,7 @@
         "owner": "dewiweb",
         "name": "MCxOSCnext"
         },
-        "authToken": "GITHUB_TOKEN",
+        "authToken": "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",
         "prerelease": "true"
         }
         }
