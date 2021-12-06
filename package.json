@@ -8,7 +8,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "build": "electron-forge make",
+    "build": "yarn add electron-builder",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
