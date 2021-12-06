@@ -26,7 +26,7 @@
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "authors": "dewiweb",
-            "iconUrl": "src/assets/icons/128x128.png",
+            "iconUrl": "https://github.com/dewiweb/MCxOSCnext/blob/5653916a168b82e610662455bbf9fbc0155f155f/src/assets/icons/128x128.png",
             "exe": "mcxoscnext.exe",
             "name": "mcxoscnext"
           }
