@@ -69,25 +69,21 @@ module.exports = {
     console.log("oscArgs", oscArgs);
     return oscArgs
   },
-   
   embChPath: function(chNumb) {
     let eChPath = 'Channels.Inputs.INP   ';
     eChPath = eChPath.concat(chNumb.toString());
     return eChPath
   },
-   
   embFadLevPath: function(eChPath) {
     let eFadLevPath = eChPath.concat('.Fader.Fader Level');
     return eFadLevPath
   },
-   
   pathToAddress: function(path) {
     let oscAddress = path.replace(/\./g,'/');
     slash = "/";
     oscAddress = slash.concat(oscAddress);
     return oscAddress
   },
-   
   addressToPath: function(address) {
     let path = address.replace(/\//g, '.');
     path = path.slice(1);

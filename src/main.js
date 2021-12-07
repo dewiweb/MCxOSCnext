@@ -22,7 +22,7 @@ const recOptions = {
   filters :[
     {name: 'Session file', extensions: ['session']},
     {name: 'All Files', extensions: ['*']}
-   ],
+  ],
   title: "Save your session in a *.session file",
   defaultPath: recDir + '/MySession.session',
 }
@@ -30,7 +30,7 @@ const openOptions = {
   filters :[
     {name: 'Session file', extensions: ['session']},
     {name: 'All Files', extensions: ['*']}
-   ],
+  ],
   properties: ['openFile', 'multiSelections'],
   title: "Choose a *.session file",
   defaultPath: openDir,
@@ -157,7 +157,7 @@ function createWindow() {
 
          //await c.connect()
 
-         const err = await c.connect()
+        const err = await c.connect()
          if (err) { // err = true when the first connection attempt fails (depending on timeout)
           console.log('Initial connection unsuccessful', err);
           //win.webContents.send('eServConnError');
@@ -277,7 +277,7 @@ function createWindow() {
                     ]
                   }, oServerIP, oServerPort);
                   console.log('EMBER+ -lin-> OSC : ', value)
-                 } else if (eVarType == "Integer" && eVarCurve == "log") {
+                  } else if (eVarType == "Integer" && eVarCurve == "log") {
                   const value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true)
                   oscCli.send({
                     address: oAddr,
