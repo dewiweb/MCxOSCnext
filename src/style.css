@@ -55,14 +55,6 @@ div{
   font-weight: bold;
 }
 
-.button_up{
-  background-color: #18575f;
-  border-radius: 10px;
-  border-style: none;
-  font-weight: bold;
-  color: rgb(255, 255, 255);
-}
-
 .infoDot{
   font-weight: bold;
   font-size: 500%;

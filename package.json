@@ -1,17 +1,86 @@
 {
-  "name": "mouse3d-osc",
-  "version": "1.0.0",
+  "name": "mcxoscnext",
+  "productName": "mcxoscnext",
+  "version": "0.0.1",
+  "description": "A bridge between emberplus and OSC protocols",
   "main": "src/main.js",
-  "license": "MIT",
-  "devDependencies": {
-    "electron": "^19.0.7"
-  },
   "scripts": {
-    "start": "electron ."
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "build": "yarn add electron-builder",
+    "publish": "electron-forge publish ",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": {
+    "name": "dewiweb",
+    "email": "dewiweb@gmail.com"
+  },
+  "license": "MIT",
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "authors": "dewiweb",
+            "iconUrl": "https://raw.githubusercontent.com/dewiweb/MCxOSCnext/5653916a168b82e610662455bbf9fbc0155f155f/src/assets/icons/128x128.png",
+            "exe": "mcxoscnext.exe",
+            "name": "mcxoscnext"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {
+            "options": {
+              "name": "mcxoscnext",
+              "icon": "./src/assets/icons/128x128.png",
+              "categories": [
+                "AudioVideo"
+              ],
+              "productName": "MCxOSCnext",
+              "maintainer": "dewiweb",
+              "description": "Ember+ <--> OSC bridge for MC² Lawo consoles"
+            }
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "linux",
+            "win32"
+          ]
+        }
+      ],
+      "publishers": [
+        {
+        "name": "@electron-forge/publisher-github",
+        "config": {
+        "repository": {
+        "owner": "dewiweb",
+        "name": "MCxOSCnext"
+        },
+        "prerelease": "true"
+        }
+        }
+        ]
+    }
   },
   "dependencies": {
-    "hid.spacemouse": "^0.1.0",
-    "node-hid": "^2.1.1",
-    "osc": "^2.4.3"
+    "electron-squirrel-startup": "^1.0.0",
+    "emberplus-connection": "^0.0.4",
+    "osc": "^2.4.2"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.61",
+    "@electron-forge/maker-deb": "^6.0.0-beta.61",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.61",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
+    "@electron-forge/maker-zip": "^6.0.0-beta.61",
+    "@electron-forge/publisher-github": "^6.0.0-beta.61",
+    "electron": "16.0.4",
+    "electron-compile": "^6.4.4"
   }
 }
