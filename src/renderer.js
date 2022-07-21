@@ -320,6 +320,7 @@ function submitEmberPath(event) {
   //var chanNumbPrefix = document.getElementById("eChanNumbPrefix").value;
   //var chanNumb = document.getElementById("eChanNumb").value;
   var userLabel =document.getElementById("eUserLabel").value;
+  var manualEmberPath = document.getElementById("manualEmberPath").value
   //var chanNumbNumb = Number(chanNumb);
   var slct1 = document.getElementById("slct1").value;
   var slct2 = document.getElementById("slct2").value;
@@ -340,7 +341,7 @@ function submitEmberPath(event) {
     //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + " " + chanNumb + "." + slct1 + "." + slct2 + "." + slct3;
     };
   } else {
-    emBerPath = userLabel;
+    emBerPath = manualEmberPath;
     eVarType = "Integer";
     eVarFactor = 1;
     eVarMin = 0;
@@ -716,6 +717,7 @@ function advancedMode(e) {
   var stayOnAdvanced = document.getElementsByClassName("stayOnAdvanced");
   var slct0 = document.getElementById("slct0");
   var slct1 = document.getElementById("slct1");
+  var manualEmberPath = document.getElementById("manualEmberPath")
   //var eChanNumb = document.getElementById("eChanNumb");
   //var eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
   var eUserLabel = document.getElementById("eUserLabel");
@@ -724,9 +726,9 @@ function advancedMode(e) {
     switcher.className = "toggle toggle-on";
     
     //iCNPLabel.style.visibility = "hidden";
-    stayOnAdvanced[0].style.display = "block";
-    stayOnAdvanced[0].style.visibility = "visible";
-    stayOnAdvanced[0].setAttribute('size', "75%");
+    manualEmberPath.style.display = "inline-block";
+    manualEmberPath.style.visibility = "visible";
+    //manualPath.setAttribute('size', "75%");
     for (var i = 0; i < hideOnAdvanced.length; i++) {
       hideOnAdvanced[i].style.display = "none";
     };
@@ -740,7 +742,9 @@ function advancedMode(e) {
     hideOnAdvanced[0].style.visibility = "hidden";
   } else {
     switcher.className = "toggle";
-    stayOnAdvanced[0].setAttribute('size', "3");
+    manualEmberPath.style.visibility = "hidden";
+    manualEmberPath.style.display = "none"
+    //stayOnAdvanced[0].setAttribute('size', "3");
     for (var i = 0; i < hideOnAdvanced.length; i++) {
       hideOnAdvanced[i].style.display = "inline-block";
     };

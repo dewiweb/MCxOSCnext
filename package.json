@@ -37,7 +37,7 @@
       ],
       "icon": "./src/assets/icons/256x256.ico"
     },
-    "nsis":{
+    "nsis": {
       "oneClick": false,
       "installerIcon": "./src/assets/icons/256x256.ico",
       "uninstallerIcon": "./src/assets/icons/256x256.ico",
@@ -56,11 +56,11 @@
     }
   },
   "dependencies": {
-    "emberplus-connection": "^0.0.4",
+    "emberplus-connection": "^0.1.2",
     "osc": "^2.4.2"
   },
   "devDependencies": {
-    "electron": "16.0.4",
+    "electron": "^19.0.8",
     "electron-builder": "^23.1.0"
   }
 }

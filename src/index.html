@@ -110,8 +110,10 @@
         <!--
         <label class="hideOnAdvanced" for="iname" id="iCNPLabel"
           style="display: inline-block; font-weight: normal; font-size: 80%; padding-left: 0%;">Ch. Prefix
+        
           <input class="stayOnAdvanced" type="text" style="display: block;" id="eChanNumbPrefix" name="eChanNumbPrefix"
             value="" size="3" required>
+      
         </label>
         
         <label class="hideOnAdvanced" for="iname"
@@ -119,7 +121,7 @@
           <input type="text" style="display: block;" id="eUserLabel" name="eUserLabel" 
             size="3"  required value ="">
         </label>
-        -->
+      -->
         <select class="hideOnAdvanced" id="eUserLabel" name="eUserLabel"></select>
         <b class="hideOnAdvanced">.</b>
         <select class="hideOnAdvanced" id="slct1" name="slct1"
@@ -138,6 +140,8 @@
           onchange="populate(this.id,'slct3','invisibleB', this.selectedIndex), selectedOption(this.id)"></select>
         <b id="invisibleB" style="visibility:hidden;">.</b>
         <select id="slct3" name="slct3" style="visibility:hidden;" onchange="selectedOption(this.id)"></select>
+        <input class="visibleOnAdvanced" type="text" style="visibility: hidden; display:inline-block;" id="manualEmberPath" value="">
+
         <input class="button" id="suscribe" style="text-align: center;" type="submit" value="Add!">
         <br>
         <br>
@@ -148,7 +152,7 @@
             <div class='toggle-button'></div>
           </div>
           <span style="font-style: italic;"
-            title="examples:&#10;10623.126277.126278.126283.126284&#10;_2/_4/_1/_400016b0/_400016b1">Advanced Mode(put
+            title="examples:&#10;10623.126277.126278.126283.126284&#10;_2._4._1._400016b0._400016b1">Advanced Mode(put
             an ember+ path if you know it!)</span>
         </div>
         <br>
