@@ -56,6 +56,7 @@
     }
   },
   "dependencies": {
+    "electron-preferences": "^2.7.0",
     "emberplus-connection": "^0.1.2",
     "osc": "^2.4.2"
   },

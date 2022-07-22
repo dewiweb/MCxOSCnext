@@ -1,6 +1,7 @@
 const osc = require('osc')
 const oUDPport = 0;
 const oServerIP = "";
+
 const lib = require('./mainFunctions')
 const { EmberClient } = require('emberplus-connection')
 const electron = require('electron')
@@ -13,11 +14,12 @@ const { dialog } = require('electron')
 const { webContents } = require('electron')
 const fs = require('fs');
 const { openFile, relaunch } = require('./mainFunctions');
-var recDir = app.getPath('documents')+'/MCxOSC';
+const { isDataView } = require('util/types');
+var recDir = app.getPath('documents')+'/MCxOSCnext';
 if (!fs.existsSync(recDir)) {
   fs.mkdirSync(recDir)
 }
-var openDir = app.getPath('documents')+'/MCxOSC';
+var openDir = app.getPath('documents')+'/MCxOSCnext';
 const recOptions = {
   filters :[
     {name: 'Session file', extensions: ['session']},
@@ -35,7 +37,35 @@ const openOptions = {
   title: "Choose a *.session file",
   defaultPath: openDir,
 }
+
+const ElectronPreferences = require('electron-preferences');
+
 const appVersion = app.getVersion()
+
+
+
+//#Time Section#//
+let date_ob = new Date();
+let date = lib.IntTwoChars(date_ob.getDate());
+let month = lib.IntTwoChars(date_ob.getMonth() + 1);
+let year = date_ob.getFullYear();
+let hours = lib.IntTwoChars(date_ob.getHours());
+let minutes = lib.IntTwoChars(date_ob.getMinutes());
+let seconds = lib.IntTwoChars(date_ob.getSeconds());
+let datePath = `autosave_${hours}-${minutes}-${seconds}_${month}-${date}-${year}`;
+console.log("datePath : ", datePath)
+//#End of Time Section#//
+
+//#Options Section//
+const autoSave = true
+const launchLastFile = true
+autoSaveFilepath = recDir + "/" + datePath + ".session"
+console.log("autoSaveFilepath: ",autoSaveFilepath) 
+//#End of Options Section//
+
+
+
+
 
 
 function createWindow() {
@@ -53,6 +83,224 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile('src/index.html')
   win.webContents.openDevTools()
+
+
+  ipcMain.on('sendAutoSave', function(event, content, autoSave){
+    if (autoSave !== null){
+    fs.writeFile(autoSaveFilepath, content, (err) => {
+      if (err) {
+        console.log('an error ocurred with file creation ' + err.message);
+      }
+      console.log('WE CREATED YOUR FILE SUCCESFULLY');
+  
+      //win.webContents.send('sendFilename', filename);
+    });
+  };
+    win = null;
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  })
+
+
+//#Preferences Window#//
+const preferences = new ElectronPreferences({
+	// Override default preference BrowserWindow values
+  browserWindowOpts: {
+    title: 'preferences',
+  },
+	
+	// Create an optional menu bar
+	//menu: Menu.buildFromTemplate(/* ... */),
+	
+	// Provide a custom CSS file, relative to your appPath.
+	css: './src/style.css',
+
+	// Preference file path
+	dataStore: openDir + '/preferences.json', // defaults to <userData>/preferences.json
+
+	// Preference default values
+  //defs : fs.readFileSync(dataStore, 'utf-8'),
+defaults: {
+  "Network Settings": {
+      "ember_provider": "192.168.100.36:9000",
+      "osc_send_ip": "127.0.0.1:12000",
+      "osc_port": "9001"
+  }
+},
+
+	// Preference sections visible to the UI
+	sections: [  
+    {
+      id: 'Network Settings',
+      label: 'Network Settings',
+      /**
+       * See the list of available icons below.
+       */
+      icon: 'preferences',
+      form: {
+        groups: [
+          {
+            /**
+             * Group heading is optional.
+             */
+            label: 'Ember+ Provider',
+            fields: [
+              {
+                label: 'Ip Address:Port ',
+                key: 'ember_provider',
+                type: 'text',
+                help: 'example: 192.168.100.36:9000'
+              } 
+            ],
+          },
+          {
+            /**
+             * Group heading is optional.
+             */
+            label: 'OSC settings',
+            fields: [
+              {
+                label: 'Send to Ip Address:Port ',
+                key: 'osc_send_ip',
+                type: 'text',
+                help: 'example: 127.0.0.1:12000'
+            },
+              {
+                label: 'Receive on Port ',
+                key: 'osc_port',
+                type: 'number'
+              },
+          ]},
+          {
+            label: "",
+            fields: [
+
+              {
+                label: '',
+                key: 'autoConnect',
+                type: 'checkbox',
+                options: [
+                  { label: 'initiate connections at startup', value: 'auto' },
+                ],
+                //help: 'Select one or more foods that you like.',
+              },
+              
+            ]
+          }
+        ],
+      },
+    } ,
+    {
+      id: 'Save settings',
+      label: 'Save settings',
+      icon: 'single-folded-content',
+      form: {
+        groups: [
+          {
+            label: 'Save folder',
+            fields: [
+              {
+                label: 'Select your preferred Save folder',
+                key: 'rec_dir',
+                type: 'directory',
+                //help: 'The location where your files *.session will be stored.',
+                multiSelections: false,
+                noResolveAliases: false,
+                treatPackageAsDirectory: false,
+                dontAddToRecent: true,
+              },
+              {
+                label: 'Select a default file launched at startup',
+                buttonLabel: 'Open',
+                key: 'default_file',
+                type: 'file',
+                //help: 'Choose a default file launched at startup',
+                filters: [
+                  {
+                    name: 'session file',
+                    extensions: ['session'],
+                  }
+                ],
+                multiSelections: false, //Allow multiple paths to be selected
+                showHiddenFiles: false, //Show hidden files in dialog
+                noResolveAliases: false, //(macos) Disable the automatic alias (symlink) path resolution. Selected aliases will now return the alias path instead of their target path.
+                treatPackageAsDirectory: false, //(macos) Treat packages, such as .app folders, as a directory instead of a file.
+                dontAddToRecent: false, //(windows) Do not add the item being opened to the recent documents list. 
+              }     
+            ]
+          }
+        ]
+      }
+    },
+    {
+      id: 'space',
+      label: 'Other Settings',
+      icon: 'settings-gear-63',
+      form: {
+        groups: [
+          {
+            label: 'Other Settings',
+            fields: [
+              
+              {
+                label: 'Launch last file on startup',
+                key: 'autoLoad',
+                type: 'checkbox',
+                options: [
+                  { label: '', value: 'autoLoad' },
+                ],
+                //help: 'Select one or more foods that you like.',
+              },
+              {
+                label: 'autosave on shutdown',
+                key: 'autoSave',
+                type: 'checkbox',
+                options: [
+                  { label: '', value: 'autoSave' },
+                ],
+                //help: 'Select one or more foods that you like.',
+              },
+              {
+                label: 'autosave on shutdown',
+                key: 'autoSave',
+                type: 'checkbox',
+                options: [
+                  { label: '', value: 'autoSave' },
+                ],
+                //help: 'Select one or more foods that you like.',
+              },     
+            ],
+          },
+        ],
+      },
+    },
+  ]
+});
+
+// Show the preferences window on demand.
+//preferences.show();
+
+// Get a value from the preferences data store
+//const name = preferences.value('about.name');
+
+// Save a value within the preferences data store
+//preferences.value('about.name', 'Einstein');
+
+// Subscribing to preference changes.
+preferences.on('save', (preferences) => {
+  console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
+});
+
+// Using a button field with `channel: 'reset'`
+preferences.on('click', (key) => {
+  if (key === 'resetButton') {
+    resetApp();
+  }
+});
+
+//#End of Preferences#//
+
 
 
   //---Menu interactions Section---//
@@ -388,6 +636,13 @@ function createWindow() {
   win.webContents.on('did-finish-load', () => {
   console.log("appVersion :", appVersion);
   win.webContents.send('appVersion', app.getVersion());
+  
+  win.on('close', (e) => {
+    if (win) {
+      e.preventDefault();
+    win.webContents.send('autoSave');
+    }
+  });
 
   })
   }
@@ -395,12 +650,12 @@ function createWindow() {
 app.whenReady().then(createWindow)
 
 
+//app.on('window-all-closed', () => {
+//  if (process.platform !== 'darwin') {
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+//    app.quit()
+//  }
+//})
 
 app.on('activate', () => {
   if (win === null) {

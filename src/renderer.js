@@ -1,4 +1,6 @@
+//const { ipcRenderer, remote } = require('electron');
 const { ipcRenderer } = require('electron')
+const preferences = ipcRenderer.sendSync('getPreferences');
 
 var oscAddr = new Array("/Channels")
 
@@ -8,6 +10,18 @@ var rAuxesUserLabels = [];
 var rMastersUserLabels = [];
 var rSumsUserLabels = [];
 var rGpcsUserLabels = [];
+var autoSave = null;
+
+// Display the preferences window
+//ipcRenderer.send('showPreferences');
+
+// Listen to the `preferencesUpdated` event to be notified when preferences are changed.
+ipcRenderer.on('preferencesUpdated', (e, preferences) => {
+	console.log('Preferences were updated', preferences);
+});
+
+// Instruct the preferences service to update the preferences object from within the renderer.
+//ipcRenderer.sendSync('setPreferences', { ... });
 
 
 
@@ -184,12 +198,70 @@ ipcRenderer.on('sendFileContent', function (event, content) {
   });
 })
 
+ipcRenderer.on('autoSave', function(event) {
+  var ip1 = document.getElementById("ip1").value;
+  var ip2 = document.getElementById("ip2").value;
+  var ip3 = document.getElementById("ip3").value;
+  var ip4 = document.getElementById("ip4").value;
+  var port = document.getElementById("port").value;
+  var data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+  EmberServerIP = data;
+  EmberServerPort = Number(port);
+
+  var ip11 = document.getElementById("ip11").value;
+  var ip21 = document.getElementById("ip21").value;
+  var ip31 = document.getElementById("ip31").value;
+  var ip41 = document.getElementById("ip41").value;
+  var port2 = document.getElementById("port2").value;
+  var data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
+  OSCserverIP = data1;
+  OSCserverPort = port2;
+
+  localPort = document.getElementById("localPort").value;
+
+  var sessionData =
+  {
+    eServerProperties: {
+      eServerIP: EmberServerIP,
+      eServerPort: EmberServerPort
+    },
+    udpPort: localPort,
+    oServerProperties: {
+      oServerIP: OSCserverIP,
+      oServerPort: OSCserverPort
+    }
+  };
+  table = document.getElementById('tableOfConnection');
+  var data = [];
+  var headers = [];
+  for (var i = 0; i < table.rows[1].cells.length; i++) {
+    headers[i] = table.rows[1].cells[i].innerHTML.toLowerCase().replace(/ /gi, '');
+  }
+  // go through cells
+  for (var i = 2; i < table.rows.length; i++) {
+    var tableRow = table.rows[i];
+    var rowData = {};
+    var x = [0, 2, 4, 6, 7, 8, 10];
+    x.forEach(item => {
+      rowData[headers[item]] = tableRow.cells[item].innerHTML;
+    })
+    data.push(rowData);
+  }
+  data.unshift(sessionData)
+  var content = JSON.stringify(data, null, 2);
+  ipcRenderer.send('sendAutoSave', content, autoSave)
+})
+
+
+
 ipcRenderer.on('eServConnError', function(event){
   var add1Error = document.getElementById("add1");
   var dot1Error = document.getElementById("dot1");
   add1Error.innerHTML = "Server not responding! Verify IP:Port";
   dot1Error.style.color = "red";
 })
+
+
 
 ipcRenderer.on('appVersion', function (event, appVersion) {
   document.getElementById("appVersion").innerHTML = document.getElementById("appVersion").innerHTML + appVersion;
@@ -865,6 +937,8 @@ function save(saveBtn) {
   ipcRenderer.send('sendSave', content, filename)
 }
 
+
+
 function load(loadBtn) {
   ipcRenderer.send('openFile')
   var table = document.getElementById("tableOfConnection");
@@ -872,6 +946,10 @@ function load(loadBtn) {
   if (genBtn == "") {
     addGenBtns()
   }
+}
+
+function prefs(preferencesBtn){
+  ipcRenderer.send('showPreferences');
 }
 
 function tableToJson(table) {
