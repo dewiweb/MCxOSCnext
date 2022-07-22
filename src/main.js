@@ -52,7 +52,7 @@ function createWindow() {
   })
   win.setMenu(null);
   win.loadFile('src/index.html')
-  //win.webContents.openDevTools()
+  win.webContents.openDevTools()
 
 
   //---Menu interactions Section---//
@@ -166,7 +166,15 @@ function createWindow() {
           return
         }
         //console.log("connection ok");
-        await (await c.getDirectory(c.tree)).response
+        root = await (await c.getDirectory(c.tree)).response
+        //const req = await c.getDirectory(c.tree)
+        //const root = await req.response
+        //await c.expand(root)
+        //console.log(root)
+        //etree = c.tree
+        //etree = await c.expand(etree)
+        //console.log(etree)
+        
         //for (i = 0x01; i < 0x029; i++) {
         //  const req = await c.getElementByPath("_2._1._"+i.toString(16)+"._3f0._60010004")
         //      console.log("INP "+i+" : ",req.contents.value)};
