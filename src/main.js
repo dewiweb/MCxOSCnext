@@ -123,7 +123,7 @@ function createWindow() {
     defaults: {
       "network_settings": {
         "ember_provider": "192.168.100.36:9000",
-        "osc_sender": "127.0.0.1:12000",
+        "osc_server": "127.0.0.1:12000",
         "osc_receiver_port": "9000",
         "autoConnect": [
           ""
@@ -180,7 +180,7 @@ function createWindow() {
               fields: [
                 {
                   label: 'Send to Ip Address:Port ',
-                  key: 'osc_sender',
+                  key: 'osc_server',
                   type: 'text',
                   help: 'example: 127.0.0.1:12000'
                 },
@@ -191,22 +191,6 @@ function createWindow() {
                 },
               ]
             },
-            {
-              label: "",
-              fields: [
-
-                {
-                  label: '',
-                  key: 'autoConnect',
-                  type: 'checkbox',
-                  options: [
-                    { label: 'initiate connections at startup', value: 'on' },
-                  ],
-                  //help: 'Select one or more foods that you like.',
-                },
-
-              ]
-            }
           ],
         },
       },
@@ -305,8 +289,8 @@ function createWindow() {
   const oUDPport = preferences.value('network_settings.osc_receiver_port');
   const eServerIP = ((preferences.value('network_settings.ember_provider')).split(":"))[0];
   const eServerPort = Number(((preferences.value('network_settings.ember_provider')).split(":"))[1]);
-  const oServerIP = ((preferences.value('network_settings.osc_sender')).split(":"))[0];
-  const oServerPort = Number(((preferences.value('network_settings.osc_sender')).split(":"))[1]);
+  const oServerIP = ((preferences.value('network_settings.osc_server')).split(":"))[0];
+  const oServerPort = Number(((preferences.value('network_settings.osc_server')).split(":"))[1]);
 
   // Save a value within the preferences data store
   //preferences.value('about.name', 'Einstein');
@@ -385,46 +369,25 @@ function createWindow() {
   //---End of Menu Interactions Section---//
   /////////////////////////////////////////
   //---Network Settings Section---//
-
-
-
-  //Setting Remote Ember+ provider IP and Port
-  //  ipcMain.on('sendEmberServerIP', (event, arg) => {
-  //    eServerIP = arg;
-
-  //   ipcMain.on('sendEmberServerPort', (event, arg) => {
-  //      eServerPort = arg;
-
   //Initiating connection to Remote Ember+ provider
   c = new EmberClient(eServerIP, eServerPort);
-
-  //    c.on('error', (e) => {
-  //      console.log("Connection to Ember+ server error/recheck IP and Port!");
-  //
-  //        win.webContents.send('eServConnError');
-  //
-  //      app.relaunch()
-  //      app.exit(0)
-  //    })
   c.on('connected', (e) => {
     console.log("Ember+ Server ", eServerIP, ":", eServerPort, " connection ok");
     win.webContents.on('did-finish-load', () => {
     win.webContents.send('eServerOK', (preferences.value('network_settings.ember_provider')));
     })
   })
-  //    c.on('disconnected', (e) => {
-  //      console.log("Disconnected from Ember+ Server");
-  //    })
+  c.on('disconnected', (e) => {
+    console.log("Disconnected from Ember+ Server");
+  })
   process.on('uncaughtException', (err) => {
     console.log(err);
     win.webContents.on('did-finish-load', () => {
     win.webContents.send('eServConnError');
     })
   });
-  //
 
   //Setting local OSC UDP Port
-  //  ipcMain.on('sendUDPport', (event, oUDPport) => {
     console.log('Port de reception OSC:', oUDPport);
     oscCli = new osc.UDPPort({
       localAddress: "0.0.0.0",
@@ -435,7 +398,8 @@ function createWindow() {
     win.webContents.on('did-finish-load', () => {
     win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
     })
-    //  })
+    
+  // load auto-options on startup  
     win.webContents.on('did-finish-load', () => {
       let autoLoad = (preferences.value('save_settings.autoLoad'))[1]
       let default_file = preferences.value("save_settings.default_file")
@@ -451,7 +415,7 @@ function createWindow() {
       };
     })
 
-
+//Ember+ initial connection
   async function main() {
 
     //await c.connect()
@@ -459,12 +423,9 @@ function createWindow() {
     const err = await c.connect()
     if (err) { // err = true when the first connection attempt fails (depending on timeout)
       console.log('Initial connection unsuccessful', err);
-      //win.webContents.send('eServConnError');
-      // app.relaunch()
-      // app.exit(0)
       return
     }
-    //console.log("connection ok");
+    console.log("ember+ connection ok");
     root = await (await c.getDirectory(c.tree)).response
     let inputsUserLabels = [];
     let auxesUserLabels = [];
@@ -545,7 +506,7 @@ function createWindow() {
 
     //---End of Network Settings Section---//
     ////////////////////////////////////////
-    //---Connections Section---//
+    //---Table Connections Interaction Section---//
 
     //Creating Ember+ subscription when connection "Go!" sends from Front-End
     ipcMain.on('newConnection', async function (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve) {
@@ -665,13 +626,9 @@ function createWindow() {
       c.unsubscribe(req)
       console.log('unsuscribe to ', ePath);
     })
-    //        })
-    //      })
   }
   main()
 
-  //    })
-  //  })
 
   win.autoHideMenuBar = "true"
   win.menuBarVisible = "false"
@@ -690,14 +647,6 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow)
-
-
-//app.on('window-all-closed', () => {
-//  if (process.platform !== 'darwin') {
-
-//    app.quit()
-//  }
-//})
 
 app.on('activate', () => {
   if (win === null) {

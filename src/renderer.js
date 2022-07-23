@@ -42,10 +42,10 @@ ipcRenderer.on('gpcsUserLabels', (event, gpcsUserLabels) => {
   rGpcsUserLabels = gpcsUserLabels
 })
 
-ipcRenderer.on('udpportOK', (event) => {
-  //let add2 = document.getElementById('add2');
-  //add2.removeChild(add2.firstChild);
-  //add2.textContent = "Listening on port : " + uPort;
+ipcRenderer.on('udpportOK', (event, uPort) => {
+  let add2 = document.getElementById('add2');
+  add2.removeChild(add2.firstChild);
+  add2.textContent = "Listening on port : " + uPort;
   let dot2 = document.getElementById('dot2');
   console.log("dot2:", dot2)
   dot2.style.color = "green";
@@ -61,7 +61,10 @@ ipcRenderer.on('eServerOK', (event, eAddress) => {
 })
 
 
-ipcRenderer.on('oServerOK', (event) => {
+ipcRenderer.on('oServerOK', (event, oAddress) => {
+  let add3 = document.getElementById('add3');
+  add3.removeChild(add3.firstChild);
+  add3.textContent = "Connected to OSC server: " + oAddress;
   let dot3 = document.getElementById("dot3");
   dot3.style.color = "green";
 })
@@ -116,13 +119,17 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
 })
 
 ipcRenderer.on('sendFilename', (event, filename) => {
+  console.log("input filename :", filename);
+  let filePath = filename.toString();
+  console.log("input filename :", filePath);
+  document.getElementById("filepath").innerHTML = filePath
   filenameReplace = filename.replace(/\//g, ",")
   filenameSplit = filenameReplace.split(",")
   console.log("filename array", filenameSplit);
   filenameSlice = filenameSplit.slice(-1)[0]
-  console.log("last e of filename", filenameSlice);
+  console.log("last filename :", filenameSlice);
   document.title = "MCxOSC - " + filenameSlice;
-  document.getElementById("filepath").innerHTML = filename;
+  
 })
 
 ipcRenderer.on('sendFileContent', function (event, content) {
@@ -267,7 +274,7 @@ ipcRenderer.on('eServConnError', function (event) {
 
 ipcRenderer.on('appVersion', function (event, appVersion) {
   document.getElementById("appVersion").innerHTML = document.getElementById("appVersion").innerHTML + appVersion;
-  document.getElementById("filepath").innerHTML = "none";
+  //document.getElementById("filepath").innerHTML = "none";
   console.log("appVersion:", appVersion);
 
 })
@@ -294,39 +301,6 @@ function makeVisible(op) {
   document.getElementById(op).style.visibility = "visible";
 }
 
-//function displayForm1(event) {
-//  let form1 = document.getElementById('form1');
-//
-//  let ip1 = document.getElementById("ip1").value;
-//  let ip2 = document.getElementById("ip2").value;
-//  let ip3 = document.getElementById("ip3").value;
-//  let ip4 = document.getElementById("ip4").value;
-//  let port = document.getElementById("port").value;
-//  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-//  EmberServerIP = data;
-//  EmberServerPort = Number(port);
-//
-//  ipcRenderer.send('sendEmberServerIP', data);
-//  ipcRenderer.send('sendEmberServerPort', Number(port));
-//  event.preventDefault();
-//}
-
-//function setEchanNumbPrefix(typeOfChan) {
-//  let eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
-//  if (typeOfChan == "Inputs") {
-//    eChanNumbPrefix.value = "INP";
-//  } else if (typeOfChan == "GP Channels") {
-//    eChanNumbPrefix.value = "GPC";
-//  } else if (typeOfChan == "Sums") {
-//    eChanNumbPrefix.value = "SUM";
-//  } else if (typeOfChan == "Auxes") {
-//    eChanNumbPrefix.value = "AUX";
-//  } else if (typeOfChan == "Masters") {
-//    eChanNumbPrefix.value = "VCA";
-//  } else if (typeOfChan == "Groups") {
-//    eChanNumbPrefix.value = "GRP";
-//  }
-//}
 
 function setEuserLabel(typeOfChan) {
   let eUserLabel = document.getElementById("eUserLabel");
@@ -365,30 +339,6 @@ function setEuserLabel(typeOfChan) {
 }
 
 
-//function displayForm2(event) {
-//  let add2 = document.getElementById('add2');
-//  localPort = document.getElementById("localPort").value;
-//  add2.textContent = "OK!  Address : 127 . 0 . 0 . 1   /   Port : " + localPort;
-//  ipcRenderer.send('sendUDPport', Number(localPort));
-//  event.preventDefault();
-//}
-//
-//function displayForm3(event) {
-//  let add3 = document.getElementById('add3');
-//  let ip11 = document.getElementById("ip11").value;
-//  let ip21 = document.getElementById("ip21").value;
-//  let ip31 = document.getElementById("ip31").value;
-//  let ip41 = document.getElementById("ip41").value;
-//  let port2 = document.getElementById("port2").value;
-//  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
-//  OSCserverIP = data1;
-//  OSCserverPort = port2;
-//  add3.textContent = "OK!  Address : " + data1 + "   /   Port : " + port2;
-//  ipcRenderer.send('sendOSCserverIP', data1);
-//  ipcRenderer.send('sendOSCserverPort', Number(port2));
-//  event.preventDefault();
-//}
-
 function submitEmberPath(event) {
   let btnDel = document.createElement("BUTTON");
   let btnGo = document.createElement("BUTTON");
@@ -407,16 +357,8 @@ function submitEmberPath(event) {
   if (switcher.className == "toggle") {
     if (slct3 == "") {
       emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2;
-      //} else if (slct3 == "" && chanNumbNumb > 9 && chanNumbNumb < 100) {
-      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + "  " + chanNumb + "." + slct1 + "." + slct2;
-      //} else if (slct3 == "" && chanNumbNumb > 99) {
-      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + " " + chanNumb + "." + slct1 + "." + slct2;
     } else if (slct3 != "") {
       emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2 + "." + slct3;
-      //} else if (slct3 != "" && chanNumbNumb > 9 && chanNumbNumb < 100) {
-      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + "  " + chanNumb + "." + slct1 + "." + slct2 + "." + slct3;
-      //} else if (slct3 != "" && chanNumbNumb > 99) {
-      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + " " + chanNumb + "." + slct1 + "." + slct2 + "." + slct3;
     };
   } else {
     emBerPath = manualEmberPath;
@@ -610,8 +552,6 @@ function populate(s1, s2, s3, s4) {
 
 function fillOscAddr(event) {
   let oscAddr = document.getElementById("oscAddr");
-  //let chanNumbPrefix = document.getElementById("eChanNumbPrefix");
-  //let chanNumb = document.getElementById("eChanNumb");
   let userLabel = document.getElementById("eUserLabel")
   let slct1 = document.getElementById("slct1");
   let slct2 = document.getElementById("slct2");
@@ -791,41 +731,29 @@ function advancedMode(e) {
   let slct0 = document.getElementById("slct0");
   let slct1 = document.getElementById("slct1");
   let manualEmberPath = document.getElementById("manualEmberPath")
-  //let eChanNumb = document.getElementById("eChanNumb");
-  //let eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
   let eUserLabel = document.getElementById("eUserLabel");
-  //let iCNPLabel = document.getElementById("iCNPLabel");
   if (switcher.className == "toggle") {
     switcher.className = "toggle toggle-on";
-
-    //iCNPLabel.style.visibility = "hidden";
     manualEmberPath.style.display = "inline-block";
     manualEmberPath.style.visibility = "visible";
-    //manualPath.setAttribute('size', "75%");
     for ( i = 0; i < hideOnAdvanced.length; i++) {
       hideOnAdvanced[i].style.display = "none";
     };
     slct0.required = false;
     slct1.required = false;
     eUserLabel.required = false;
-    //eChanNumb.required = false;
-    //eChanNumbPrefix.value = ""
-    //iCNPLabel.style.display = "inline-block";
     hideOnAdvanced[0].style.display = "inline-block";
     hideOnAdvanced[0].style.visibility = "hidden";
   } else {
     switcher.className = "toggle";
     manualEmberPath.style.visibility = "hidden";
     manualEmberPath.style.display = "none"
-    //stayOnAdvanced[0].setAttribute('size', "3");
     for ( i = 0; i < hideOnAdvanced.length; i++) {
       hideOnAdvanced[i].style.display = "inline-block";
     };
     slct0.required = true;
     slct1.required = true;
     eUserLabel.required = true;
-    //eChanNumb.required = true;
-    //iCNPLabel.style.visibility = "visible";
     hideOnAdvanced[0].style.visibility = "visible";
   };
 }
@@ -866,18 +794,6 @@ function remapMode(e) {
 
 //Menu Section//
 function saveAs(saveAsBtn) {
-//  let sessionData =
-//  {
-//    eServerProperties: {
-//      eServerIP: EmberServerIP,
-//      eServerPort: EmberServerPort
-//    },
-//    udpPort: localPort,
-//    oServerProperties: {
-//      oServerIP: OSCserverIP,
-//      oServerPort: OSCserverPort
-//    }
-//  };
   table = document.getElementById('tableOfConnection');
   let data = [];
   let headers = [];
@@ -894,24 +810,11 @@ function saveAs(saveAsBtn) {
     })
     data.push(rowData);
   }
-//  data.unshift(sessionData)
   let content = JSON.stringify(data, null, 2);
   ipcRenderer.send('sendSaveAs', content)
 }
 
 function save(saveBtn) {
-//  let sessionData =
-//  {
-//    eServerProperties: {
-//      eServerIP: EmberServerIP,
-//      eServerPort: EmberServerPort
-//    },
-//    udpPort: localPort,
-//    oServerProperties: {
-//      oServerIP: OSCserverIP,
-//      oServerPort: OSCserverPort
-//    }
-//  };
   table = document.getElementById('tableOfConnection');
   let data = [];
   let headers = [];
@@ -928,7 +831,6 @@ function save(saveBtn) {
     })
     data.push(rowData);
   }
-//  data.unshift(sessionData)
   let content = JSON.stringify(data, null, 2);
   let filename = document.getElementById("filepath").innerHTML;
   ipcRenderer.send('sendSave', content, filename)
