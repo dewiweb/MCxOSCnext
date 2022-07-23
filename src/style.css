@@ -56,8 +56,7 @@ div{
 }
 
 .infoDot{
-  font-weight: bold;
-  font-size: 500%;
+  font-size: 200%;
   color: orange;
 }
 
@@ -105,6 +104,7 @@ table, th, td {
   color: #ccc;
   font-style: italic;
   font-size: smaller;
+  padding-left: 10%;
 }
 
 #oscAddr, #manualEmberPath {
@@ -207,4 +207,20 @@ caption{
 #menu .button {
   margin-bottom: 15px;
   margin-top: 15px; 
+}
+
+.blink {
+  animation: blink 1s steps(1, end) infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

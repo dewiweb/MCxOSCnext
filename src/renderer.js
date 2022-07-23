@@ -49,6 +49,21 @@ ipcRenderer.on('udpportOK', (event, uPort) => {
   let dot2 = document.getElementById('dot2');
   console.log("dot2:", dot2)
   dot2.style.color = "green";
+  dot2.classList.remove('blink')
+  add2.style.color = "green";
+  add2.classList.remove('blink')
+});
+
+ipcRenderer.on('udpportKO', (event, msg) => {
+  let add2 = document.getElementById('add2');
+  add2.removeChild(add2.firstChild);
+  add2.textContent = "An Error ocurred :" + msg;
+  let dot2 = document.getElementById('dot2');
+  console.log("dot2:", dot2)
+  dot2.style.color = "red";
+  dot2.classList.add('blink')
+  add2.style.color = "red";
+  add2.classList.add('blink')
 });
 
 
@@ -58,6 +73,9 @@ ipcRenderer.on('eServerOK', (event, eAddress) => {
   add1.textContent = "Connected to ember provider: " + eAddress;
   let dot1 = document.getElementById('dot1');
   dot1.style.color = "green";
+  dot1.classList.remove('blink')
+  add1.style.color = "green";
+  add1.classList.remove('blink')
 })
 
 
@@ -67,6 +85,9 @@ ipcRenderer.on('oServerOK', (event, oAddress) => {
   add3.textContent = "Connected to OSC server: " + oAddress;
   let dot3 = document.getElementById("dot3");
   dot3.style.color = "green";
+  dot3.classList.remove('blink')
+  add3.style.color = "green";
+  add3.classList.remove('blink')
 })
 
 ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
@@ -139,34 +160,6 @@ ipcRenderer.on('sendFileContent', function (event, content) {
   let sendedJSON = JSON.parse(content);
   sendedJSON = sendedJSON.replace(/\\n/g, "");
   sendedJSON = JSON.parse(sendedJSON);
-  
-//  let fileEserverIP = sendedJSON[0].eServerProperties.eServerIP;
-//  fileEserverIP = fileEserverIP.split(".");
-//  let ip1 = fileEserverIP[0];
-//  let ip2 = fileEserverIP[1];
-//  let ip3 = fileEserverIP[2];
-//  let ip4 = fileEserverIP[3];
-//  document.getElementById('ip1').value = ip1;
-//  document.getElementById('ip2').value = ip2;
-//  document.getElementById('ip3').value = ip3;
-//  document.getElementById('ip4').value = ip4;
-//  fileEserverPort = sendedJSON[0].eServerProperties.eServerPort;
-//  fileEserverPort = fileEserverPort.toString();
-//  document.getElementById("port").value = fileEserverPort;
-//  let fileUDPport = sendedJSON[0].udpPort;
-//  document.getElementById("localPort").value = fileUDPport;
-//  fileOserverIP = sendedJSON[0].oServerProperties.oServerIP;
-//  fileOserverIP = fileOserverIP.split(".");
-//  let ip11 = fileOserverIP[0];
-//  let ip21 = fileOserverIP[1];
-//  let ip31 = fileOserverIP[2];
-//  let ip41 = fileOserverIP[3];
-//  document.getElementById('ip11').value = ip11;
-//  document.getElementById('ip21').value = ip21;
-//  document.getElementById('ip31').value = ip31;
-//  document.getElementById('ip41').value = ip41;
-//  let fileOserverPort = sendedJSON[0].oServerProperties.oServerPort;
-//  document.getElementById("port2").value = fileOserverPort;
     sendedJSON.forEach(element => {
     if (element.path) {
       let btnDel = document.createElement("BUTTON");
@@ -208,38 +201,6 @@ ipcRenderer.on('sendFileContent', function (event, content) {
 })
 
 ipcRenderer.on('autoSave', function (event) {
-//  let ip1 = document.getElementById("ip1").value;
-//  let ip2 = document.getElementById("ip2").value;
-//  let ip3 = document.getElementById("ip3").value;
-//  let ip4 = document.getElementById("ip4").value;
-//  let port = document.getElementById("port").value;
-//  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-//  EmberServerIP = data;
-//  EmberServerPort = Number(port);
-//
-//  let ip11 = document.getElementById("ip11").value;
-//  let ip21 = document.getElementById("ip21").value;
-//  let ip31 = document.getElementById("ip31").value;
-//  let ip41 = document.getElementById("ip41").value;
-//  let port2 = document.getElementById("port2").value;
-//  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
-//  OSCserverIP = data1;
-//  OSCserverPort = port2;
-//
-//  localPort = document.getElementById("localPort").value;
-//
-//  let sessionData =
-//  {
-//    eServerProperties: {
-//      eServerIP: EmberServerIP,
-//      eServerPort: EmberServerPort
-//    },
-//    udpPort: localPort,
-//    oServerProperties: {
-//      oServerIP: OSCserverIP,
-//      oServerPort: OSCserverPort
-//    }
-//  };
   table = document.getElementById('tableOfConnection');
   data = [];
   let headers = [];
@@ -263,11 +224,27 @@ ipcRenderer.on('autoSave', function (event) {
 
 
 
-ipcRenderer.on('eServConnError', function (event) {
+ipcRenderer.on('eServConnError', function (event, eAddress) {
+  console.log("erreur de connection ember+")
   let add1Error = document.getElementById("add1");
   let dot1Error = document.getElementById("dot1");
-  add1Error.innerHTML = "Server not responding! Verify IP:Port";
+  add1Error.innerHTML = "Verify Ember+ Provider Address in preferences!";
   dot1Error.style.color = "red";
+  dot1Error.classList.add('blink')
+  add1Error.style.color = "red";
+  add1Error.classList.add('blink')
+})
+
+ipcRenderer.on('eServDisconnected', function (event, eAddress) {
+  console.log("erreur de connection ember+")
+  let add1Error = document.getElementById("add1");
+  let dot1Error = document.getElementById("dot1");
+  add1Error.innerHTML = "Ember+ Provider: "+ eAddress + "is disconnected!";
+  dot1Error.style.color = "red";
+  dot1Error.classList.add('blink')
+  dot1Error.classList.add('blink')
+  add1Error.style.color = "red";
+  add1Error.classList.add('blink')
 })
 
 

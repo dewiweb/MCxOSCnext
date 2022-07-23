@@ -78,7 +78,7 @@ function createWindow() {
   })
   win.setMenu(null);
   win.loadFile('src/index.html')
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
 
 
   ipcMain.on('sendAutoSave', function (event, content) {
@@ -168,8 +168,17 @@ function createWindow() {
                   label: 'Ip Address:Port ',
                   key: 'ember_provider',
                   type: 'text',
-                  help: 'example: 192.168.100.36:9000'
-                }
+                  //help: 'example: 192.168.100.36:9000'
+                },
+                {
+                  label: '',
+                  key: 'resetButton',
+                  type: 'button',
+                  buttonLabel: 'Apply',
+                  //help: 'This button sends on a custom ipc channel',
+                  help: 'example: 192.168.100.36:9000',
+                  hideLabel: true,
+                },
               ],
             },
             {
@@ -188,6 +197,15 @@ function createWindow() {
                   label: 'Receive on Port ',
                   key: 'osc_receiver_port',
                   type: 'number'
+                },
+                {
+                  label: '',
+                  key: 'applyButton',
+                  type: 'button',
+                  buttonLabel: 'Apply',
+                  //help: 'This button sends on a custom ipc channel',
+                  //help: 'example: 192.168.100.36:9000',
+                  hideLabel: true,
                 },
               ]
             },
@@ -286,9 +304,9 @@ function createWindow() {
 
   // Get a value from the preferences data store
   //const name = preferences.value('about.name');
-  const oUDPport = preferences.value('network_settings.osc_receiver_port');
-  const eServerIP = ((preferences.value('network_settings.ember_provider')).split(":"))[0];
-  const eServerPort = Number(((preferences.value('network_settings.ember_provider')).split(":"))[1]);
+  //const oUDPport = preferences.value('network_settings.osc_receiver_port');
+//  const eServerIP = ((preferences.value('network_settings.ember_provider')).split(":"))[0];
+//  const eServerPort = Number(((preferences.value('network_settings.ember_provider')).split(":"))[1]);
   const oServerIP = ((preferences.value('network_settings.osc_server')).split(":"))[0];
   const oServerPort = Number(((preferences.value('network_settings.osc_server')).split(":"))[1]);
 
@@ -297,15 +315,13 @@ function createWindow() {
 
   // Subscribing to preference changes.
   preferences.on('save', (preferences) => {
+    console.log("preferences:", preferences)
     console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
+    
+
   });
 
-  // Using a button field with `channel: 'reset'`
-  preferences.on('click', (key) => {
-    if (key === 'resetButton') {
-      resetApp();
-    }
-  });
+  
 
   //#End of Preferences#//
 
@@ -370,24 +386,35 @@ function createWindow() {
   /////////////////////////////////////////
   //---Network Settings Section---//
   //Initiating connection to Remote Ember+ provider
+  function emberProviderConnect(){
+  const eAddress = preferences.value('network_settings.ember_provider')
+  const eServerIP = ((preferences.value('network_settings.ember_provider')).split(":"))[0];
+  const eServerPort = Number(((preferences.value('network_settings.ember_provider')).split(":"))[1]);
   c = new EmberClient(eServerIP, eServerPort);
   c.on('connected', (e) => {
     console.log("Ember+ Server ", eServerIP, ":", eServerPort, " connection ok");
     win.webContents.on('did-finish-load', () => {
-    win.webContents.send('eServerOK', (preferences.value('network_settings.ember_provider')));
+    win.webContents.send('eServerOK', eAddress);
     })
   })
   c.on('disconnected', (e) => {
     console.log("Disconnected from Ember+ Server");
+    win.webContents.send('eServDisconnected',eAddress);
   })
-  process.on('uncaughtException', (err) => {
-    console.log(err);
-    win.webContents.on('did-finish-load', () => {
-    win.webContents.send('eServConnError');
-    })
+  c.on('uncaughtException', (e) => {
+    console.log(e);
+    //win.webContents.on('did-finish-load', () => {
+    win.webContents.send('eServConnError',eAddress);
+   // })
   });
+}
+emberProviderConnect()
+
+
 
   //Setting local OSC UDP Port
+  function listening (){
+    const oUDPport = preferences.value('network_settings.osc_receiver_port');
     console.log('Port de reception OSC:', oUDPport);
     oscCli = new osc.UDPPort({
       localAddress: "0.0.0.0",
@@ -396,8 +423,11 @@ function createWindow() {
     })
     oscCli.open()
     win.webContents.on('did-finish-load', () => {
-    win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
-    })
+      win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
+      })
+  }
+  listening()
+    
     
   // load auto-options on startup  
     win.webContents.on('did-finish-load', () => {
@@ -417,15 +447,21 @@ function createWindow() {
 
 //Ember+ initial connection
   async function main() {
-
+    try{
+      const eAddress = preferences.value('network_settings.ember_provider');
     //await c.connect()
 
     const err = await c.connect()
     if (err) { // err = true when the first connection attempt fails (depending on timeout)
       console.log('Initial connection unsuccessful', err);
+      win.webContents.send('eServConnError',eAddress);
       return
     }
     console.log("ember+ connection ok");
+    win.webContents.send('eServerOK', eAddress);
+
+    
+
     root = await (await c.getDirectory(c.tree)).response
     let inputsUserLabels = [];
     let auxesUserLabels = [];
@@ -500,9 +536,9 @@ function createWindow() {
 
     //        ipcMain.on('sendOSCserverPort', (event, oServerPort) => {
     console.log('Port du server OSC distant:', oServerPort);
-    win.webContents.on('did-finish-load', () => {
+    //win.webContents.on('did-finish-load', () => {
     win.webContents.send('oServerOK', (preferences.value('network_settings.osc_server')));
-    })
+    //})
 
     //---End of Network Settings Section---//
     ////////////////////////////////////////
@@ -626,8 +662,47 @@ function createWindow() {
       c.unsubscribe(req)
       console.log('unsuscribe to ', ePath);
     })
+
+  } catch (error) {
+    throw Error(error);
   }
-  main()
+  }
+  main().catch(err => console.error(err));
+
+  // Using a button field with `channel: 'reset'`
+  preferences.on('click', (key) => {
+    if (key === 'resetButton') {
+      console.log("lebouton reset a ete clicke")
+      
+      emberProviderConnect();
+      main();
+    //c.connect()
+    }
+  });
+
+  oscCli.on("error", function (error) {
+    msg = error.message
+    console.log("An error occurred with OSC listening: ", error.message);
+    win.webContents.on('did-finish-load', () => {
+    win.webContents.send('udpportKO', msg)
+    })
+});
+
+  preferences.on('click', (key) => {
+    if (key === 'applyButton') {
+      console.log("lebouton reset a ete clicke")
+      win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
+      
+      listening();
+      oscCli.on("error", function (error) {
+        msg = error.message
+        console.log("An error occurred with OSC listening: ", error.message);
+        win.webContents.send('udpportKO', msg)
+    });
+
+    //c.connect()
+    }
+  });
 
 
   win.autoHideMenuBar = "true"
