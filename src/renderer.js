@@ -42,11 +42,12 @@ ipcRenderer.on('gpcsUserLabels', (event, gpcsUserLabels) => {
   rGpcsUserLabels = gpcsUserLabels
 })
 
-ipcRenderer.on('udpportOK', (event, uPort) => {
-  let add2 = document.getElementById('add2');
-  add2.removeChild(add2.firstChild);
-  add2.textContent = "Listening on port : " + uPort;
-  let dot2 = document.getElementById("dot2");
+ipcRenderer.on('udpportOK', (event) => {
+  //let add2 = document.getElementById('add2');
+  //add2.removeChild(add2.firstChild);
+  //add2.textContent = "Listening on port : " + uPort;
+  let dot2 = document.getElementById('dot2');
+  console.log("dot2:", dot2)
   dot2.style.color = "green";
 });
 
@@ -55,12 +56,12 @@ ipcRenderer.on('eServerOK', (event, eAddress) => {
   let add1 = document.getElementById('add1');
   add1.removeChild(add1.firstChild);
   add1.textContent = "Connected to ember provider: " + eAddress;
-  let dot1 = document.getElementById("dot1");
+  let dot1 = document.getElementById('dot1');
   dot1.style.color = "green";
 })
 
 
-ipcRenderer.on('oServerOK', (event, osc_server) => {
+ipcRenderer.on('oServerOK', (event) => {
   let dot3 = document.getElementById("dot3");
   dot3.style.color = "green";
 })
@@ -132,34 +133,34 @@ ipcRenderer.on('sendFileContent', function (event, content) {
   sendedJSON = sendedJSON.replace(/\\n/g, "");
   sendedJSON = JSON.parse(sendedJSON);
   
-  let fileEserverIP = sendedJSON[0].eServerProperties.eServerIP;
-  fileEserverIP = fileEserverIP.split(".");
-  let ip1 = fileEserverIP[0];
-  let ip2 = fileEserverIP[1];
-  let ip3 = fileEserverIP[2];
-  let ip4 = fileEserverIP[3];
-  document.getElementById('ip1').value = ip1;
-  document.getElementById('ip2').value = ip2;
-  document.getElementById('ip3').value = ip3;
-  document.getElementById('ip4').value = ip4;
-  fileEserverPort = sendedJSON[0].eServerProperties.eServerPort;
-  fileEserverPort = fileEserverPort.toString();
-  document.getElementById("port").value = fileEserverPort;
-  let fileUDPport = sendedJSON[0].udpPort;
-  document.getElementById("localPort").value = fileUDPport;
-  fileOserverIP = sendedJSON[0].oServerProperties.oServerIP;
-  fileOserverIP = fileOserverIP.split(".");
-  let ip11 = fileOserverIP[0];
-  let ip21 = fileOserverIP[1];
-  let ip31 = fileOserverIP[2];
-  let ip41 = fileOserverIP[3];
-  document.getElementById('ip11').value = ip11;
-  document.getElementById('ip21').value = ip21;
-  document.getElementById('ip31').value = ip31;
-  document.getElementById('ip41').value = ip41;
-  let fileOserverPort = sendedJSON[0].oServerProperties.oServerPort;
-  document.getElementById("port2").value = fileOserverPort;
-  sendedJSON.forEach(element => {
+//  let fileEserverIP = sendedJSON[0].eServerProperties.eServerIP;
+//  fileEserverIP = fileEserverIP.split(".");
+//  let ip1 = fileEserverIP[0];
+//  let ip2 = fileEserverIP[1];
+//  let ip3 = fileEserverIP[2];
+//  let ip4 = fileEserverIP[3];
+//  document.getElementById('ip1').value = ip1;
+//  document.getElementById('ip2').value = ip2;
+//  document.getElementById('ip3').value = ip3;
+//  document.getElementById('ip4').value = ip4;
+//  fileEserverPort = sendedJSON[0].eServerProperties.eServerPort;
+//  fileEserverPort = fileEserverPort.toString();
+//  document.getElementById("port").value = fileEserverPort;
+//  let fileUDPport = sendedJSON[0].udpPort;
+//  document.getElementById("localPort").value = fileUDPport;
+//  fileOserverIP = sendedJSON[0].oServerProperties.oServerIP;
+//  fileOserverIP = fileOserverIP.split(".");
+//  let ip11 = fileOserverIP[0];
+//  let ip21 = fileOserverIP[1];
+//  let ip31 = fileOserverIP[2];
+//  let ip41 = fileOserverIP[3];
+//  document.getElementById('ip11').value = ip11;
+//  document.getElementById('ip21').value = ip21;
+//  document.getElementById('ip31').value = ip31;
+//  document.getElementById('ip41').value = ip41;
+//  let fileOserverPort = sendedJSON[0].oServerProperties.oServerPort;
+//  document.getElementById("port2").value = fileOserverPort;
+    sendedJSON.forEach(element => {
     if (element.path) {
       let btnDel = document.createElement("BUTTON");
       let btnGo = document.createElement("BUTTON");
@@ -200,38 +201,38 @@ ipcRenderer.on('sendFileContent', function (event, content) {
 })
 
 ipcRenderer.on('autoSave', function (event) {
-  let ip1 = document.getElementById("ip1").value;
-  let ip2 = document.getElementById("ip2").value;
-  let ip3 = document.getElementById("ip3").value;
-  let ip4 = document.getElementById("ip4").value;
-  let port = document.getElementById("port").value;
-  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-  EmberServerIP = data;
-  EmberServerPort = Number(port);
-
-  let ip11 = document.getElementById("ip11").value;
-  let ip21 = document.getElementById("ip21").value;
-  let ip31 = document.getElementById("ip31").value;
-  let ip41 = document.getElementById("ip41").value;
-  let port2 = document.getElementById("port2").value;
-  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
-  OSCserverIP = data1;
-  OSCserverPort = port2;
-
-  localPort = document.getElementById("localPort").value;
-
-  let sessionData =
-  {
-    eServerProperties: {
-      eServerIP: EmberServerIP,
-      eServerPort: EmberServerPort
-    },
-    udpPort: localPort,
-    oServerProperties: {
-      oServerIP: OSCserverIP,
-      oServerPort: OSCserverPort
-    }
-  };
+//  let ip1 = document.getElementById("ip1").value;
+//  let ip2 = document.getElementById("ip2").value;
+//  let ip3 = document.getElementById("ip3").value;
+//  let ip4 = document.getElementById("ip4").value;
+//  let port = document.getElementById("port").value;
+//  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+//  EmberServerIP = data;
+//  EmberServerPort = Number(port);
+//
+//  let ip11 = document.getElementById("ip11").value;
+//  let ip21 = document.getElementById("ip21").value;
+//  let ip31 = document.getElementById("ip31").value;
+//  let ip41 = document.getElementById("ip41").value;
+//  let port2 = document.getElementById("port2").value;
+//  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
+//  OSCserverIP = data1;
+//  OSCserverPort = port2;
+//
+//  localPort = document.getElementById("localPort").value;
+//
+//  let sessionData =
+//  {
+//    eServerProperties: {
+//      eServerIP: EmberServerIP,
+//      eServerPort: EmberServerPort
+//    },
+//    udpPort: localPort,
+//    oServerProperties: {
+//      oServerIP: OSCserverIP,
+//      oServerPort: OSCserverPort
+//    }
+//  };
   table = document.getElementById('tableOfConnection');
   data = [];
   let headers = [];
@@ -248,7 +249,7 @@ ipcRenderer.on('autoSave', function (event) {
     })
     data.push(rowData);
   }
-  data.unshift(sessionData)
+//  data.unshift(sessionData)
   let content = JSON.stringify(data, null, 2);
   ipcRenderer.send('sendAutoSave', content, autoSave)
 })
@@ -271,6 +272,10 @@ ipcRenderer.on('appVersion', function (event, appVersion) {
 
 })
 
+ipcRenderer.on('autoGo', function(event){
+  sendAllConnections()
+})
+
 //-----------------------------------------//
 
 function addGenBtns() {
@@ -289,22 +294,22 @@ function makeVisible(op) {
   document.getElementById(op).style.visibility = "visible";
 }
 
-function displayForm1(event) {
-  let form1 = document.getElementById('form1');
-
-  let ip1 = document.getElementById("ip1").value;
-  let ip2 = document.getElementById("ip2").value;
-  let ip3 = document.getElementById("ip3").value;
-  let ip4 = document.getElementById("ip4").value;
-  let port = document.getElementById("port").value;
-  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-  EmberServerIP = data;
-  EmberServerPort = Number(port);
-
-  ipcRenderer.send('sendEmberServerIP', data);
-  ipcRenderer.send('sendEmberServerPort', Number(port));
-  event.preventDefault();
-}
+//function displayForm1(event) {
+//  let form1 = document.getElementById('form1');
+//
+//  let ip1 = document.getElementById("ip1").value;
+//  let ip2 = document.getElementById("ip2").value;
+//  let ip3 = document.getElementById("ip3").value;
+//  let ip4 = document.getElementById("ip4").value;
+//  let port = document.getElementById("port").value;
+//  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+//  EmberServerIP = data;
+//  EmberServerPort = Number(port);
+//
+//  ipcRenderer.send('sendEmberServerIP', data);
+//  ipcRenderer.send('sendEmberServerPort', Number(port));
+//  event.preventDefault();
+//}
 
 //function setEchanNumbPrefix(typeOfChan) {
 //  let eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
@@ -360,29 +365,29 @@ function setEuserLabel(typeOfChan) {
 }
 
 
-function displayForm2(event) {
-  let add2 = document.getElementById('add2');
-  localPort = document.getElementById("localPort").value;
-  add2.textContent = "OK!  Address : 127 . 0 . 0 . 1   /   Port : " + localPort;
-  ipcRenderer.send('sendUDPport', Number(localPort));
-  event.preventDefault();
-}
-
-function displayForm3(event) {
-  let add3 = document.getElementById('add3');
-  let ip11 = document.getElementById("ip11").value;
-  let ip21 = document.getElementById("ip21").value;
-  let ip31 = document.getElementById("ip31").value;
-  let ip41 = document.getElementById("ip41").value;
-  let port2 = document.getElementById("port2").value;
-  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
-  OSCserverIP = data1;
-  OSCserverPort = port2;
-  add3.textContent = "OK!  Address : " + data1 + "   /   Port : " + port2;
-  ipcRenderer.send('sendOSCserverIP', data1);
-  ipcRenderer.send('sendOSCserverPort', Number(port2));
-  event.preventDefault();
-}
+//function displayForm2(event) {
+//  let add2 = document.getElementById('add2');
+//  localPort = document.getElementById("localPort").value;
+//  add2.textContent = "OK!  Address : 127 . 0 . 0 . 1   /   Port : " + localPort;
+//  ipcRenderer.send('sendUDPport', Number(localPort));
+//  event.preventDefault();
+//}
+//
+//function displayForm3(event) {
+//  let add3 = document.getElementById('add3');
+//  let ip11 = document.getElementById("ip11").value;
+//  let ip21 = document.getElementById("ip21").value;
+//  let ip31 = document.getElementById("ip31").value;
+//  let ip41 = document.getElementById("ip41").value;
+//  let port2 = document.getElementById("port2").value;
+//  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
+//  OSCserverIP = data1;
+//  OSCserverPort = port2;
+//  add3.textContent = "OK!  Address : " + data1 + "   /   Port : " + port2;
+//  ipcRenderer.send('sendOSCserverIP', data1);
+//  ipcRenderer.send('sendOSCserverPort', Number(port2));
+//  event.preventDefault();
+//}
 
 function submitEmberPath(event) {
   let btnDel = document.createElement("BUTTON");
@@ -696,9 +701,9 @@ function SomeDeleteRowFunction(o) {
 }
 
 function deleteAllRows(o) {
-  let table = document.getElementById("tableOfConnection");
+  const table = document.getElementById("tableOfConnection");
   let numOfConn = table.rows.length;
-  for (let x = numOfConn - 1; x > 1; x--) {
+  for (x = numOfConn - 1; x > 1; x--) {
     setTimeout(() => {
       SomeDeleteRowFunction((table.rows.length) - 1);
     }, x * 25)
@@ -706,14 +711,18 @@ function deleteAllRows(o) {
 }
 
 function sendConnection(o) {
-  let table = document.getElementById("tableOfConnection");
+  console.log("ooooo : ", o)
+  var table = document.getElementById("tableOfConnection");
   if (typeof o == "number") {
-    myRow = o
+      myRow = o
   }
   else {
-    let p = o.parentNode.parentNode;
+    var p = o.parentNode.parentNode;
     myRow = p.rowIndex;
+
   }
+  console.log("myrow : ",myRow)
+  console.log("myrowcell0 : ",table.rows[myRow].cells[0].innerHTML)
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
@@ -738,12 +747,15 @@ function sendConnection(o) {
   ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve);
 }
 
-function sendAllConnections(o) {
-  let table = document.getElementById("tableOfConnection");
+function sendAllConnections() {
+  var table = document.getElementById("tableOfConnection");
+  console.log("taille du tableau", table.rows.length);
   for (i = 2; i < table.rows.length; i++) {
+    (function(n){
     setTimeout(() => {
-      sendConnection(i);
-    }, i * 25);
+      sendConnection(n);
+    }, 25);
+  }(i))
   }
 }
 
@@ -854,18 +866,18 @@ function remapMode(e) {
 
 //Menu Section//
 function saveAs(saveAsBtn) {
-  let sessionData =
-  {
-    eServerProperties: {
-      eServerIP: EmberServerIP,
-      eServerPort: EmberServerPort
-    },
-    udpPort: localPort,
-    oServerProperties: {
-      oServerIP: OSCserverIP,
-      oServerPort: OSCserverPort
-    }
-  };
+//  let sessionData =
+//  {
+//    eServerProperties: {
+//      eServerIP: EmberServerIP,
+//      eServerPort: EmberServerPort
+//    },
+//    udpPort: localPort,
+//    oServerProperties: {
+//      oServerIP: OSCserverIP,
+//      oServerPort: OSCserverPort
+//    }
+//  };
   table = document.getElementById('tableOfConnection');
   let data = [];
   let headers = [];
@@ -882,24 +894,24 @@ function saveAs(saveAsBtn) {
     })
     data.push(rowData);
   }
-  data.unshift(sessionData)
+//  data.unshift(sessionData)
   let content = JSON.stringify(data, null, 2);
   ipcRenderer.send('sendSaveAs', content)
 }
 
 function save(saveBtn) {
-  let sessionData =
-  {
-    eServerProperties: {
-      eServerIP: EmberServerIP,
-      eServerPort: EmberServerPort
-    },
-    udpPort: localPort,
-    oServerProperties: {
-      oServerIP: OSCserverIP,
-      oServerPort: OSCserverPort
-    }
-  };
+//  let sessionData =
+//  {
+//    eServerProperties: {
+//      eServerIP: EmberServerIP,
+//      eServerPort: EmberServerPort
+//    },
+//    udpPort: localPort,
+//    oServerProperties: {
+//      oServerIP: OSCserverIP,
+//      oServerPort: OSCserverPort
+//    }
+//  };
   table = document.getElementById('tableOfConnection');
   let data = [];
   let headers = [];
@@ -916,7 +928,7 @@ function save(saveBtn) {
     })
     data.push(rowData);
   }
-  data.unshift(sessionData)
+//  data.unshift(sessionData)
   let content = JSON.stringify(data, null, 2);
   let filename = document.getElementById("filepath").innerHTML;
   ipcRenderer.send('sendSave', content, filename)

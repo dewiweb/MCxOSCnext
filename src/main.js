@@ -34,6 +34,7 @@ let openOptions = {
 }
 
 const ElectronPreferences = require('electron-preferences');
+const { send } = require('process');
 
 const appVersion = app.getVersion()
 
@@ -80,8 +81,10 @@ function createWindow() {
   win.webContents.openDevTools()
 
 
-  ipcMain.on('sendAutoSave', function (event, content, autoSave) {
-    if (autoSave !== null) {
+  ipcMain.on('sendAutoSave', function (event, content) {
+    let autoSave = (preferences.value('save_settings.autoSave'))[1]
+    console.log("autoSave :", autoSave)
+    if (autoSave !== undefined) {
       fs.writeFile(autoSaveFilepath, content, (err) => {
         if (err) {
           console.log('an error ocurred with file creation ' + err.message);
@@ -130,12 +133,15 @@ function createWindow() {
         "rec_dir": defaultDir,
         "default_file": defaultDir + "/MySession.session",
         "autoLoad": [
-          ""
+          
+        ],
+        "autoSave": [
+          
         ],
       },
       "other_settings": {
         "autoGo": [
-          ""
+          
         ]
       }
 
@@ -251,15 +257,15 @@ function createWindow() {
                   ],
                   //help: 'Select one or more foods that you like.',
                 },
-                //  {
-                //    label: '',
-                //    key: 'autoSave',
-                //    type: 'checkbox',
-                //    options: [
-                //      { label: 'Save current config before close', value: 'autoSave' },
-                //    ],
-                //    //help: 'Select one or more foods that you like.',
-                //  }     
+                {
+                  label: '',
+                  key: 'autoSave',
+                  type: 'checkbox',
+                  options: [
+                    { label: 'Save current config before close', value: 'autoSave' },
+                  ],
+                  //help: 'Select one or more foods that you like.',
+                }     
               ]
             }
           ]
@@ -369,6 +375,10 @@ function createWindow() {
         //console.log('sendedContent:', sendedContent);
         win.webContents.send("sendFileContent", sendedContent)
         win.webContents.send('sendFilename', file)
+        let autoGo = (preferences.value("other_settings.autoGo"))[0]
+        if(autoGo !== undefined){
+          win.webContents.send("autoGo")
+        }
       })
   })
 
@@ -376,17 +386,7 @@ function createWindow() {
   /////////////////////////////////////////
   //---Network Settings Section---//
 
-  //Setting local OSC UDP Port
-  //  ipcMain.on('sendUDPport', (event, oUDPport) => {
-  console.log('Port de reception OSC:', oUDPport);
-  oscCli = new osc.UDPPort({
-    localAddress: "0.0.0.0",
-    localPort: Number(oUDPport),
-    metadata: true
-  })
-  oscCli.open()
-  win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
-  //  })
+
 
   //Setting Remote Ember+ provider IP and Port
   //  ipcMain.on('sendEmberServerIP', (event, arg) => {
@@ -408,16 +408,49 @@ function createWindow() {
   //    })
   c.on('connected', (e) => {
     console.log("Ember+ Server ", eServerIP, ":", eServerPort, " connection ok");
+    win.webContents.on('did-finish-load', () => {
     win.webContents.send('eServerOK', (preferences.value('network_settings.ember_provider')));
+    })
   })
   //    c.on('disconnected', (e) => {
   //      console.log("Disconnected from Ember+ Server");
   //    })
   process.on('uncaughtException', (err) => {
     console.log(err);
+    win.webContents.on('did-finish-load', () => {
     win.webContents.send('eServConnError');
+    })
   });
   //
+
+  //Setting local OSC UDP Port
+  //  ipcMain.on('sendUDPport', (event, oUDPport) => {
+    console.log('Port de reception OSC:', oUDPport);
+    oscCli = new osc.UDPPort({
+      localAddress: "0.0.0.0",
+      localPort: Number(oUDPport),
+      metadata: true
+    })
+    oscCli.open()
+    win.webContents.on('did-finish-load', () => {
+    win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
+    })
+    //  })
+    win.webContents.on('did-finish-load', () => {
+      let autoLoad = (preferences.value('save_settings.autoLoad'))[1]
+      let default_file = preferences.value("save_settings.default_file")
+      let autoGo = (preferences.value('other_settings.autoGo'))[0]
+      if (autoLoad !== undefined){
+        let content = fs.readFileSync(default_file, 'utf-8');
+        let sendedContent = JSON.stringify(content);
+        win.webContents.send("sendFileContent", sendedContent)
+        win.webContents.send('sendFilename', default_file)
+        if(autoGo !== undefined){
+          win.webContents.send("autoGo")
+        }
+      };
+    })
+
 
   async function main() {
 
@@ -506,7 +539,9 @@ function createWindow() {
 
     //        ipcMain.on('sendOSCserverPort', (event, oServerPort) => {
     console.log('Port du server OSC distant:', oServerPort);
+    win.webContents.on('did-finish-load', () => {
     win.webContents.send('oServerOK', (preferences.value('network_settings.osc_server')));
+    })
 
     //---End of Network Settings Section---//
     ////////////////////////////////////////

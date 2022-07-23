@@ -42,12 +42,14 @@
     <div id="Network_Settings">
       <div class="form">
         <form id="form1">
-          <script>
-            form1.addEventListener("submit", displayForm1);
-          </script>
+<!--//          <script>
+//            form1.addEventListener("submit", displayForm1);
+//          </script>
+-->
           <label style="text-align: center" for="fname"
-            >STEP 1 &#8674; &ensp; Please enter Ember+ Server IP:Port
+            >Ember+ Remote Provider
           </label>
+          <!--
           <br />
           <br />
           <div style="padding-left: 10%">
@@ -119,7 +121,8 @@
               value="Go!"
             />
           </div>
-          <p id="add1">REQUIRED..................</p>
+        -->
+          <p id="add1">Waiting</p>
           <span
             id="dot1"
             class="infoDot"
@@ -130,35 +133,37 @@
       </div>
       <div class="form">
         <form id="form2">
-          <script>
-            form2.addEventListener("submit", displayForm2);
-          </script>
+<!--//          <script>
+//            form2.addEventListener("submit", displayForm2);
+//          </script>
+-->
           <label style="text-align: center" for="fname"
-            >STEP 2 &#8674; &ensp; Setup Local OSC UDP Port
+            >Local OSC UDP Port
           </label>
           <br />
-          <br />
-          <div style="padding-left: 10%">
-            <input
-              type="number"
-              id="localPort"
-              name="quantity"
-              min="1"
-              max="65535"
-              maxlength="5"
-              size="5"
-              autocomplete="on"
-              required
-              value="9000"
-            />
-            <input
-              class="button"
-              style="text-align: center"
-              type="submit"
-              value="Go!"
-            />
-          </div>
-          <p id="add2">REQUIRED..................</p>
+<!--//          <br />
+//          <div style="padding-left: 10%">
+//            <input
+//              type="number"
+//              id="localPort"
+//              name="quantity"
+//              min="1"
+//              max="65535"
+//              maxlength="5"
+//              size="5"
+//              autocomplete="on"
+//              required
+//              value="9000"
+//            />
+//            <input
+//              class="button"
+//              style="text-align: center"
+//              type="submit"
+//              value="Go!"
+//            />
+//          </div>
+-->
+          <p id="add2">Waiting</p>
           <span
             id="dot2"
             class="infoDot"
@@ -169,81 +174,84 @@
       </div>
       <div class="form">
         <form id="form3">
-          <script>
-            form3.addEventListener("submit", displayForm3);
-          </script>
+<!--//          <script>
+//            form3.addEventListener("submit", displayForm3);
+//          </script>
+-->
           <label style="text-align: center" for="fname"
-            >STEP 3 &#8674; &ensp; Enter Remote OSC Server IP:Port</label
-          ><br /><br />
-          <div style="padding-left: 10%">
-            <input
-              type="number"
-              id="ip11"
-              name="qip11"
-              min="1"
-              max="255"
-              maxlength="3"
-              size="3"
-              autocomplete="on"
-              required
-              value="127"
-            /><b> .</b>
-            <input
-              type="number"
-              id="ip21"
-              name="ip21"
-              min="0"
-              max="255"
-              maxlength="3"
-              size="3"
-              autocomplete="on"
-              required
-              value="0"
-            /><b> .</b>
-            <input
-              type="number"
-              id="ip31"
-              name="31"
-              min="0"
-              max="255"
-              maxlength="3"
-              size="3"
-              autocomplete="on"
-              required
-              value="0"
-            /><b> .</b>
-            <input
-              type="number"
-              id="ip41"
-              name="41"
-              min="1"
-              max="255"
-              maxlength="3"
-              size="3"
-              autocomplete="on"
-              required
-              value="1"
-            /><b> :</b>
-            <input
-              type="number"
-              id="port2"
-              name="port2"
-              min="1"
-              max="65535"
-              maxlength="5"
-              size="5"
-              autocomplete="on"
-              required
-              value="12000"
-            />
-            <input
-              class="button"
-              style="text-align: center"
-              type="submit"
-              value="Go!"
-            />
-          </div>
-          <p id="add3">REQUIRED..................</p>
+            >Remote OSC Server</label
+          >
+<!--        <br />
+//          <div style="padding-left: 10%">
+//            <input
+//              type="number"
+//              id="ip11"
+//              name="qip11"
+//              min="1"
+//              max="255"
+//              maxlength="3"
+//              size="3"
+//              autocomplete="on"
+//              required
+//              value="127"
+//            /><b> .</b>
+//            <input
+//              type="number"
+//              id="ip21"
+//              name="ip21"
+//              min="0"
+//              max="255"
+//              maxlength="3"
+//              size="3"
+//              autocomplete="on"
+//              required
+//              value="0"
+//            /><b> .</b>
+//            <input
+//              type="number"
+//              id="ip31"
+//              name="31"
+//              min="0"
+//              max="255"
+//              maxlength="3"
+//              size="3"
+//              autocomplete="on"
+//              required
+//              value="0"
+//            /><b> .</b>
+//            <input
+//              type="number"
+//              id="ip41"
+//              name="41"
+//              min="1"
+//              max="255"
+//              maxlength="3"
+//              size="3"
+//              autocomplete="on"
+//              required
+//              value="1"
+//            /><b> :</b>
+//            <input
+//              type="number"
+//              id="port2"
+//              name="port2"
+//              min="1"
+//              max="65535"
+//              maxlength="5"
+//              size="5"
+//              autocomplete="on"
+//              required
+//              value="12000"
+//            />
+//            <input
+//              class="button"
+//              style="text-align: center"
+//              type="submit"
+//              value="Go!"
+//            />
+//          </div>
+-->
+          <p id="add3">Waiting</p>
           <span
             id="dot3"
             class="infoDot"
@@ -256,7 +264,7 @@
     <div id="Connections_Settings">
       <div class="form">
         <label style="text-align: center" for="fname"
-          >STEP 4 &#8674; &ensp; Connect Ember+ Path to OSC Address</label
+          >Connect Ember+ Path to OSC Address</label
         ><br /><br />
         <label for="fname">.Choose an Ember+ Parameter</label>
         <br />
@@ -463,7 +471,9 @@
           <td class="little">Min</td>
           <td class="hiddenTd"></td>
           <td class="little">Max</td>
+          <!--
           <td class="little">dir</td>
+          -->
         </tr>
       </table>
     </div>
