@@ -93,3 +93,5 @@ out/
 
 #github extension settings
 settings.json
+
+release-builds/
