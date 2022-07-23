@@ -2,22 +2,22 @@
 const { ipcRenderer } = require('electron')
 const preferences = ipcRenderer.sendSync('getPreferences');
 
-var oscAddr = new Array("/Channels")
+const oscAddr = new Array("/Channels")
 
 //---Interactions with Back-End---//
-var rInputsUserLabels =[];
-var rAuxesUserLabels = [];
-var rMastersUserLabels = [];
-var rSumsUserLabels = [];
-var rGpcsUserLabels = [];
-var autoSave = null;
+let rInputsUserLabels = [];
+let rAuxesUserLabels = [];
+let rMastersUserLabels = [];
+let rSumsUserLabels = [];
+let rGpcsUserLabels = [];
+const autoSave = null;
 
 // Display the preferences window
 //ipcRenderer.send('showPreferences');
 
 // Listen to the `preferencesUpdated` event to be notified when preferences are changed.
 ipcRenderer.on('preferencesUpdated', (e, preferences) => {
-	console.log('Preferences were updated', preferences);
+  console.log('Preferences were updated', preferences);
 });
 
 // Instruct the preferences service to update the preferences object from within the renderer.
@@ -28,44 +28,45 @@ ipcRenderer.on('preferencesUpdated', (e, preferences) => {
 
 ipcRenderer.on('inputsUserLabels', (event, inputsUserLabels) => {
   rInputsUserLabels = inputsUserLabels
-  //console.log('inputsUL : ',inputsUserLabels)
-  })
+})
 ipcRenderer.on('auxesUserLabels', (event, auxesUserLabels) => {
   rAuxesUserLabels = auxesUserLabels
-  })
+})
 ipcRenderer.on('mastersUserLabels', (event, mastersUserLabels) => {
   rMastersUserLabels = mastersUserLabels
-  })
+})
 ipcRenderer.on('sumsUserLabels', (event, sumsUserLabels) => {
   rSumsUserLabels = sumsUserLabels
-  })
+})
 ipcRenderer.on('gpcsUserLabels', (event, gpcsUserLabels) => {
   rGpcsUserLabels = gpcsUserLabels
-  })
-
-
-
-ipcRenderer.on('udpportOK', (event) => {
-  var dot2 = document.getElementById("dot2");
-  dot2.style.color = "green";
 })
 
-ipcRenderer.on('eServerOK', (event) => {
-  const add1 = document.getElementById('add1');
+ipcRenderer.on('udpportOK', (event, uPort) => {
+  let add2 = document.getElementById('add2');
+  add2.removeChild(add2.firstChild);
+  add2.textContent = "Listening on port : " + uPort;
+  let dot2 = document.getElementById("dot2");
+  dot2.style.color = "green";
+});
+
+
+ipcRenderer.on('eServerOK', (event, eAddress) => {
+  let add1 = document.getElementById('add1');
   add1.removeChild(add1.firstChild);
-  add1.textContent = "OK!  Address : " + EmberServerIP + "   /   Port : " + EmberServerPort;
-  var dot1 = document.getElementById("dot1");
+  add1.textContent = "Connected to ember provider: " + eAddress;
+  let dot1 = document.getElementById("dot1");
   dot1.style.color = "green";
 })
 
-ipcRenderer.on('oServerOK', (event) => {
-  var dot3 = document.getElementById("dot3");
+
+ipcRenderer.on('oServerOK', (event, osc_server) => {
+  let dot3 = document.getElementById("dot3");
   dot3.style.color = "green";
 })
 
 ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
-  var table = document.getElementById("tableOfConnection");
-  var emberValue = emberValue;
+  let table = document.getElementById("tableOfConnection");
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
 })
 
@@ -80,31 +81,31 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
     if (td) {
       txtValue = JSON.stringify(td.textContent) || JSON.stringify(td.innerText);
       console.log("txtValue1", txtValue.toUpperCase());
-      var p = td.parentNode;
-      var myRow = p.rowIndex;
+      let p = td.parentNode;
+      let myRow = p.rowIndex;
       if (txtValue.toUpperCase().indexOf(filteR) > -1) {
         console.log("OSC Address Received: ", filteR, "is present in table at Row: ", myRow);
         table.rows[myRow].cells[3].innerHTML = oRargs.toFixed(2);
-        var sFactor = table.rows[myRow].cells[2].innerHTML;
-        var rEaddr = table.rows[myRow].cells[0].innerHTML;
-        var eVarType = table.rows[myRow].cells[6].innerHTML;
-        var eMin = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")))[0];
-        var eMax = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")))[0];
-        var oMinArray = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")));
+        let sFactor = table.rows[myRow].cells[2].innerHTML;
+        let rEaddr = table.rows[myRow].cells[0].innerHTML;
+        let eVarType = table.rows[myRow].cells[6].innerHTML;
+        let eMin = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")))[0];
+        let eMax = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")))[0];
+        let oMinArray = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")));
         if (typeof oMinArray[1] === 'undefined') {
           oMin = eMin
         }
         else {
           oMin = oMinArray[1]
         }
-        var oMaxArray = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")));
+        let oMaxArray = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")));
         if (typeof oMaxArray[1] === 'undefined') {
           oMax = eMax
         }
         else {
           oMax = oMaxArray[1]
         }
-        var eVarCurve = table.rows[myRow].cells[7].innerHTML;
+        let eVarCurve = table.rows[myRow].cells[7].innerHTML;
         ipcRenderer.send('reSendOrArgs', oRargs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve);
       } else {
         console.log("OSC Address received is Undefined");
@@ -124,61 +125,61 @@ ipcRenderer.on('sendFilename', (event, filename) => {
 })
 
 ipcRenderer.on('sendFileContent', function (event, content) {
-  var table = document.getElementById("tableOfConnection");
+  let table = document.getElementById("tableOfConnection");
   deleteAllRows();
-  var sendedJSON = JSON.parse(content);
-  var sendedJSON = sendedJSON.replace(/\\n/g, "");
-  var sendedJSON = JSON.parse(sendedJSON);
-  var fileEserverIP = sendedJSON[0].eServerProperties.eServerIP;
-  var fileEserverIP = fileEserverIP.split(".");
-  var ip1 = fileEserverIP[0];
-  var ip2 = fileEserverIP[1];
-  var ip3 = fileEserverIP[2];
-  var ip4 = fileEserverIP[3];
+
+  let sendedJSON = JSON.parse(content);
+  sendedJSON = sendedJSON.replace(/\\n/g, "");
+  sendedJSON = JSON.parse(sendedJSON);
+  
+  let fileEserverIP = sendedJSON[0].eServerProperties.eServerIP;
+  fileEserverIP = fileEserverIP.split(".");
+  let ip1 = fileEserverIP[0];
+  let ip2 = fileEserverIP[1];
+  let ip3 = fileEserverIP[2];
+  let ip4 = fileEserverIP[3];
   document.getElementById('ip1').value = ip1;
   document.getElementById('ip2').value = ip2;
   document.getElementById('ip3').value = ip3;
   document.getElementById('ip4').value = ip4;
-  var fileEserverPort = sendedJSON[0].eServerProperties.eServerPort;
-  var fileEserverPort = fileEserverPort.toString();
+  fileEserverPort = sendedJSON[0].eServerProperties.eServerPort;
+  fileEserverPort = fileEserverPort.toString();
   document.getElementById("port").value = fileEserverPort;
-  var fileUDPport = sendedJSON[0].udpPort;
+  let fileUDPport = sendedJSON[0].udpPort;
   document.getElementById("localPort").value = fileUDPport;
-  var fileOserverIP = sendedJSON[0].oServerProperties.oServerIP;
-  var fileOserverIP = fileOserverIP.split(".");
-  var ip11 = fileOserverIP[0];
-  var ip21 = fileOserverIP[1];
-  var ip31 = fileOserverIP[2];
-  var ip41 = fileOserverIP[3];
+  fileOserverIP = sendedJSON[0].oServerProperties.oServerIP;
+  fileOserverIP = fileOserverIP.split(".");
+  let ip11 = fileOserverIP[0];
+  let ip21 = fileOserverIP[1];
+  let ip31 = fileOserverIP[2];
+  let ip41 = fileOserverIP[3];
   document.getElementById('ip11').value = ip11;
   document.getElementById('ip21').value = ip21;
   document.getElementById('ip31').value = ip31;
   document.getElementById('ip41').value = ip41;
-  var fileOserverPort = sendedJSON[0].oServerProperties.oServerPort;
+  let fileOserverPort = sendedJSON[0].oServerProperties.oServerPort;
   document.getElementById("port2").value = fileOserverPort;
-  //console.log("first row", sendedJSON[1]);
   sendedJSON.forEach(element => {
-    //console.log("element.path", element.path);
     if (element.path) {
-      var btnDel = document.createElement("BUTTON");
-      var btnGo = document.createElement("BUTTON");
+      let btnDel = document.createElement("BUTTON");
+      let btnGo = document.createElement("BUTTON");
       btnDel.innerHTML = "X";
       btnDel.setAttribute('onClick', 'SomeDeleteRowFunction(this)');
       btnGo.innerHTML = "Go!";
       btnGo.setAttribute('onClick', 'sendConnection(this)');
-      var row = table.insertRow(-1);
+      let row = table.insertRow(-1);
       row.style.fontSize = "smaller";
-      var cell1 = row.insertCell(0);
-      var cell2 = row.insertCell(1);
-      var cell3 = row.insertCell(2);
-      var cell4 = row.insertCell(3);
-      var cell5 = row.insertCell(4);
-      var cell6 = row.insertCell(5);
-      var cell7 = row.insertCell(6);
-      var cell8 = row.insertCell(7);
-      var cell9 = row.insertCell(8);
-      var cell10 = row.insertCell(9);
-      var cell11 = row.insertCell(10);
+      let cell1 = row.insertCell(0);
+      let cell2 = row.insertCell(1);
+      let cell3 = row.insertCell(2);
+      let cell4 = row.insertCell(3);
+      let cell5 = row.insertCell(4);
+      let cell6 = row.insertCell(5);
+      let cell7 = row.insertCell(6);
+      let cell8 = row.insertCell(7);
+      let cell9 = row.insertCell(8);
+      let cell10 = row.insertCell(9);
+      let cell11 = row.insertCell(10);
       cell1.innerHTML = element.path;
       cell2.innerHTML = "----";
       cell3.innerHTML = element.factor;
@@ -198,28 +199,28 @@ ipcRenderer.on('sendFileContent', function (event, content) {
   });
 })
 
-ipcRenderer.on('autoSave', function(event) {
-  var ip1 = document.getElementById("ip1").value;
-  var ip2 = document.getElementById("ip2").value;
-  var ip3 = document.getElementById("ip3").value;
-  var ip4 = document.getElementById("ip4").value;
-  var port = document.getElementById("port").value;
-  var data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+ipcRenderer.on('autoSave', function (event) {
+  let ip1 = document.getElementById("ip1").value;
+  let ip2 = document.getElementById("ip2").value;
+  let ip3 = document.getElementById("ip3").value;
+  let ip4 = document.getElementById("ip4").value;
+  let port = document.getElementById("port").value;
+  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
   EmberServerIP = data;
   EmberServerPort = Number(port);
 
-  var ip11 = document.getElementById("ip11").value;
-  var ip21 = document.getElementById("ip21").value;
-  var ip31 = document.getElementById("ip31").value;
-  var ip41 = document.getElementById("ip41").value;
-  var port2 = document.getElementById("port2").value;
-  var data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
+  let ip11 = document.getElementById("ip11").value;
+  let ip21 = document.getElementById("ip21").value;
+  let ip31 = document.getElementById("ip31").value;
+  let ip41 = document.getElementById("ip41").value;
+  let port2 = document.getElementById("port2").value;
+  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
   OSCserverIP = data1;
   OSCserverPort = port2;
 
   localPort = document.getElementById("localPort").value;
 
-  var sessionData =
+  let sessionData =
   {
     eServerProperties: {
       eServerIP: EmberServerIP,
@@ -232,31 +233,31 @@ ipcRenderer.on('autoSave', function(event) {
     }
   };
   table = document.getElementById('tableOfConnection');
-  var data = [];
-  var headers = [];
-  for (var i = 0; i < table.rows[1].cells.length; i++) {
+  data = [];
+  let headers = [];
+  for (i = 0; i < table.rows[1].cells.length; i++) {
     headers[i] = table.rows[1].cells[i].innerHTML.toLowerCase().replace(/ /gi, '');
   }
   // go through cells
-  for (var i = 2; i < table.rows.length; i++) {
-    var tableRow = table.rows[i];
-    var rowData = {};
-    var x = [0, 2, 4, 6, 7, 8, 10];
+  for (i = 2; i < table.rows.length; i++) {
+    let tableRow = table.rows[i];
+    let rowData = {};
+    let x = [0, 2, 4, 6, 7, 8, 10];
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
     data.push(rowData);
   }
   data.unshift(sessionData)
-  var content = JSON.stringify(data, null, 2);
+  let content = JSON.stringify(data, null, 2);
   ipcRenderer.send('sendAutoSave', content, autoSave)
 })
 
 
 
-ipcRenderer.on('eServConnError', function(event){
-  var add1Error = document.getElementById("add1");
-  var dot1Error = document.getElementById("dot1");
+ipcRenderer.on('eServConnError', function (event) {
+  let add1Error = document.getElementById("add1");
+  let dot1Error = document.getElementById("dot1");
   add1Error.innerHTML = "Server not responding! Verify IP:Port";
   dot1Error.style.color = "red";
 })
@@ -267,15 +268,15 @@ ipcRenderer.on('appVersion', function (event, appVersion) {
   document.getElementById("appVersion").innerHTML = document.getElementById("appVersion").innerHTML + appVersion;
   document.getElementById("filepath").innerHTML = "none";
   console.log("appVersion:", appVersion);
-  
+
 })
 
 //-----------------------------------------//
 
 function addGenBtns() {
-  var table = document.getElementById("tableOfConnection");
-  var btnSuscribeAll = document.createElement("BUTTON");
-  var btnDeleteAll = document.createElement("BUTTON");
+  let table = document.getElementById("tableOfConnection");
+  let btnSuscribeAll = document.createElement("BUTTON");
+  let btnDeleteAll = document.createElement("BUTTON");
   btnDeleteAll.innerHTML = "&darr;X"
   btnDeleteAll.setAttribute('onClick', 'deleteAllRows(this)'); //function not created yet
   btnSuscribeAll.innerHTML = "Go&darr;"
@@ -289,24 +290,24 @@ function makeVisible(op) {
 }
 
 function displayForm1(event) {
-  const form1 = document.getElementById('form1');
-  
-  var ip1 = document.getElementById("ip1").value;
-  var ip2 = document.getElementById("ip2").value;
-  var ip3 = document.getElementById("ip3").value;
-  var ip4 = document.getElementById("ip4").value;
-  var port = document.getElementById("port").value;
-  var data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+  let form1 = document.getElementById('form1');
+
+  let ip1 = document.getElementById("ip1").value;
+  let ip2 = document.getElementById("ip2").value;
+  let ip3 = document.getElementById("ip3").value;
+  let ip4 = document.getElementById("ip4").value;
+  let port = document.getElementById("port").value;
+  let data = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
   EmberServerIP = data;
   EmberServerPort = Number(port);
-  
+
   ipcRenderer.send('sendEmberServerIP', data);
   ipcRenderer.send('sendEmberServerPort', Number(port));
   event.preventDefault();
 }
 
 //function setEchanNumbPrefix(typeOfChan) {
-//  var eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
+//  let eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
 //  if (typeOfChan == "Inputs") {
 //    eChanNumbPrefix.value = "INP";
 //  } else if (typeOfChan == "GP Channels") {
@@ -323,44 +324,44 @@ function displayForm1(event) {
 //}
 
 function setEuserLabel(typeOfChan) {
-  var eUserLabel = document.getElementById("eUserLabel");
+  let eUserLabel = document.getElementById("eUserLabel");
   eUserLabel.innerHTML = "";
   if (typeOfChan == "Inputs") {
-    for (i=0; i<rInputsUserLabels.length;i++){
-      var opt = rInputsUserLabels[i];
+    for (i = 0; i < rInputsUserLabels.length; i++) {
+      let opt = rInputsUserLabels[i];
       eUserLabel.innerHTML += "<option value=\"" + opt + "\">" + opt + "</option>";
     }
   } else if (typeOfChan == "GP Channels") {
-    for (i=0; i<rGpcsUserLabels.length;i++){
-      var opt = rGpcsUserLabels[i];
+    for (i = 0; i < rGpcsUserLabels.length; i++) {
+      let opt = rGpcsUserLabels[i];
       eUserLabel.innerHTML += "<option value=\"" + opt + "\">" + opt + "</option>";
     }
   } else if (typeOfChan == "Sums") {
-    for (i=0; i<rSumsUserLabels.length;i++){
-      var opt = rSumsUserLabels[i];
+    for (i = 0; i < rSumsUserLabels.length; i++) {
+      let opt = rSumsUserLabels[i];
       eUserLabel.innerHTML += "<option value=\"" + opt + "\">" + opt + "</option>";
     }
   } else if (typeOfChan == "Auxes") {
-    for (i=0; i<rAuxesUserLabels.length;i++){
-      var opt = rAuxesUserLabels[i];
+    for (i = 0; i < rAuxesUserLabels.length; i++) {
+      let opt = rAuxesUserLabels[i];
       eUserLabel.innerHTML += "<option value=\"" + opt + "\">" + opt + "</option>";
     }
   } else if (typeOfChan == "Masters") {
-    for (i=0; i<rMastersUserLabels.length;i++){
-      var opt = rMastersUserLabels[i];
+    for (i = 0; i < rMastersUserLabels.length; i++) {
+      let opt = rMastersUserLabels[i];
       eUserLabel.innerHTML += "<option value=\"" + opt + "\">" + opt + "</option>";
     }
-  //} else if (typeOfChan == "Groups") {
-  //  for (i=0; i<rGroupsUserLabels.length;i++){
-  //    var opt = gpcsUserLabel[i];
-  //    eUserLabel.innerHTML += "<option value=\"" + opt + "\">" + opt + "</option>";
-  //  }
+    //} else if (typeOfChan == "Groups") {
+    //  for (i=0; i<rGroupsUserLabels.length;i++){
+    //    let opt = gpcsUserLabel[i];
+    //    eUserLabel.innerHTML += "<option value=\"" + opt + "\">" + opt + "</option>";
+    //  }
   }
 }
 
 
 function displayForm2(event) {
-  const add2 = document.getElementById('add2');
+  let add2 = document.getElementById('add2');
   localPort = document.getElementById("localPort").value;
   add2.textContent = "OK!  Address : 127 . 0 . 0 . 1   /   Port : " + localPort;
   ipcRenderer.send('sendUDPport', Number(localPort));
@@ -368,13 +369,13 @@ function displayForm2(event) {
 }
 
 function displayForm3(event) {
-  const add3 = document.getElementById('add3');
-  var ip11 = document.getElementById("ip11").value;
-  var ip21 = document.getElementById("ip21").value;
-  var ip31 = document.getElementById("ip31").value;
-  var ip41 = document.getElementById("ip41").value;
-  var port2 = document.getElementById("port2").value;
-  var data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
+  let add3 = document.getElementById('add3');
+  let ip11 = document.getElementById("ip11").value;
+  let ip21 = document.getElementById("ip21").value;
+  let ip31 = document.getElementById("ip31").value;
+  let ip41 = document.getElementById("ip41").value;
+  let port2 = document.getElementById("port2").value;
+  let data1 = ip11 + "." + ip21 + "." + ip31 + "." + ip41;
   OSCserverIP = data1;
   OSCserverPort = port2;
   add3.textContent = "OK!  Address : " + data1 + "   /   Port : " + port2;
@@ -384,33 +385,33 @@ function displayForm3(event) {
 }
 
 function submitEmberPath(event) {
-  var btnDel = document.createElement("BUTTON");
-  var btnGo = document.createElement("BUTTON");
-  var switcher = document.getElementById("switcher");
-  var oscAddr = document.getElementById("oscAddr").value;
-  var slct0 = document.getElementById("slct0").value;
-  //var chanNumbPrefix = document.getElementById("eChanNumbPrefix").value;
-  //var chanNumb = document.getElementById("eChanNumb").value;
-  var userLabel =document.getElementById("eUserLabel").value;
-  var manualEmberPath = document.getElementById("manualEmberPath").value
-  //var chanNumbNumb = Number(chanNumb);
-  var slct1 = document.getElementById("slct1").value;
-  var slct2 = document.getElementById("slct2").value;
-  var slct3 = document.getElementById("slct3").value;
-  var emBerPath = "";
+  let btnDel = document.createElement("BUTTON");
+  let btnGo = document.createElement("BUTTON");
+  let switcher = document.getElementById("switcher");
+  let oscAddr = document.getElementById("oscAddr").value;
+  let slct0 = document.getElementById("slct0").value;
+  //let chanNumbPrefix = document.getElementById("eChanNumbPrefix").value;
+  //let chanNumb = document.getElementById("eChanNumb").value;
+  let userLabel = document.getElementById("eUserLabel").value;
+  let manualEmberPath = document.getElementById("manualEmberPath").value
+  //let chanNumbNumb = Number(chanNumb);
+  let slct1 = document.getElementById("slct1").value;
+  let slct2 = document.getElementById("slct2").value;
+  let slct3 = document.getElementById("slct3").value;
+  let emBerPath = "";
   if (switcher.className == "toggle") {
     if (slct3 == "") {
-      emBerPath = "Channels." + slct0 +"."+ userLabel + "." + slct1 + "." + slct2;
-    //} else if (slct3 == "" && chanNumbNumb > 9 && chanNumbNumb < 100) {
-    //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + "  " + chanNumb + "." + slct1 + "." + slct2;
-    //} else if (slct3 == "" && chanNumbNumb > 99) {
-    //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + " " + chanNumb + "." + slct1 + "." + slct2;
+      emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2;
+      //} else if (slct3 == "" && chanNumbNumb > 9 && chanNumbNumb < 100) {
+      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + "  " + chanNumb + "." + slct1 + "." + slct2;
+      //} else if (slct3 == "" && chanNumbNumb > 99) {
+      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + " " + chanNumb + "." + slct1 + "." + slct2;
     } else if (slct3 != "") {
       emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2 + "." + slct3;
-    //} else if (slct3 != "" && chanNumbNumb > 9 && chanNumbNumb < 100) {
-    //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + "  " + chanNumb + "." + slct1 + "." + slct2 + "." + slct3;
-    //} else if (slct3 != "" && chanNumbNumb > 99) {
-    //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + " " + chanNumb + "." + slct1 + "." + slct2 + "." + slct3;
+      //} else if (slct3 != "" && chanNumbNumb > 9 && chanNumbNumb < 100) {
+      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + "  " + chanNumb + "." + slct1 + "." + slct2 + "." + slct3;
+      //} else if (slct3 != "" && chanNumbNumb > 99) {
+      //  emBerPath = "Channels." + slct0 + "." + chanNumbPrefix + " " + chanNumb + "." + slct1 + "." + slct2 + "." + slct3;
     };
   } else {
     emBerPath = manualEmberPath;
@@ -424,20 +425,20 @@ function submitEmberPath(event) {
   btnDel.setAttribute('onClick', 'SomeDeleteRowFunction(this)');
   btnGo.innerHTML = "Go!";
   btnGo.setAttribute('onClick', 'sendConnection(this)');
-  var table = document.getElementById("tableOfConnection");
-  var row = table.insertRow(-1);
+  let table = document.getElementById("tableOfConnection");
+  let row = table.insertRow(-1);
   row.style.fontSize = "smaller";
-  var cell1 = row.insertCell(0);
-  var cell2 = row.insertCell(1);
-  var cell3 = row.insertCell(2);
-  var cell4 = row.insertCell(3);
-  var cell5 = row.insertCell(4);
-  var cell6 = row.insertCell(5);
-  var cell7 = row.insertCell(6);
-  var cell8 = row.insertCell(7);
-  var cell9 = row.insertCell(8);
-  var cell10 = row.insertCell(9);
-  var cell11 = row.insertCell(10);
+  let cell1 = row.insertCell(0);
+  let cell2 = row.insertCell(1);
+  let cell3 = row.insertCell(2);
+  let cell4 = row.insertCell(3);
+  let cell5 = row.insertCell(4);
+  let cell6 = row.insertCell(5);
+  let cell7 = row.insertCell(6);
+  let cell8 = row.insertCell(7);
+  let cell9 = row.insertCell(8);
+  let cell10 = row.insertCell(9);
+  let cell11 = row.insertCell(10);
   cell1.innerHTML = emBerPath;
   cell2.innerHTML = "----";
   cell3.innerHTML = eVarFactor;
@@ -447,12 +448,12 @@ function submitEmberPath(event) {
   cell6.appendChild(btnDel);
   cell7.innerHTML = eVarType;
   cell8.innerHTML = eVarCurve;
-  if (eVarFactor !== ""){
-  cell9.innerHTML = eVarMin + "/" + (Number(eVarMin) / Number(eVarFactor)).toFixed(0);
-  cell11.innerHTML = eVarMax + "/" + (Number(eVarMax) / Number(eVarFactor)).toFixed(0);
-  }else {
+  if (eVarFactor !== "") {
+    cell9.innerHTML = eVarMin + "/" + (Number(eVarMin) / Number(eVarFactor)).toFixed(0);
+    cell11.innerHTML = eVarMax + "/" + (Number(eVarMax) / Number(eVarFactor)).toFixed(0);
+  } else {
     cell9.innerHTML = eVarMin + "/" + 0;
-    cell11.innerHTML = eVarMax + "/" + 1; 
+    cell11.innerHTML = eVarMax + "/" + 1;
   }
   cell10.innerHTML = "";
   cell3.style.fontSize = 'x-small';
@@ -469,9 +470,9 @@ function submitEmberPath(event) {
 }
 
 function populate(s1, s2, s3, s4) {
-  var s1 = document.getElementById(s1);
-  var s2 = document.getElementById(s2);
-  var s3 = document.getElementById(s3);
+  s1 = document.getElementById(s1);
+  s2 = document.getElementById(s2);
+  s3 = document.getElementById(s3);
   s2.innerHTML = "";
   if (s1.value == "Channel States") {
     var optionArray = ["|----||||||",
@@ -500,16 +501,16 @@ function populate(s1, s2, s3, s4) {
       "Surround|Surround|Boolean|||||"
     ];
   } else if (s1.value == "Signal Processing") {
-    var optionArray = [
+    let optionArray = [
       "|----||||||",
       "Input Mixer|Input Mixer||||||",
       "Equalizer|Equalizer||||||",
       "Compressor|Compressor||||||"];
   } else if (s1.value == "Input Mixer") {
-    var optionArray = ["|----||||||",
+    let optionArray = ["|----||||||",
       "Input Gain|Input Gain|Integer|\nmin:-4096|\nmax:2560|\nfactor:32|\n-|\ncurve:log"];
   } else if (s1.value == "Equalizer") {
-    var optionArray = ["|----||||||",
+    let optionArray = ["|----||||||",
       "Equalizer 1 Gain|Equalizer 1 Gain|Integer|\nmin:-768|\nmax:768|\nfactor:32|\n-|\ncurve:log",
       "Equalizer 1 Frequency|Equalizer 1 Frequency|Integer|\nmin:2131|\nmax:7045|\nfactor:1|\n-|\ncurve:log",
       "Equalizer 1 Q|Equalizer 1 Q|Integer|\nmin:6|\nmax:5120|\nfactor:64|\n-|\ncurve:log",
@@ -588,9 +589,9 @@ function populate(s1, s2, s3, s4) {
     s2.innerHTML = "";
   }
   else {
-    for (var option in optionArray) {
-      var pair = optionArray[option].split("|");
-      var newOption = document.createElement("option");
+    for ( option in optionArray) {
+      let pair = optionArray[option].split("|");
+      let newOption = document.createElement("option");
       newOption.value = pair[0];
       newOption.innerHTML = pair[1];
       newOption.title = pair[2] + pair[3] + pair[4] + pair[5] + pair[6] + pair[7];
@@ -603,14 +604,14 @@ function populate(s1, s2, s3, s4) {
 }
 
 function fillOscAddr(event) {
-  var oscAddr = document.getElementById("oscAddr");
-  //var chanNumbPrefix = document.getElementById("eChanNumbPrefix");
-  //var chanNumb = document.getElementById("eChanNumb");
-  var userLabel = document.getElementById("eUserLabel")
-  var slct1 = document.getElementById("slct1");
-  var slct2 = document.getElementById("slct2");
-  var slct3 = document.getElementById("slct3");
-  var switcher = document.getElementById("switcher");
+  let oscAddr = document.getElementById("oscAddr");
+  //let chanNumbPrefix = document.getElementById("eChanNumbPrefix");
+  //let chanNumb = document.getElementById("eChanNumb");
+  let userLabel = document.getElementById("eUserLabel")
+  let slct1 = document.getElementById("slct1");
+  let slct2 = document.getElementById("slct2");
+  let slct3 = document.getElementById("slct3");
+  let switcher = document.getElementById("switcher");
   if (switcher.className == "toggle") {
     if (slct3.value == "") {
       oscAddr.value = "/Channels/" + slct0.value + "/" + userLabel.value + "/" + slct1.value + "/" + slct2.value;
@@ -627,19 +628,19 @@ function fillOscAddr(event) {
 }
 
 function modifyOscAddr(event) {
-  var newOscAddr = document.getElementById("oscAddr").value;
-  var table = document.getElementById("tableOfConnection");
-  var switcher1 = document.getElementById("switcher1");
+  let newOscAddr = document.getElementById("oscAddr").value;
+  let table = document.getElementById("tableOfConnection");
+  let switcher1 = document.getElementById("switcher1");
   if (switcher1.className == "toggle toggle-on") {
-    var x = table.rows.length;
-    var oRange = document.getElementById("oRange");
-    var lCheckbox = document.getElementById("lCheckbox");
+    let x = table.rows.length;
+    let oRange = document.getElementById("oRange");
+    let lCheckbox = document.getElementById("lCheckbox");
     oRangeArr = Array.from(oRange.value.split(','));
-    var rows = table.getElementsByTagName('tr');
+    let rows = table.getElementsByTagName('tr');
     if (x > 2) {
       table.rows[rows.length - 1].cells[4].innerHTML = newOscAddr;
-      var emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
-      var emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
+      let emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
+      let emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
       table.rows[rows.length - 1].cells[8].innerHTML = emMin + "/" + oRangeArr[0];
       table.rows[rows.length - 1].cells[10].innerHTML = emMax + "/" + oRangeArr[1];
       if (lCheckbox.checked !== false) {
@@ -651,15 +652,15 @@ function modifyOscAddr(event) {
   }
   else {
     switcher1.className = "toggle";
-    var x = table.rows.length;
-    var oRange = document.getElementById("oRange");
-    var lCheckbox = document.getElementById("lCheckbox");
+    let x = table.rows.length;
+    let oRange = document.getElementById("oRange");
+    let lCheckbox = document.getElementById("lCheckbox");
     oRangeArr = Array.from(oRange.value.split(','));
-    var rows = table.getElementsByTagName('tr');
+    let rows = table.getElementsByTagName('tr');
     if (x > 2) {
       table.rows[rows.length - 1].cells[4].innerHTML = newOscAddr;
-      var emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
-      var emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
+      let emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
+      let emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
       table.rows[rows.length - 1].cells[8].innerHTML = emMin;
       table.rows[rows.length - 1].cells[10].innerHTML = emMax;
       lCheckbox.checked = false;
@@ -669,30 +670,25 @@ function modifyOscAddr(event) {
 }
 
 function SomeDeleteRowFunction(o) {
-  var table = document.getElementById("tableOfConnection");
-  //console.log("TYPE OF O", typeof (o));
+  let table = document.getElementById("tableOfConnection");
   if (typeof (o) == "number") {
-    var myRow = o;
-    var ePath = table.rows[myRow].cells[0].innerHTML;
-    var oAddr = table.rows[myRow].cells[4].innerHTML;
-    var eVarFactor = table.rows[myRow].cells[2].innerHTML;
-    var eVarType = table.rows[myRow].cells[6].innerHTML;
-    //console.log("ePath", ePath);
-    //console.log("oAddr", oAddr);
+    let myRow = o;
+    let ePath = table.rows[myRow].cells[0].innerHTML;
+    let oAddr = table.rows[myRow].cells[4].innerHTML;
+    let eVarFactor = table.rows[myRow].cells[2].innerHTML;
+    let eVarType = table.rows[myRow].cells[6].innerHTML;
     ipcRenderer.send('deleteConnection', ePath, oAddr, myRow, eVarType, eVarFactor);
     table.deleteRow(o)
     console.log("delete Row number: ", o);
   }
   else {
-    var p = o.parentNode.parentNode;
+    let p = o.parentNode.parentNode;
     myRow = p.rowIndex;
     console.log(myRow);
-    var ePath = table.rows[myRow].cells[0].innerHTML;
-    var oAddr = table.rows[myRow].cells[4].innerHTML;
-    var eVarFactor = table.rows[myRow].cells[2].innerHTML;
-    var eVarType = table.rows[myRow].cells[6].innerHTML;
-    //console.log("ePath", ePath);
-    //console.log("oAddr", oAddr);
+    let ePath = table.rows[myRow].cells[0].innerHTML;
+    let oAddr = table.rows[myRow].cells[4].innerHTML;
+    let eVarFactor = table.rows[myRow].cells[2].innerHTML;
+    let eVarType = table.rows[myRow].cells[6].innerHTML;
     ipcRenderer.send('deleteConnection', ePath, oAddr, myRow, eVarType, eVarFactor);
     p.parentNode.removeChild(p);
     console.log("delete row number: ", myRow);
@@ -700,8 +696,8 @@ function SomeDeleteRowFunction(o) {
 }
 
 function deleteAllRows(o) {
-  var table = document.getElementById("tableOfConnection");
-  var numOfConn = table.rows.length;
+  let table = document.getElementById("tableOfConnection");
+  let numOfConn = table.rows.length;
   for (let x = numOfConn - 1; x > 1; x--) {
     setTimeout(() => {
       SomeDeleteRowFunction((table.rows.length) - 1);
@@ -710,46 +706,41 @@ function deleteAllRows(o) {
 }
 
 function sendConnection(o) {
-  var table = document.getElementById("tableOfConnection");
+  let table = document.getElementById("tableOfConnection");
   if (typeof o == "number") {
     myRow = o
   }
   else {
-    //console.log("ooo", o.attributes)
-    var p = o.parentNode.parentNode;
+    let p = o.parentNode.parentNode;
     myRow = p.rowIndex;
   }
-  //console.log(myRow);
-  //sFactor = factor;
-  var ePath = table.rows[myRow].cells[0].innerHTML;
-  var oAddr = table.rows[myRow].cells[4].innerHTML;
-  var eVarFactor = table.rows[myRow].cells[2].innerHTML;
-  var eVarType = table.rows[myRow].cells[6].innerHTML;
-  var eMin = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")))[0];
-  var eMax = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")))[0];
-  var oMinArray = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")));
+  let ePath = table.rows[myRow].cells[0].innerHTML;
+  let oAddr = table.rows[myRow].cells[4].innerHTML;
+  let eVarFactor = table.rows[myRow].cells[2].innerHTML;
+  let eVarType = table.rows[myRow].cells[6].innerHTML;
+  let eMin = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")))[0];
+  let eMax = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")))[0];
+  let oMinArray = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")));
   if (typeof oMinArray[1] === 'undefined') {
     oMin = eMin
   }
   else {
     oMin = oMinArray[1]
   }
-  var oMaxArray = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")));
+  let oMaxArray = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")));
   if (typeof oMaxArray[1] === 'undefined') {
     oMax = eMax
   }
   else {
     oMax = oMaxArray[1]
   }
-  var eVarCurve = table.rows[myRow].cells[7].innerHTML;
-  //console.log("ePath", ePath);
-  //console.log("oAddr", oAddr);
+  let eVarCurve = table.rows[myRow].cells[7].innerHTML;
   ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve);
 }
 
 function sendAllConnections(o) {
-  var table = document.getElementById("tableOfConnection");
-  for (let i = 2; i < table.rows.length; i++) {
+  let table = document.getElementById("tableOfConnection");
+  for (i = 2; i < table.rows.length; i++) {
     setTimeout(() => {
       sendConnection(i);
     }, i * 25);
@@ -757,12 +748,10 @@ function sendAllConnections(o) {
 }
 
 function selectedOption(slct) {
-  var slct = document.getElementById(slct);
+  slct = document.getElementById(slct);
   if (slct.options[slct.selectedIndex].title !== "") {
-    var details = slct.options[slct.selectedIndex].title;
-    //console.log("details of selected option: ", details);
-    var detailsArray = details.split("\n");
-    //console.log("detailsArray;", detailsArray);
+    let details = slct.options[slct.selectedIndex].title;
+    let detailsArray = details.split("\n");
     eVarType = detailsArray[0];
     eVarMin = "false";
     eVarMax = "true";
@@ -784,24 +773,24 @@ function selectedOption(slct) {
 
 function advancedMode(e) {
   e.preventDefault();
-  var switcher = document.getElementById("switcher");
-  var hideOnAdvanced = document.getElementsByClassName("hideOnAdvanced");
+  let switcher = document.getElementById("switcher");
+  let hideOnAdvanced = document.getElementsByClassName("hideOnAdvanced");
   var stayOnAdvanced = document.getElementsByClassName("stayOnAdvanced");
-  var slct0 = document.getElementById("slct0");
-  var slct1 = document.getElementById("slct1");
-  var manualEmberPath = document.getElementById("manualEmberPath")
-  //var eChanNumb = document.getElementById("eChanNumb");
-  //var eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
-  var eUserLabel = document.getElementById("eUserLabel");
-  //var iCNPLabel = document.getElementById("iCNPLabel");
+  let slct0 = document.getElementById("slct0");
+  let slct1 = document.getElementById("slct1");
+  let manualEmberPath = document.getElementById("manualEmberPath")
+  //let eChanNumb = document.getElementById("eChanNumb");
+  //let eChanNumbPrefix = document.getElementById("eChanNumbPrefix");
+  let eUserLabel = document.getElementById("eUserLabel");
+  //let iCNPLabel = document.getElementById("iCNPLabel");
   if (switcher.className == "toggle") {
     switcher.className = "toggle toggle-on";
-    
+
     //iCNPLabel.style.visibility = "hidden";
     manualEmberPath.style.display = "inline-block";
     manualEmberPath.style.visibility = "visible";
     //manualPath.setAttribute('size', "75%");
-    for (var i = 0; i < hideOnAdvanced.length; i++) {
+    for ( i = 0; i < hideOnAdvanced.length; i++) {
       hideOnAdvanced[i].style.display = "none";
     };
     slct0.required = false;
@@ -817,7 +806,7 @@ function advancedMode(e) {
     manualEmberPath.style.visibility = "hidden";
     manualEmberPath.style.display = "none"
     //stayOnAdvanced[0].setAttribute('size', "3");
-    for (var i = 0; i < hideOnAdvanced.length; i++) {
+    for ( i = 0; i < hideOnAdvanced.length; i++) {
       hideOnAdvanced[i].style.display = "inline-block";
     };
     slct0.required = true;
@@ -831,33 +820,32 @@ function advancedMode(e) {
 
 function remapMode(e) {
   e.preventDefault();
-  var table = document.getElementById("tableOfConnection");
-  var lastRow = table.rows[table.rows.length - 1];
-  var eType = lastRow.cells[6].innerHTML;
-  var eMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[0];
-  var eMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[0];
-  var eRange = document.getElementById("eRange");
-  var oRange = document.getElementById("oRange");
-  var lCheckbox = document.getElementById("lCheckbox");
-  var switcher1 = document.getElementById("switcher1");
-  var unhideOnRemap = document.getElementsByClassName("unhideOnRemap");
+  let table = document.getElementById("tableOfConnection");
+  let lastRow = table.rows[table.rows.length - 1];
+  let eType = lastRow.cells[6].innerHTML;
+  let eMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[0];
+  let eMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[0];
+  let eRange = document.getElementById("eRange");
+  let oRange = document.getElementById("oRange");
+  let lCheckbox = document.getElementById("lCheckbox");
+  let switcher1 = document.getElementById("switcher1");
+  let unhideOnRemap = document.getElementsByClassName("unhideOnRemap");
   if (switcher1.className == "toggle" && eType == "Integer") {
     switcher1.className = "toggle toggle-on";
     lCheckbox.checked = false;
-    var oMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[1];
-    var oMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[1];
-    for (var i = 0; i < unhideOnRemap.length; i++) {
+    let oMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[1];
+    let oMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[1];
+    for ( i = 0; i < unhideOnRemap.length; i++) {
       unhideOnRemap[i].style.visibility = "visible";
       if (eType == "Integer") {
         eRange.innerHTML = "from : " + eMin + "," + eMax + " to : "
         oRange.value = oMin + "," + oMax;
         oRange.required = true;
-        //console.log("oRange.value", Array.from(oRange.value.split(','), Number));
       };
     }
   } else {
     switcher1.className = "toggle";
-    for (var i = 0; i < unhideOnRemap.length; i++) {
+    for ( i = 0; i < unhideOnRemap.length; i++) {
       unhideOnRemap[i].style.visibility = "hidden";
       oRange.required = false;
     };
@@ -866,7 +854,7 @@ function remapMode(e) {
 
 //Menu Section//
 function saveAs(saveAsBtn) {
-  var sessionData =
+  let sessionData =
   {
     eServerProperties: {
       eServerIP: EmberServerIP,
@@ -879,28 +867,28 @@ function saveAs(saveAsBtn) {
     }
   };
   table = document.getElementById('tableOfConnection');
-  var data = [];
-  var headers = [];
-  for (var i = 0; i < table.rows[1].cells.length; i++) {
+  let data = [];
+  let headers = [];
+  for (i = 0; i < table.rows[1].cells.length; i++) {
     headers[i] = table.rows[1].cells[i].innerHTML.toLowerCase().replace(/ /gi, '');
   }
   // go through cells
-  for (var i = 2; i < table.rows.length; i++) {
-    var tableRow = table.rows[i];
-    var rowData = {};
-    var x = [0, 2, 4, 6, 7, 8, 10];
+  for (i = 2; i < table.rows.length; i++) {
+    let tableRow = table.rows[i];
+    let rowData = {};
+    let x = [0, 2, 4, 6, 7, 8, 10];
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
     data.push(rowData);
   }
   data.unshift(sessionData)
-  var content = JSON.stringify(data, null, 2);
+  let content = JSON.stringify(data, null, 2);
   ipcRenderer.send('sendSaveAs', content)
 }
 
 function save(saveBtn) {
-  var sessionData =
+  let sessionData =
   {
     eServerProperties: {
       eServerIP: EmberServerIP,
@@ -913,27 +901,24 @@ function save(saveBtn) {
     }
   };
   table = document.getElementById('tableOfConnection');
-  var data = [];
-  var headers = [];
-  for (var i = 0; i < table.rows[1].cells.length; i++) {
+  let data = [];
+  let headers = [];
+  for (i = 0; i < table.rows[1].cells.length; i++) {
     headers[i] = table.rows[1].cells[i].innerHTML.toLowerCase().replace(/ /gi, '');
   }
   // go through cells
-  for (var i = 2; i < table.rows.length; i++) {
-    var tableRow = table.rows[i];
-    var rowData = {};
-    var x = [0, 2, 4, 6, 7, 8, 10];
+  for (i = 2; i < table.rows.length; i++) {
+    let tableRow = table.rows[i];
+    let rowData = {};
+    let x = [0, 2, 4, 6, 7, 8, 10];
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
     data.push(rowData);
   }
   data.unshift(sessionData)
-  //console.log("l'array json de la table", data);
-  var content = JSON.stringify(data, null, 2);
-  var filename = document.getElementById("filepath").innerHTML;
-  //var filename = JSON.stringify(filename);
-  //console.log("filepath value", filename);
+  let content = JSON.stringify(data, null, 2);
+  let filename = document.getElementById("filepath").innerHTML;
   ipcRenderer.send('sendSave', content, filename)
 }
 
@@ -941,33 +926,32 @@ function save(saveBtn) {
 
 function load(loadBtn) {
   ipcRenderer.send('openFile')
-  var table = document.getElementById("tableOfConnection");
-  var genBtn = table.rows[1].cells[5].innerHTML;
+  let table = document.getElementById("tableOfConnection");
+  let genBtn = table.rows[1].cells[5].innerHTML;
   if (genBtn == "") {
     addGenBtns()
   }
 }
 
-function prefs(preferencesBtn){
+function prefs(preferencesBtn) {
   ipcRenderer.send('showPreferences');
 }
 
 function tableToJson(table) {
-  var data = [];
-  var headers = [];
-  for (var i = 0; i < table.rows[1].cells.length; i++) {
+  let data = [];
+  let headers = [];
+  for (i = 0; i < table.rows[1].cells.length; i++) {
     headers[i] = table.rows[1].cells[i].innerHTML.toLowerCase().replace(/ /gi, '');
   }
   // go through cells
-  for (var i = 2; i < table.rows.length; i++) {
-    var tableRow = table.rows[i];
-    var rowData = {};
-    for (var j = 0; j < tableRow.cells.length; j++) {
+  for (i = 2; i < table.rows.length; i++) {
+    let tableRow = table.rows[i];
+    let rowData = {};
+    for (j = 0; j < tableRow.cells.length; j++) {
       rowData[headers[j]] = tableRow.cells[j].innerHTML;
     }
     data.push(rowData);
   }
-  //console.log("lejson de la table", data);
   tableData = JSON.stringify(data, null, 2)
 }
 /////////////////////////////
