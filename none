@@ -1,0 +1,38 @@
+[
+  {
+    "path": "Channels.GP Channels.GPC   1.Mute.Mute",
+    "factor": "",
+    "address": "/Channels/GP Channels/GPC   1/Mute/Mute",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "Channels.GP Channels.GPC   2.Mute.Mute",
+    "factor": "",
+    "address": "/Channels/GP Channels/GPC   2/Mute/Mute",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "Channels.GP Channels.GPC   3.Mute.Mute",
+    "factor": "",
+    "address": "/Channels/GP Channels/GPC   3/Mute/Mute",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "Channels.GP Channels.GPC   1.Fader.Fader Level",
+    "factor": "32",
+    "address": "/Channels/GP Channels/GPC   1/Fader/Fader Level",
+    "type": "Integer",
+    "math": "log",
+    "min": "-4096/-128",
+    "max": "480/15"
+  }
+]
