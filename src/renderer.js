@@ -1,6 +1,10 @@
 //const { ipcRenderer, remote } = require('electron');
 const { ipcRenderer } = require('electron')
 const preferences = ipcRenderer.sendSync('getPreferences');
+const log = require('electron-log');
+console.log = log.log;
+Object.assign(console, log.functions);
+log.transports.console.format = '{h}:{i}:{s} › {text}';
 
 const oscAddr = new Array("/Channels")
 
@@ -70,7 +74,7 @@ ipcRenderer.on('udpportKO', (event, msg) => {
 ipcRenderer.on('eServerOK', (event, eAddress) => {
   let add1 = document.getElementById('add1');
   add1.removeChild(add1.firstChild);
-  add1.textContent = "Connected to ember provider: " + eAddress;
+  add1.textContent = "Connected to " + eAddress;
   let dot1 = document.getElementById('dot1');
   dot1.style.color = "green";
   dot1.classList.remove('blink')
@@ -82,7 +86,7 @@ ipcRenderer.on('eServerOK', (event, eAddress) => {
 ipcRenderer.on('oServerOK', (event, oAddress) => {
   let add3 = document.getElementById('add3');
   add3.removeChild(add3.firstChild);
-  add3.textContent = "Connected to OSC server: " + oAddress;
+  add3.textContent = "Connected to " + oAddress;
   let dot3 = document.getElementById("dot3");
   dot3.style.color = "green";
   dot3.classList.remove('blink')
@@ -97,6 +101,8 @@ ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
 
 ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
   console.log("osc message received from main");
+  let dot2 = document.getElementById("dot2");
+  dot2.classList.toggle('blink');
   filteR = oRaddr.toUpperCase();
   console.log("filteR", filteR);
   table = document.getElementById("tableOfConnection");
@@ -136,7 +142,11 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
         console.log("OSC Address received is Undefined");
       }
     }
+    
   }
+  setTimeout(() => {
+    dot2.classList.toggle("blink")
+    },3000);
 })
 
 ipcRenderer.on('sendFilename', (event, filename) => {
@@ -239,7 +249,7 @@ ipcRenderer.on('eServDisconnected', function (event, eAddress) {
   console.log("erreur de connection ember+")
   let add1Error = document.getElementById("add1");
   let dot1Error = document.getElementById("dot1");
-  add1Error.innerHTML = "Ember+ Provider: "+ eAddress + "is disconnected!";
+  add1Error.innerHTML = eAddress + "is disconnected!";
   dot1Error.style.color = "red";
   dot1Error.classList.add('blink')
   dot1Error.classList.add('blink')
@@ -425,8 +435,8 @@ function populate(s1, s2, s3, s4) {
       "Surround|Surround|Boolean|||||"
     ];
   } else if (s1.value == "Signal Processing") {
-    let optionArray = [
-      "|----||||||",
+    console.log("signal proc")
+    var optionArray = ["|----||||||",
       "Input Mixer|Input Mixer||||||",
       "Equalizer|Equalizer||||||",
       "Compressor|Compressor||||||"];
@@ -434,7 +444,7 @@ function populate(s1, s2, s3, s4) {
     let optionArray = ["|----||||||",
       "Input Gain|Input Gain|Integer|\nmin:-4096|\nmax:2560|\nfactor:32|\n-|\ncurve:log"];
   } else if (s1.value == "Equalizer") {
-    let optionArray = ["|----||||||",
+    var optionArray = ["|----||||||",
       "Equalizer 1 Gain|Equalizer 1 Gain|Integer|\nmin:-768|\nmax:768|\nfactor:32|\n-|\ncurve:log",
       "Equalizer 1 Frequency|Equalizer 1 Frequency|Integer|\nmin:2131|\nmax:7045|\nfactor:1|\n-|\ncurve:log",
       "Equalizer 1 Q|Equalizer 1 Q|Integer|\nmin:6|\nmax:5120|\nfactor:64|\n-|\ncurve:log",
@@ -704,34 +714,48 @@ function advancedMode(e) {
   e.preventDefault();
   let switcher = document.getElementById("switcher");
   let hideOnAdvanced = document.getElementsByClassName("hideOnAdvanced");
-  var stayOnAdvanced = document.getElementsByClassName("stayOnAdvanced");
+  //let stayOnAdvanced = document.getElementsByClassName("stayOnAdvanced");
   let slct0 = document.getElementById("slct0");
   let slct1 = document.getElementById("slct1");
   let manualEmberPath = document.getElementById("manualEmberPath")
   let eUserLabel = document.getElementById("eUserLabel");
   if (switcher.className == "toggle") {
     switcher.className = "toggle toggle-on";
-    manualEmberPath.style.display = "inline-block";
+    manualEmberPath.style.display = "flex";
+    manualEmberPath.style.marginLeft= "0";
+    manualEmberPath.style.marginRight= "0";
+    manualEmberPath.style.top = 0;
+    manualEmberPath.style.margin= "auto";
     manualEmberPath.style.visibility = "visible";
-    for ( i = 0; i < hideOnAdvanced.length; i++) {
+    let length = hideOnAdvanced.length
+    console.log (length)
+    for ( i = 0; i < length; i++) {
       hideOnAdvanced[i].style.display = "none";
+      hideOnAdvanced[i].style.visibility= "hidden";
     };
     slct0.required = false;
     slct1.required = false;
     eUserLabel.required = false;
-    hideOnAdvanced[0].style.display = "inline-block";
+    hideOnAdvanced[0].style.display = "";
     hideOnAdvanced[0].style.visibility = "hidden";
   } else {
     switcher.className = "toggle";
     manualEmberPath.style.visibility = "hidden";
     manualEmberPath.style.display = "none"
-    for ( i = 0; i < hideOnAdvanced.length; i++) {
-      hideOnAdvanced[i].style.display = "inline-block";
+    let length = hideOnAdvanced.length
+    console.log (length)
+    for ( i = 0; i < length; i++) {
+      hideOnAdvanced[i].style.display = "";
     };
     slct0.required = true;
     slct1.required = true;
     eUserLabel.required = true;
     hideOnAdvanced[0].style.visibility = "visible";
+    hideOnAdvanced[1].style.visibility = "visible";
+    hideOnAdvanced[2].style.visibility = "visible";
+    hideOnAdvanced[3].style.visibility = "visible";
+    hideOnAdvanced[4].style.visibility = "visible";
+    hideOnAdvanced[5].style.visibility = "visible";
   };
 }
 

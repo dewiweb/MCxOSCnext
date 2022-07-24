@@ -46,6 +46,7 @@ div{
  label {
   font-weight: bold;
   padding-left: 3%;
+  font-size: 15px;
   }
   
 .button{
@@ -80,10 +81,12 @@ input[type=text], input[type=number], select{
 .form {
   border: solid #47496c;
   padding: 0.001px;
+  border-radius: 10px;
 }
 
 .table{
     border: solid #47496c;
+    border-radius: 10px;
 }
 
 table{
@@ -105,6 +108,19 @@ table, th, td {
   font-style: italic;
   font-size: smaller;
   padding-left: 10%;
+}
+
+#Network_Settings{
+  width: 100%;
+  display: flex;                  /* establish flex container */
+  flex-direction: row;            /* default value; can be omitted */
+  flex-wrap: nowrap;              /* default value; can be omitted */
+  justify-content: space-between; /* switched from default (flex-start, see below) */
+  /*background-color: lightyellow;*/
+}
+
+#Network_Settings > div {
+  width: 33%;
 }
 
 #oscAddr, #manualEmberPath {

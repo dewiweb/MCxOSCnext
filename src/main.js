@@ -10,6 +10,11 @@ nativeTheme.themeSource = 'dark';
 const { app, BrowserWindow } = require('electron');
 const mainFunctions = require('./mainFunctions');
 const { dialog } = require('electron');
+const evilscan = require('evilscan');
+const log = require('electron-log');
+console.log = log.log;
+Object.assign(console, log.functions);
+log.transports.console.format = '{h}:{i}:{s} › {text}';
 const fs = require('fs');
 const defaultDir = app.getPath('documents') + '/MCxOSCnext';
 if (!fs.existsSync(defaultDir)) {
@@ -49,7 +54,7 @@ let hours = lib.IntTwoChars(date_ob.getHours());
 let minutes = lib.IntTwoChars(date_ob.getMinutes());
 let seconds = lib.IntTwoChars(date_ob.getSeconds());
 const datePath = `autosave_${hours}-${minutes}-${seconds}_${month}-${date}-${year}`;
-console.log("datePath : ", datePath)
+log.info("datePath : ", datePath)
 //#End of Time Section#//
 
 //#Options Section//
@@ -67,8 +72,8 @@ console.log("autoSaveFilepath: ", autoSaveFilepath)
 function createWindow() {
 
   let win = new BrowserWindow({
-    width: 1366,
-    height: 768,
+    width: 1200,
+    height: 600,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -87,7 +92,7 @@ function createWindow() {
     if (autoSave !== undefined) {
       fs.writeFile(autoSaveFilepath, content, (err) => {
         if (err) {
-          console.log('an error ocurred with file creation ' + err.message);
+          console.log('an error occurred with file creation ' + err.message);
         }
         console.log('WE CREATED YOUR FILE SUCCESFULLY');
 
@@ -422,9 +427,16 @@ emberProviderConnect()
       metadata: true
     })
     oscCli.open()
-    win.webContents.on('did-finish-load', () => {
+  //  win.webContents.on('did-finish-load', () => {
+  //    win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
+  //    })
+  
+    oscCli.on('ready', function(){
+      win.webContents.on('did-finish-load', () => {
       win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
-      })
+      win.webContents.send('oServerOK', (preferences.value('network_settings.osc_server')));
+    })
+    })
   }
   listening()
     
@@ -531,14 +543,14 @@ emberProviderConnect()
 
     //Setting Remote OSC Server IP and Porto
 
-    //      ipcMain.on('sendOSCserverIP', (event, oServerIP) => {
     console.log('IP du server OSC distant:', oServerIP);
 
-    //        ipcMain.on('sendOSCserverPort', (event, oServerPort) => {
     console.log('Port du server OSC distant:', oServerPort);
-    //win.webContents.on('did-finish-load', () => {
-    win.webContents.send('oServerOK', (preferences.value('network_settings.osc_server')));
-    //})
+
+
+      
+    //win.webContents.send('oServerOK', (preferences.value('network_settings.osc_server')));
+        
 
     //---End of Network Settings Section---//
     ////////////////////////////////////////
@@ -630,7 +642,7 @@ emberProviderConnect()
       oscCli.on("message", (oscBundle) => {
         console.log('oscBundle : ', oscBundle);
         let oRaddr = JSON.stringify(oscBundle.address);
-        console.log("Adresse osc received", oRaddr);
+        console.log("OSC Address received", oRaddr);
         let oRargs = mainFunctions.oscToEmber(oscBundle);
         console.log("oRargs", oRargs);
         win.webContents.send('oReceivedAddr', oRaddr, oRargs);
@@ -668,6 +680,18 @@ emberProviderConnect()
   }
   }
   main().catch(err => console.error(err));
+//  main().log.catchErrors({
+//    showDialog: false,
+//    onError(error, versions, submitIssue) {
+//      electron.dialog.showMessageBox({
+//        title: 'An error occurred',
+//        message: error.message,
+//        detail: error.stack,
+//        type: 'error',
+//        buttons: ['Ignore', 'Report', 'Exit'],
+//      })
+//    }
+//  });
 
   // Using a button field with `channel: 'reset'`
   preferences.on('click', (key) => {
@@ -682,8 +706,9 @@ emberProviderConnect()
 
   oscCli.on("error", function (error) {
     msg = error.message
-    console.log("An error occurred with OSC listening: ", error.message);
     win.webContents.on('did-finish-load', () => {
+    console.log("An error occurred with OSC listening: ", error.message);
+    
     win.webContents.send('udpportKO', msg)
     })
 });
