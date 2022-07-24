@@ -13,4 +13,4 @@ Heavily based on https://github.com/nrkno/tv-automation-emberplus-connection \
 `yarn start`
 
 
-![Screenshot](/src/assets/MCxOSC_v0.0.8-alpha.png)
+![Screenshot](/src/assets/screenshot2.0.0.png)
