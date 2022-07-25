@@ -4,7 +4,10 @@ const preferences = ipcRenderer.sendSync('getPreferences');
 const log = require('electron-log');
 console.log = log.log;
 Object.assign(console, log.functions);
-log.transports.console.format = '{h}:{i}:{s} › {text}';
+log.transports.console.format = '{h}:{i}:{s} > {text}';
+
+log.transports.div = log.transports.console
+
 
 const oscAddr = new Array("/Channels")
 
@@ -100,16 +103,17 @@ ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
 })
 
 ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
+
   console.log("osc message received from main");
   let dot2 = document.getElementById("dot2");
   dot2.classList.toggle('blink');
   filteR = oRaddr.toUpperCase();
-  console.log("filteR", filteR);
+  console.log("Uppercase", filteR);
   table = document.getElementById("tableOfConnection");
   tr = table.getElementsByTagName("tr");
   for (i = 0; i < tr.length; i++) {
     td = tr[i].getElementsByTagName("td")[4];
-    if (td) {
+    //if (td) {
       txtValue = JSON.stringify(td.textContent) || JSON.stringify(td.innerText);
       console.log("txtValue1", txtValue.toUpperCase());
       let p = td.parentNode;
@@ -138,16 +142,18 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
         }
         let eVarCurve = table.rows[myRow].cells[7].innerHTML;
         ipcRenderer.send('reSendOrArgs', oRargs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve);
-      } else {
-        console.log("OSC Address received is Undefined");
-      }
-    }
+      } 
+      //else {
+      //  console.log("OSC Address received is Undefined");
+      //}
+    //}
     
   }
   setTimeout(() => {
     dot2.classList.toggle("blink")
     },3000);
 })
+
 
 ipcRenderer.on('sendFilename', (event, filename) => {
   console.log("input filename :", filename);
@@ -852,6 +858,36 @@ function prefs(preferencesBtn) {
   ipcRenderer.send('showPreferences');
 }
 
+function menu (){
+  let menu = document.getElementById("menu").querySelectorAll(".button")
+  let menuDiv = document.getElementById("menu")
+  console.log("menubkgcolor",menuDiv.style.backgroundColor )
+  if (menuDiv.style.backgroundColor === "rgb(71, 73, 108)"){
+    menuDiv.style.backgroundColor = "rgb(40, 44, 52)"
+  }else{
+    menuDiv.style.backgroundColor = "rgb(71, 73, 108)"
+  }
+  for (i=1; i< menu.length;i++){
+    if (menu[i].style.display === "none"){
+    menu[i].style.display = "flex"
+  }
+  else {
+    menu[i].style.display = "none"
+  }
+  
+}
+}
+function logview(){
+  let log = document.getElementById('logging')
+  if (log.style.display === "none"){
+  log.style.display = 'flex';
+  }else{
+  log.style.display = 'none'
+  }
+}
+
+
+
 function tableToJson(table) {
   let data = [];
   let headers = [];
@@ -870,7 +906,23 @@ function tableToJson(table) {
   tableData = JSON.stringify(data, null, 2)
 }
 /////////////////////////////
-
-
+//ipcRenderer.on('ready', (e)=>{
+//let console = document.getElementById('logging')
+//let anchor = document.getElementById('anchor');
+//
+//log.transports.console = (msg) => {
+//  //console.log = log.log;
+//  //Object.assign(, log.functions);
+//  log.transports.console.format = '{h}:{i}:{s} / {text}';
+//  let message = JSON.stringify(msg.data);
+//  let line = document.createElement('div');
+//  line.className = 'message';
+//  message = message.replace('[', '');
+//  message = message.replace(']', '');
+//  message = message.replace(',', ' ');
+//  line.innerText = message;
+//  console.insertBefore(line, anchor);
+//}
+//});
 
 

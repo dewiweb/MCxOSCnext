@@ -10,11 +10,10 @@ nativeTheme.themeSource = 'dark';
 const { app, BrowserWindow } = require('electron');
 const mainFunctions = require('./mainFunctions');
 const { dialog } = require('electron');
-const evilscan = require('evilscan');
 const log = require('electron-log');
 console.log = log.log;
 Object.assign(console, log.functions);
-log.transports.console.format = '{h}:{i}:{s} › {text}';
+log.transports.console.format = '{h}:{i}:{s} / {text}';
 const fs = require('fs');
 const defaultDir = app.getPath('documents') + '/MCxOSCnext';
 if (!fs.existsSync(defaultDir)) {
@@ -83,7 +82,11 @@ function createWindow() {
   })
   win.setMenu(null);
   win.loadFile('src/index.html')
-  //win.webContents.openDevTools()
+  win.webContents.openDevTools({ mode: 'detach' });
+
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.send('ready')
+  })
 
 
   ipcMain.on('sendAutoSave', function (event, content) {
@@ -279,7 +282,7 @@ function createWindow() {
         }
       },
       {
-        id: 'others_settings',
+        id: 'other_settings',
         label: 'Other Settings',
         icon: 'settings-gear-63',
         form: {
@@ -442,11 +445,16 @@ emberProviderConnect()
     
     
   // load auto-options on startup  
-    win.webContents.on('did-finish-load', () => {
-      let autoLoad = (preferences.value('save_settings.autoLoad'))[1]
+    
+      let autoLoad = (preferences.value('save_settings.autoLoad'))[0]
+      console.log("valeur autoload lue", autoLoad)
       let default_file = preferences.value("save_settings.default_file")
       let autoGo = (preferences.value('other_settings.autoGo'))[0]
+      console.log("valeur autoGo lue", autoGo)
+      
       if (autoLoad !== undefined){
+        win.webContents.on('did-finish-load', () => {
+          console.log("la fenetre est prete et peut recevoir les options")
         let content = fs.readFileSync(default_file, 'utf-8');
         let sendedContent = JSON.stringify(content);
         win.webContents.send("sendFileContent", sendedContent)
@@ -454,8 +462,8 @@ emberProviderConnect()
         if(autoGo !== undefined){
           win.webContents.send("autoGo")
         }
-      };
-    })
+      });
+    }
 
 //Ember+ initial connection
   async function main() {
@@ -650,6 +658,8 @@ emberProviderConnect()
     })
     ipcMain.on('reSendOrArgs', async function (event, rOrArgs, rEaddr, sFactor, eVarType, oMin, oMax, eMin, eMax, eVarCurve) {
       let rereq = await c.getElementByPath(rEaddr);
+      c.unsubscribe(rereq);
+      console.log("unsuscribe to ", rereq)
       if (eVarType == "Integer" && eVarCurve == "lin") {
         let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2)
         c.setValue((rereq), value.toFixed(0));
@@ -668,6 +678,7 @@ emberProviderConnect()
         c.setValue((rereq), rOrArgs);
         console.log(("OSC -string-> EMBER+", rOrArgs));
       }
+      //c.subscribe(rereq)
     })
     ipcMain.on("deleteConnection", async function (event, ePath, oAddr, myRow, eVarType, sFactor) {
       let req = await c.getElementByPath(ePath)

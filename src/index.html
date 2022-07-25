@@ -19,23 +19,24 @@
         class="center"
       />
     </div>
-    <div id="menu" class="center" style="font-weight: bold; padding-left: 2%">
-      &#9776;
-      <button class="button loadBtn" id="loadBtn" onclick="load(this.id)">
+    <div id="menu" class="left" style="font-weight: bold; padding-left: 2%">
+      <button class="button menuBtn" id="menuBtn"  style="margin-left: -20px;" onclick="menu()">
+        &#9776;
+      </button>
+      <button class="button loadBtn" id="loadBtn" style="display: none;" onclick="load(this.id) ">
         Load Session
       </button>
-      <button class="button saveAsBtn" id="saveAsBtn" onclick="saveAs(this.id)">
+      <button class="button saveAsBtn" id="saveAsBtn" style="display: none;" onclick="saveAs(this.id)">
         Save Session as...
       </button>
-      <button class="button saveBtn" id="saveBtn" onclick="save(this.id)">
+      <button class="button saveBtn" id="saveBtn" style="display: none;" onclick="save(this.id)">
         Update Session
       </button>
-      <button
-        class="button preferencesBtn"
-        id="preferencesBtn"
-        onclick="prefs(this.id)"
-      >
+      <button class="button preferencesBtn" id="preferencesBtn" style="display: none;" onclick="prefs(this.id)">
         Preferences
+      </button>
+      <button class="button logBtn" id="logBtn" style="display: none;" onclick="logview(this.id)">
+        Logs
       </button>
     </div>
     <br />
@@ -284,6 +285,11 @@
         </tr>
       </table>
     </div>
+    <div id="logging" style="display: none; background-color: black;">
+
+      <div id="anchor"></div>
+    </div>
+
     <script>
       form4.addEventListener("submit", fillOscAddr);
       form4.addEventListener("submit", submitEmberPath);

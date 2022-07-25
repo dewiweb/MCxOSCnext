@@ -26,7 +26,32 @@
 }
 
 ::-webkit-scrollbar-corner {							/* Coin de la fenêtre */
-	background: #bfb6a3 ;
+	background: rgb(40, 44, 52) ;
+}
+
+#logging {
+  height: 150px;
+  overflow: auto;
+  flex-direction: column;
+}
+
+#logging *{
+  overflow-anchor: none;
+}
+
+#anchor {
+  display: flex;
+  overflow-anchor: auto;
+  height: 1px;
+}
+
+.message {
+  padding: 0.5em;
+  border-radius: 1em;
+  margin: 0.5em;
+  line-height: 1.1em;
+  background-color: rgb(31, 13, 59);
+  color: rgb(110, 101, 15);
 }
 
 /*---------------------*/
@@ -213,16 +238,17 @@ caption{
 
 /*Menu*/
 #menu {
-  background-color: #47496c;
+  background-color: rgb(40, 44, 52);
   border-radius: 10px;
   width: 50%;
-  margin: 0 auto;
+  left: 0;
+  display: flex;
+  flex-direction: row;
   
 }
 
 #menu .button {
-  margin-bottom: 15px;
-  margin-top: 15px; 
+  margin-left: 10px;
 }
 
 .blink {
