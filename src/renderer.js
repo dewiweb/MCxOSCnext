@@ -102,56 +102,77 @@ ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
 })
 
+let osc_adress;
+let blink2;
+let rEaddr2; 
+let sFactor2;
+let eVarType2;
+let eMin2;
+let eMax2;
+let oMin2;
+let oMax2;
+let eVarCurve2;
 ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
-
-  console.log("osc message received from main");
+  dot2.classList.add("blink")
+  if (osc_adress !== oRaddr){
+  console.log("oRaddr",oRaddr);
   let dot2 = document.getElementById("dot2");
   dot2.classList.toggle('blink');
   filteR = oRaddr.toUpperCase();
-  console.log("Uppercase", filteR);
+  //console.log("Uppercase", filteR);
   table = document.getElementById("tableOfConnection");
   tr = table.getElementsByTagName("tr");
   for (i = 0; i < tr.length; i++) {
     td = tr[i].getElementsByTagName("td")[4];
-    //if (td) {
+    if (td) {
       txtValue = JSON.stringify(td.textContent) || JSON.stringify(td.innerText);
-      console.log("txtValue1", txtValue.toUpperCase());
+      //console.log("txtValue1", txtValue.toUpperCase());
       let p = td.parentNode;
       let myRow = p.rowIndex;
       if (txtValue.toUpperCase().indexOf(filteR) > -1) {
-        console.log("OSC Address Received: ", filteR, "is present in table at Row: ", myRow);
+      //  console.log("OSC Address Received: ", filteR, "is present in table at Row: ", myRow);
         table.rows[myRow].cells[3].innerHTML = oRargs.toFixed(2);
-        let sFactor = table.rows[myRow].cells[2].innerHTML;
-        let rEaddr = table.rows[myRow].cells[0].innerHTML;
-        let eVarType = table.rows[myRow].cells[6].innerHTML;
-        let eMin = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")))[0];
-        let eMax = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")))[0];
-        let oMinArray = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")));
-        if (typeof oMinArray[1] === 'undefined') {
-          oMin = eMin
+        sFactor2 = table.rows[myRow].cells[2].innerHTML;
+        rEaddr2 = table.rows[myRow].cells[0].innerHTML;
+        eVarType2 = table.rows[myRow].cells[6].innerHTML;
+        eMin2 = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")))[0];
+        eMax2 = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")))[0];
+        oMinArray2 = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")));
+        if (typeof oMinArray2[1] === 'undefined') {
+          oMin2 = eMin2
         }
         else {
-          oMin = oMinArray[1]
+          oMin2 = oMinArray2[1]
         }
-        let oMaxArray = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")));
-        if (typeof oMaxArray[1] === 'undefined') {
-          oMax = eMax
+          oMaxArray2 = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")));
+        if (typeof oMaxArray2[1] === 'undefined') {
+          oMax2 = eMax2
         }
         else {
-          oMax = oMaxArray[1]
+          oMax2 = oMaxArray2[1]
         }
         let eVarCurve = table.rows[myRow].cells[7].innerHTML;
-        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve);
+        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
       } 
-      //else {
+      else {
       //  console.log("OSC Address received is Undefined");
-      //}
-    //}
+      }
+    }
     
   }
-  setTimeout(() => {
-    dot2.classList.toggle("blink")
-    },3000);
+  
+}else{
+  ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
+}
+
+
+    setTimeout(() => {
+      dot2.classList.remove("blink")
+      },2000);
+
+
+  osc_adress = oRaddr
+  console.log("osc_address",osc_adress)
 })
 
 
