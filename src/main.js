@@ -656,10 +656,12 @@ emberProviderConnect()
         win.webContents.send('oReceivedAddr', oRaddr, oRargs);
       })
     })
+
+    let osc_adress = ""
     ipcMain.on('reSendOrArgs', async function (event, rOrArgs, rEaddr, sFactor, eVarType, oMin, oMax, eMin, eMax, eVarCurve) {
       let rereq = await c.getElementByPath(rEaddr);
       c.unsubscribe(rereq);
-      console.log("unsuscribe to ", rereq)
+      //console.log("unsuscribe to ", rereq)
       if (eVarType == "Integer" && eVarCurve == "lin") {
         let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2)
         c.setValue((rereq), value.toFixed(0));
@@ -678,7 +680,7 @@ emberProviderConnect()
         c.setValue((rereq), rOrArgs);
         console.log(("OSC -string-> EMBER+", rOrArgs));
       }
-      //c.subscribe(rereq)
+      c.subscribe(rereq)
     })
     ipcMain.on("deleteConnection", async function (event, ePath, oAddr, myRow, eVarType, sFactor) {
       let req = await c.getElementByPath(ePath)
