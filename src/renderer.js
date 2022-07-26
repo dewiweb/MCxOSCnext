@@ -54,7 +54,6 @@ ipcRenderer.on('udpportOK', (event, uPort) => {
   add2.removeChild(add2.firstChild);
   add2.textContent = "Listening on port : " + uPort;
   let dot2 = document.getElementById('dot2');
-  console.log("dot2:", dot2)
   dot2.style.color = "green";
   dot2.classList.remove('blink')
   add2.style.color = "green";
@@ -66,7 +65,6 @@ ipcRenderer.on('udpportKO', (event, msg) => {
   add2.removeChild(add2.firstChild);
   add2.textContent = "An Error ocurred :" + msg;
   let dot2 = document.getElementById('dot2');
-  console.log("dot2:", dot2)
   dot2.style.color = "red";
   dot2.classList.add('blink')
   add2.style.color = "red";
@@ -177,17 +175,12 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
 
 
 ipcRenderer.on('sendFilename', (event, filename) => {
-  console.log("input filename :", filename);
   let filePath = filename.toString();
-  console.log("input filename :", filePath);
-  document.getElementById("filepath").innerHTML = filePath
-  filenameReplace = filename.replace(/\//g, ",")
-  filenameSplit = filenameReplace.split(",")
-  console.log("filename array", filenameSplit);
-  filenameSlice = filenameSplit.slice(-1)[0]
-  console.log("last filename :", filenameSlice);
+  document.getElementById("filepath").innerHTML = filePath;
+  filenameReplace = filename.replace(/\//g, ",");
+  filenameSplit = filenameReplace.split(",");
+  filenameSlice = filenameSplit.slice(-1)[0];
   document.title = "MCxOSC - " + filenameSlice;
-  
 })
 
 ipcRenderer.on('sendFileContent', function (event, content) {
@@ -675,8 +668,7 @@ function sendConnection(o) {
     myRow = p.rowIndex;
 
   }
-  console.log("myrow : ",myRow)
-  console.log("myrowcell0 : ",table.rows[myRow].cells[0].innerHTML)
+  console.log("myrow : ",myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
