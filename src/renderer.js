@@ -2,9 +2,12 @@
 const { ipcRenderer } = require('electron')
 const preferences = ipcRenderer.sendSync('getPreferences');
 const log = require('electron-log');
-console.log = log.log;
-Object.assign(console, log.functions);
-log.transports.console.format = '{h}:{i}:{s} > {text}';
+function logDefinition() {
+  console.log = log.log;
+  Object.assign(console, log.functions);
+  log.transports.console.format = '{h}:{i}:{s} / {text}';
+}
+logDefinition();
 
 log.transports.div = log.transports.console
 
@@ -60,21 +63,11 @@ ipcRenderer.on('udpportOK', (event, uPort) => {
   add2.classList.remove('blink')
 });
 
-ipcRenderer.on('udpportKO', (event, msg) => {
-  let add2 = document.getElementById('add2');
-  add2.removeChild(add2.firstChild);
-  add2.textContent = "An Error ocurred :" + msg;
-  let dot2 = document.getElementById('dot2');
-  dot2.style.color = "red";
-  dot2.classList.add('blink')
-  add2.style.color = "red";
-  add2.classList.add('blink')
-});
-
 
 ipcRenderer.on('eServerOK', (event, eAddress) => {
   let add1 = document.getElementById('add1');
-  add1.removeChild(add1.firstChild);
+  if(add1.firstChild){
+  add1.removeChild(add1.firstChild)};
   add1.textContent = "Connected to " + eAddress;
   let dot1 = document.getElementById('dot1');
   dot1.style.color = "green";
@@ -93,6 +86,44 @@ ipcRenderer.on('oServerOK', (event, oAddress) => {
   dot3.classList.remove('blink')
   add3.style.color = "green";
   add3.classList.remove('blink')
+})
+
+ipcRenderer.on('udpportKO', (event, msg) => {
+  let add2 = document.getElementById('add2');
+  add2.removeChild(add2.firstChild);
+  add2.textContent = "An Error ocurred :" + msg;
+  let dot2 = document.getElementById('dot2');
+  dot2.style.color = "red";
+  dot2.classList.add('blink')
+  add2.style.color = "red";
+  add2.classList.add('blink')
+});
+
+ipcRenderer.on('eServConnError', function (event, eAddress) {
+  console.log("erreur de connection ember+")
+  let add1Error = document.getElementById("add1");
+  let dot1Error = document.getElementById("dot1");
+  add1Error.innerHTML = "Verify Ember+ Provider Address in preferences!";
+  dot1Error.style.color = "red";
+  dot1Error.classList.add('blink')
+  add1Error.style.color = "red";
+  add1Error.classList.add('blink')
+})
+
+ipcRenderer.on('eServDisconnected', function (event, eAddress) {
+  console.log("erreur de connection ember+")
+  let add1Error = document.getElementById("add1");
+  let dot1Error = document.getElementById("dot1");
+  add1Error.innerHTML = eAddress + "is disconnected!";
+  dot1Error.style.color = "red";
+  dot1Error.classList.add('blink')
+  dot1Error.classList.add('blink')
+  add1Error.style.color = "red";
+  add1Error.classList.add('blink')
+})
+
+ipcRenderer.on('resolveError',(e)=>{
+  ipcRenderer.send('showPreferences');
 })
 
 ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
@@ -254,28 +285,7 @@ ipcRenderer.on('autoSave', function (event) {
 
 
 
-ipcRenderer.on('eServConnError', function (event, eAddress) {
-  console.log("erreur de connection ember+")
-  let add1Error = document.getElementById("add1");
-  let dot1Error = document.getElementById("dot1");
-  add1Error.innerHTML = "Verify Ember+ Provider Address in preferences!";
-  dot1Error.style.color = "red";
-  dot1Error.classList.add('blink')
-  add1Error.style.color = "red";
-  add1Error.classList.add('blink')
-})
 
-ipcRenderer.on('eServDisconnected', function (event, eAddress) {
-  console.log("erreur de connection ember+")
-  let add1Error = document.getElementById("add1");
-  let dot1Error = document.getElementById("dot1");
-  add1Error.innerHTML = eAddress + "is disconnected!";
-  dot1Error.style.color = "red";
-  dot1Error.classList.add('blink')
-  dot1Error.classList.add('blink')
-  add1Error.style.color = "red";
-  add1Error.classList.add('blink')
-})
 
 
 
