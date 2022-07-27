@@ -9,7 +9,8 @@ const { app, BrowserWindow } = require('electron');
 const mainFunctions = require('./mainFunctions');
 const { dialog } = require('electron');
 const { send } = require('process');
-const appVersion = app.getVersion()
+const appVersion = app.getVersion();
+const util = require ('util')
 const fs = require('fs');
 const defaultDir = app.getPath('documents') + '/MCxOSCnext';
 if (!fs.existsSync(defaultDir)) {
@@ -460,6 +461,8 @@ function createWindow() {
 
       async function getUserLabels() {
         root = await (await eGet.getDirectory(eGet.tree)).response
+        console.log("ROOT:",root)
+        
         let inputsUserLabels = [];
         let auxesUserLabels = [];
         let mastersUserLabels = [];
@@ -517,6 +520,23 @@ function createWindow() {
         win.webContents.send('gpcsUserLabels', gpcsUserLabels);
       };
       getUserLabels()
+
+      async function expandtree(){
+
+        // Get Root info
+        const request = await eGet.getDirectory(eGet.tree)
+        const allroot = await request.response
+      
+        // Get a Specific Node
+        //const node = await client.getElementByPath('1.1.1.1.1')
+        //console.log(node)
+      
+        // Expand entire tree under root
+        await eGet.getDirectory(allroot.children)
+      
+        console.log("EXPANDED:",util.inspect(allroot))
+      }
+      expandtree()
 
       ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve) => {
         console.log("epath in newconnectionM ", ePath);
