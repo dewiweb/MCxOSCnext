@@ -666,7 +666,6 @@ function sendConnection(o) {
   else {
     var p = o.parentNode.parentNode;
     myRow = p.rowIndex;
-
   }
   console.log("myrow : ",myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
@@ -690,6 +689,7 @@ function sendConnection(o) {
     oMax = oMaxArray[1]
   }
   let eVarCurve = table.rows[myRow].cells[7].innerHTML;
+  console.log("epath in newconnectionR:", ePath)
   ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve);
 }
 

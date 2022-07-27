@@ -14,7 +14,7 @@ const fs = require('fs');
 const defaultDir = app.getPath('documents') + '/MCxOSCnext';
 if (!fs.existsSync(defaultDir)) {
   fs.mkdirSync(defaultDir)
-}
+};
 const log = require('electron-log');
 
 function logDefinition() {
@@ -22,9 +22,13 @@ function logDefinition() {
   Object.assign(console, log.functions);
   log.transports.console.format = '{h}:{i}:{s} / {text}';
 }
-logDefinition()
+logDefinition();
 
+const stream = []
+let direction = "";
 
+let gateDelayIN ="";
+let gateDelayOUT="";
 
 
 
@@ -92,7 +96,6 @@ function createWindow() {
     win.webContents.send('ready')
   })
 
-
   ipcMain.on('sendAutoSave', function (event, content) {
     let autoSave = (preferences.value('save_settings.autoSave'))[1]
     console.log("autoSave :", autoSave)
@@ -102,8 +105,6 @@ function createWindow() {
           console.log('an error occurred with file creation ' + err.message);
         }
         console.log('WE CREATED YOUR FILE SUCCESFULLY');
-
-        //win.webContents.send('sendFilename', filename);
       });
     };
     win = null;
@@ -112,26 +113,14 @@ function createWindow() {
     }
   })
 
-
   //---Preferences Window#//
   const preferences = new ElectronPreferences({
-    // Override default preference BrowserWindow values
     browserWindowOpts: {
       title: 'preferences',
       icon: `${__dirname}/assets/icons/64x64.png`
     },
-
-    // Create an optional menu bar
-    //menu: Menu.buildFromTemplate(/* ... */),
-
-    // Provide a custom CSS file, relative to your appPath.
     css: './src/style.css',
-
-    // Preference file path
-    dataStore: defaultDir + '/config.json', // defaults to <userData>/preferences.json
-
-    // Preference default values
-    //defs : fs.readFileSync(dataStore, 'utf-8'),
+    dataStore: defaultDir + '/config.json',
     defaults: {
       "network_settings": {
         "ember_provider": "192.168.100.36:9000",
@@ -145,58 +134,41 @@ function createWindow() {
         "rec_dir": defaultDir,
         "default_file": defaultDir + "/MySession.session",
         "autoLoad": [
-
         ],
         "autoSave": [
-
         ],
       },
       "other_settings": {
         "autoGo": [
-
         ]
       }
-
     },
-
-    // Preference sections visible to the UI
     sections: [
       {
         id: 'network_settings',
         label: 'Network Settings',
-        /**
-         * See the list of available icons below.
-         */
         icon: 'preferences',
         form: {
           groups: [
             {
-              /**
-               * Group heading is optional.
-               */
               label: 'Ember+ Provider',
               fields: [
                 {
                   label: 'Ip Address:Port ',
                   key: 'ember_provider',
                   type: 'text',
-                  //help: 'example: 192.168.100.36:9000'
                 },
                 {
                   label: '',
                   key: 'resetButton',
                   type: 'button',
                   buttonLabel: 'Apply',
-                  //help: 'This button sends on a custom ipc channel',
                   help: 'example: 192.168.100.36:9000',
                   hideLabel: true,
                 },
               ],
             },
             {
-              /**
-               * Group heading is optional.
-               */
               label: 'OSC settings',
               fields: [
                 {
@@ -215,8 +187,6 @@ function createWindow() {
                   key: 'applyButton',
                   type: 'button',
                   buttonLabel: 'Apply',
-                  //help: 'This button sends on a custom ipc channel',
-                  //help: 'example: 192.168.100.36:9000',
                   hideLabel: true,
                 },
               ]
@@ -237,7 +207,6 @@ function createWindow() {
                   label: 'Select your preferred Save folder',
                   key: 'rec_dir',
                   type: 'directory',
-                  //help: 'The location where your files *.session will be stored.',
                   multiSelections: false,
                   noResolveAliases: false,
                   treatPackageAsDirectory: false,
@@ -248,7 +217,6 @@ function createWindow() {
                   buttonLabel: 'Open',
                   key: 'default_file',
                   type: 'file',
-                  //help: 'Choose a default file launched at startup',
                   filters: [
                     {
                       name: 'session file',
@@ -260,7 +228,6 @@ function createWindow() {
                   noResolveAliases: false, //(macos) Disable the automatic alias (symlink) path resolution. Selected aliases will now return the alias path instead of their target path.
                   treatPackageAsDirectory: false, //(macos) Treat packages, such as .app folders, as a directory instead of a file.
                   dontAddToRecent: false, //(windows) Do not add the item being opened to the recent documents list. 
-                  //defaultPath: defaultDir, 
                 },
                 {
                   label: '',
@@ -269,7 +236,6 @@ function createWindow() {
                   options: [
                     { label: 'Load this file at startup', value: 'on' },
                   ],
-                  //help: 'Select one or more foods that you like.',
                 },
                 {
                   label: '',
@@ -278,7 +244,6 @@ function createWindow() {
                   options: [
                     { label: 'Save current config before close', value: 'autoSave' },
                   ],
-                  //help: 'Select one or more foods that you like.',
                 }
               ]
             }
@@ -310,24 +275,38 @@ function createWindow() {
       },
     ]
   });
+
   const oServerIP = ((preferences.value('network_settings.osc_server')).split(":"))[0];
   const oServerPort = Number(((preferences.value('network_settings.osc_server')).split(":"))[1]);
 
-  //---Save a value within the preferences data store
-  //---preferences.value('about.name', 'Einstein');
-
-  //---Subscribing to preference changes.
   preferences.on('save', (preferences) => {
-    console.log("preferences:", preferences)
+    console.log("preferences:", preferences);
     console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
   });
-  //---End of Preferences#//
 
+  // load auto-options on startup  
+  function loadPrefs() {
+    let autoLoad = (preferences.value('save_settings.autoLoad'))[0]
+    console.log("valeur autoload lue", autoLoad)
+    let default_file = preferences.value("save_settings.default_file")
+    let autoGo = (preferences.value('other_settings.autoGo'))[0]
+    console.log("valeur autoGo lue", autoGo)
+    if (autoLoad !== undefined) {
+      win.webContents.on('did-finish-load', () => {
+        console.log("la fenetre est prete et peut recevoir les options")
+        let content = fs.readFileSync(default_file, 'utf-8');
+        let sendedContent = JSON.stringify(content);
+        win.webContents.send("sendFileContent", sendedContent)
+        win.webContents.send('sendFilename', default_file)
+        if (autoGo !== undefined) {
+          win.webContents.send("autoGo")
+        }
+      });
+    }
+  }
+  loadPrefs()
 
-
-  //---Menu interactions Section---//
   ipcMain.on('sendSaveAs', (content) => {
-    //console.log(content);
     filename = dialog.showSaveDialog(null, recOptions, {}
     ).then(result => {
       filename = result.filePath;
@@ -379,10 +358,8 @@ function createWindow() {
       })
   })
 
-  //---End of Menu Interactions Section---//
-  /////////////////////////////////////////
   //---Network Settings Section---//
-  //Initiating connection to Remote Ember+ provider
+  //---Initiating Ember and OSC---//
   function emberGet() {
     const eAddress = preferences.value('network_settings.ember_provider')
     const eServerIP = ((preferences.value('network_settings.ember_provider')).split(":"))[0];
@@ -405,7 +382,12 @@ function createWindow() {
       // })
     });
   }
-  emberGet()
+  emberGet();
+
+//  function emberInputListener(node, value, row) {
+//    direction = "ET";
+//    console.log("Value", value, "received from ember+ for row", row)
+//  }
 
   function emberPost() {
     const eAddress = preferences.value('network_settings.ember_provider')
@@ -429,11 +411,8 @@ function createWindow() {
       // })
     });
   }
-  emberPost()
+  emberPost();
 
-
-
-  //Setting local OSC UDP Port
   function oscListening() {
     const oUDPport = preferences.value('network_settings.osc_receiver_port');
     console.log('Port de reception OSC:', oUDPport);
@@ -450,7 +429,7 @@ function createWindow() {
       })
     })
   }
-  oscListening()
+  oscListening();
 
   function oscToTable() {
     oscGet.on("message", (oscBundle) => {
@@ -462,33 +441,11 @@ function createWindow() {
       win.webContents.send('oReceivedAddr', oRaddr, oRargs);
     })
   }
-  oscToTable()
-
-
-  // load auto-options on startup  
-  function loadPrefs() {
-    let autoLoad = (preferences.value('save_settings.autoLoad'))[0]
-    console.log("valeur autoload lue", autoLoad)
-    let default_file = preferences.value("save_settings.default_file")
-    let autoGo = (preferences.value('other_settings.autoGo'))[0]
-    console.log("valeur autoGo lue", autoGo)
-    if (autoLoad !== undefined) {
-      win.webContents.on('did-finish-load', () => {
-        console.log("la fenetre est prete et peut recevoir les options")
-        let content = fs.readFileSync(default_file, 'utf-8');
-        let sendedContent = JSON.stringify(content);
-        win.webContents.send("sendFileContent", sendedContent)
-        win.webContents.send('sendFilename', default_file)
-        if (autoGo !== undefined) {
-          win.webContents.send("autoGo")
-        }
-      });
-    }
-  }
-  loadPrefs()
+  oscToTable();
 
   async function main() {
     try {
+
       const eAddress = preferences.value('network_settings.ember_provider');
       const err = await eGet.connect()
       if (err) { // err = true when the first connection attempt fails (depending on timeout)
@@ -559,158 +516,158 @@ function createWindow() {
       getUserLabels()
 
       ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve) => {
+        console.log("epath in newconnectionM ", ePath);
         sFactor = Number(sFactor);
-        let req = await eGet.getElementByPath(ePath);
-        eGet.subscribe(req, () => {
-          console.log("subscribed to ", ePath);
-          let emberValue = req.contents.value;
-          event.sender.send('sendEmberValue', emberValue, myRow, 1);
-          //let stringEpath = JSON.stringify(ePath);
+        
+        let initialReq = await eGet.getElementByPath(ePath);
+        let state = "first";
+        eGet.subscribe(initialReq, () => {
 
-          //---Sending received values from Ember+ to OSC
-          if (eVarType == "Integer" && eVarCurve == "lin") {
-            let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
-            oscGet.send({
-              address: oAddr,
-              args: [
-                {
-                  type: "f",
-                  value: Number(value),
-                }
-              ]
-            }, oServerIP, oServerPort);
-            console.log('EMBER+ -lin-> OSC : ', value);
-          }
-          else if (eVarType == "Integer" && eVarCurve == "log") {
-            let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true);
-            oscGet.send({
-              address: oAddr,
-              args: [
-                {
-                  type: "f",
-                  value: Number(value),
-                }
-              ]
-            }, oServerIP, oServerPort);
-            console.log('EMBER+ -log-> OSC : ', value);
-          }
-          else if (eVarType == "String") {
-            oscGet.send({
-              address: oAddr,
-              args: [
-                {
-                  type: "s",
-                  value: emberValue.toString(),
-                }
-              ]
-            }, oServerIP, oServerPort);
-            console.log('EMBER+ -string-> OSC : ', emberValue);
-          }
-          else if (eVarType == "Boolean" && emberValue == true) {
-            oscGet.send({
-              address: oAddr,
-              args: [
-                {
-                  type: "f",
-                  value: 1,
-                }
-              ]
-            }, oServerIP, oServerPort);
-            console.log('EMBER+ -bool-> OSC : ', emberValue);
-          }
-          else if (eVarType == "Boolean" && emberValue == false) {
-            oscGet.send({
-              address: oAddr,
-              args: [
-                {
-                  type: "f",
-                  value: 0,
-                }
-              ]
-            }, oServerIP, oServerPort);
-            console.log('EMBER+ -bool-> OSC : ', emberValue);
-          }
+          if (state == "first") {
+            direction = "ET";
+            console.log("subscribed to ", ePath);
+            let emberValue = initialReq.contents.value;
+            event.sender.send('sendEmberValue', emberValue, myRow, 1);
+            state = "nonFirst";
+
+            ;
+          } else {
+            //---Sending received values from Ember+ to OSC
+            direction = "EO"
+            let emberValue = initialReq.contents.value;
+            //emberInputListener(initialReq, emberValue, myRow);
+            if (eVarType == "Integer" && eVarCurve == "lin") {
+              let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
+              oscGet.send({
+                address: oAddr,
+                args: [
+                  {
+                    type: "f",
+                    value: Number(value),
+                  }
+                ]
+              }, oServerIP, oServerPort);
+              console.log('EMBER+ -lin-> OSC : ', value);
+            }
+            else if (eVarType == "Integer" && eVarCurve == "log") {
+              let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true);
+              oscGet.send({
+                address: oAddr,
+                args: [
+                  {
+                    type: "f",
+                    value: Number(value),
+                  }
+                ]
+              }, oServerIP, oServerPort);
+              console.log('EMBER+ -log-> OSC : ', value);
+            }
+            else if (eVarType == "String") {
+              oscGet.send({
+                address: oAddr,
+                args: [
+                  {
+                    type: "s",
+                    value: emberValue.toString(),
+                  }
+                ]
+              }, oServerIP, oServerPort);
+              console.log('EMBER+ -string-> OSC : ', emberValue);
+            }
+            else if (eVarType == "Boolean" && emberValue == true) {
+              oscGet.send({
+                address: oAddr,
+                args: [
+                  {
+                    type: "f",
+                    value: 1,
+                  }
+                ]
+              }, oServerIP, oServerPort);
+              console.log('EMBER+ -bool-> OSC : ', emberValue);
+            }
+            else if (eVarType == "Boolean" && emberValue == false) {
+              oscGet.send({
+                address: oAddr,
+                args: [
+                  {
+                    type: "f",
+                    value: 0,
+                  }
+                ]
+              }, oServerIP, oServerPort);
+              console.log('EMBER+ -bool-> OSC : ', emberValue);
+            }
+            direction= "ET";
+            if(gateDelayIN){
+              clearTimeout(gateDelayIN)
+            };
+
+            gateDelayIN =
+          (setTimeout(()=>{
+            event.sender.send('sendEmberValue', emberValue, myRow, 1);
+            console.log("libere")
+            direction = "";
+          },100));
+
+          } //let stringEpath = JSON.stringify(ePath);
         });
       });
 
-//      let osc_adress = ""
-//      ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve) => {
-//        let rereq = await eGet.getElementByPath(rEaddr);
-//        eGet.unsubscribe(rereq);
-//        //console.log("unsuscribe to ", rereq)
-//        if (eVarType == "Integer" && eVarCurve == "lin") {
-//          let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
-//          ePost.setValue((rereq), value.toFixed(0));
-//          console.log('OSC -lin-> EMBER+ : ', value.toFixed(0));
-//        } else if (eVarType == "Integer" && eVarCurve == "log") {
-//          let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true, -1);
-//          ePost.setValue((rereq), value.toFixed(0));
-//          console.log('OSC -log-> EMBER+ : ', value.toFixed(0));
-//        } else if (eVarType == "Boolean" && rOrArgs == "1") {
-//          ePost.setValue((rereq), true);
-//          console.log(("OSC -bool-> EMBER+", rOrArgs));
-//        } else if (eVarType == "Boolean" && rOrArgs == "0") {
-//          ePost.setValue((rereq), false);
-//          console.log(("OSC -bool-> EMBER+", rOrArgs));
-//        } else {
-//          ePost.setValue((rereq), rOrArgs);
-//          console.log(("OSC -string-> EMBER+", rOrArgs));
-//        }
-//        eGet.subscribe(rereq);
-//      })
       ipcMain.on("deleteConnection", async (event, ePath, oAddr, myRow, eVarType, sFactor) => {
         let req = await eGet.getElementByPath(ePath);
         eGet.unsubscribe(req);
         console.log('unsuscribe to ', ePath);
       })
 
+      ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve) => {
+        if (direction !== "ET") {
+          direction = "OE";
+          if(gateDelayOUT){
+            clearTimeout(gateDelayOUT)
+          };
+          let rereq = await eGet.getElementByPath(rEaddr);
+          //eGet.unsubscribe(rereq);
+          console.log("ePost unsuscribe to ", rereq)
+          if (eVarType == "Integer" && eVarCurve == "lin") {
+            let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
+            eGet.setValue((rereq), value.toFixed(0));
+            console.log('OSC -lin-> EMBER+ : ', value.toFixed(0));
+          } else if (eVarType == "Integer" && eVarCurve == "log") {
+            let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true, -1);
+            eGet.setValue((rereq), value.toFixed(0));
+            console.log('OSC -log-> EMBER+ : ', value.toFixed(0));
+          } else if (eVarType == "Boolean" && rOrArgs == "1") {
+            eGet.setValue((rereq), true);
+            console.log(("OSC -bool-> EMBER+", rOrArgs));
+          } else if (eVarType == "Boolean" && rOrArgs == "0") {
+            eGet.setValue((rereq), false);
+            console.log(("OSC -bool-> EMBER+", rOrArgs));
+          } else {
+            eGet.setValue((rereq), rOrArgs);
+            console.log(("OSC -string-> EMBER+", rOrArgs));
+          }
+
+          //eGet.subscribe(rereq);
+          console.log("eGet resubscribe to", rereq)
+          gateDelayOUT =
+          (setTimeout(()=>{
+            console.log("delivre")
+            direction = "";
+          },100));
+        } else {
+          console.log("E-->O")
+        }
+      })
+
     } catch (error) {
       throw Error(error);
     }
   }
-  main().catch(err => console.error("from main"+err));
+  main().catch(err => {
+    console.error(err)
+  });
 
-  async function second() {
-    try {
-      const eAddress = preferences.value('network_settings.ember_provider');
-      const err = await ePost.connect()
-      if (err) { // err = true when the first connection attempt fails (depending on timeout)
-        console.log(' connection to emberPost unsuccessful->', err);
-        win.webContents.send('eServConnError', eAddress);
-        return
-      }
-      win.webContents.send('eServerOK', eAddress);
-
-    ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve) => {
-      let rereq = await eGet.getElementByPath(rEaddr);
-      eGet.unsubscribe(rereq);
-      console.log("ePost unsuscribe to ", rereq)
-      if (eVarType == "Integer" && eVarCurve == "lin") {
-        let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
-        ePost.setValue((rereq), value.toFixed(0));
-        console.log('OSC -lin-> EMBER+ : ', value.toFixed(0));
-      } else if (eVarType == "Integer" && eVarCurve == "log") {
-        let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true, -1);
-        ePost.setValue((rereq), value.toFixed(0));
-        console.log('OSC -log-> EMBER+ : ', value.toFixed(0));
-      } else if (eVarType == "Boolean" && rOrArgs == "1") {
-        ePost.setValue((rereq), true);
-        console.log(("OSC -bool-> EMBER+", rOrArgs));
-      } else if (eVarType == "Boolean" && rOrArgs == "0") {
-        ePost.setValue((rereq), false);
-        console.log(("OSC -bool-> EMBER+", rOrArgs));
-      } else {
-        ePost.setValue((rereq), rOrArgs);
-        console.log(("OSC -string-> EMBER+", rOrArgs));
-      }
-      ePost.subscribe(rereq);
-      console.log("ePost resubscribe to", rereq)
-    })
-
-  } catch (error) {
-    throw Error(error);
-  }
-  } second().catch(err => console.error("fromsecond"+err));
 
 
   //  main().log.catchErrors({
@@ -731,7 +688,8 @@ function createWindow() {
     if (key === 'resetButton') {
       console.log("lebouton reset a ete clicke")
 
-      emberProviderConnect();
+      emberGet();
+      emberPost();
 
       //eGet.connect()
     }
@@ -748,7 +706,7 @@ function createWindow() {
 
   preferences.on('click', (key) => {
     if (key === 'applyButton') {
-      console.log("lebouton reset a ete clicke")
+      console.log("lebouton apply a ete clicke")
       win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
 
       listening();
