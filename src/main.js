@@ -2,6 +2,7 @@ const osc = require('osc');
 const lib = require('./mainFunctions');
 const { EmberClient } = require('emberplus-connection');
 const ElectronPreferences = require('electron-preferences');
+const contextMenu = require('electron-context-menu');
 const electron = require('electron');
 const { ipcMain } = require('electron');
 const nativeTheme = electron.nativeTheme;
@@ -330,6 +331,23 @@ function createWindow() {
     })
   }
   logDefinition();
+
+  contextMenu({
+    window: win,
+        labels: {
+            copy: "📄 | Copy",
+            paste: "📋 | Paste",
+            cut: "✂ | Cut"
+  },
+   /* Context Menu Items */
+   menu: (actions, params, win, dicSuggestion) => [
+     /* System Buttons */
+     actions.copy(),
+     actions.cut(),
+     actions.paste(),
+    ]
+  })
+
 
   ipcMain.on('sendSaveAs', (event,content) => {
 

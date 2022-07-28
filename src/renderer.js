@@ -126,6 +126,11 @@ ipcRenderer.on('resolveError',(e)=>{
   ipcRenderer.send('showPreferences');
 })
 
+let stream_direction;
+ipcRenderer.on('streamDirection',(e, direction)=>{
+  stream_direction = direction
+})
+
 ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
@@ -180,7 +185,7 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
         else {
           oMax2 = oMaxArray2[1]
         }
-        let eVarCurve = table.rows[myRow].cells[7].innerHTML;
+        let eVarCurve2 = table.rows[myRow].cells[7].innerHTML;
         ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
       } 
       else {
