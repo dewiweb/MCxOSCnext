@@ -378,7 +378,15 @@ function submitEmberPath(event) {
       emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2 + "." + slct3;
     };
   } else {
+    console.log("manualemberpath:",manualEmberPath);
     emBerPath = manualEmberPath;
+    if(emBerPath.includes("/") === true){
+      emBerPath = emBerPath.replaceAll("/",".");
+      if(emBerPath.charAt(0) === "."){
+        emBerPath = emBerPath.slice(1)
+      }else{emBerPath = emBerPath}
+    }else{emBerPath = emBerPath}
+    console.log("newemberpath:",emBerPath);
     eVarType = "Integer";
     eVarFactor = 1;
     eVarMin = 0;

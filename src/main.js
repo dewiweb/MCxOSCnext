@@ -523,19 +523,10 @@ function createWindow() {
       getUserLabels()
 
 //      async function expandtree(){
-//
-//        // Get Root info
-//        const request = await eGet.getDirectory(eGet.tree)
-//        const allroot = await request.response
-//      
-//        // Get a Specific Node
-//        //const node = await client.getElementByPath('1.1.1.1.1')
-//        //console.log(node)
-//      
-//        // Expand entire tree under root
-//        await eGet.getDirectory(allroot.children)
-//      
-//        console.log("EXPANDED:",util.inspect(allroot))
+//        const request = await eGet.getDirectory(eGet.tree);
+//        const allroot = await request.response;
+//        const expanded = await eGet.expand(allroot);
+//        console.log("EXPANDED:",expanded)
 //      }
 //      expandtree()
 
@@ -558,7 +549,9 @@ function createWindow() {
           } else {
             //---Sending received values from Ember+ to OSC
             direction = "EO"
-            let emberValue = initialReq.contents.value;
+            
+            let emberValue = initialReq.contents.value;2
+            event.sender.send('sendEmberValue', emberValue, myRow, 1);
             //emberInputListener(initialReq, emberValue, myRow);
             if (eVarType == "Integer" && eVarCurve == "lin") {
               let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
