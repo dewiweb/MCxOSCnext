@@ -525,7 +525,20 @@ function createWindow() {
 //      async function expandtree(){
 //        const request = await eGet.getDirectory(eGet.tree);
 //        const allroot = await request.response;
-//        const expanded = await eGet.expand(allroot);
+//
+//        const getCircularReplacer = () => {
+//          const seen = new WeakSet();
+//          return (key, value) => {
+//            if (typeof value === "object" && value !== null) {
+//              if (seen.has(value)) {
+//                return;
+//              }
+//              seen.add(value);
+//            }
+//            return value;
+//          };
+//        };
+//        const expanded = await eGet.expand(request);
 //        console.log("EXPANDED:",expanded)
 //      }
 //      expandtree()
