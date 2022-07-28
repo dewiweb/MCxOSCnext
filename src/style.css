@@ -256,17 +256,17 @@ caption{
 }
 
 .blink {
-  animation: blink 1s steps(1, end) infinite;
+  animation: blink 333ms steps(1, end) infinite;
 }
 
 @keyframes blink {
   0% {
     opacity: 1;
   }
-  33% {
+  25% {
     opacity: 0;
   }
-  66% {
+  75% {
     opacity: 1;
   }
   100%{
