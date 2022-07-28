@@ -841,6 +841,7 @@ function saveAs(saveAsBtn) {
     data.push(rowData);
   }
   let content = JSON.stringify(data, null, 2);
+  console.log("contentsended:", content)
   ipcRenderer.send('sendSaveAs', content)
 }
 

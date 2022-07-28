@@ -22,7 +22,7 @@ const log = require('electron-log');
 
 const stream = []
 let direction = "";
-
+let oUDPport;
 let gateDelayIN ="";
 let gateDelayOUT="";
 
@@ -40,7 +40,7 @@ let year = date_ob.getFullYear();
 let hours = lib.IntTwoChars(date_ob.getHours());
 let minutes = lib.IntTwoChars(date_ob.getMinutes());
 let seconds = lib.IntTwoChars(date_ob.getSeconds());
-const datePath = `autosave_${hours}-${minutes}-${seconds}_${month}-${date}-${year}`;
+const datePath = `autosave_${hours}-${minutes}-${seconds}_${date}-${month}-${year}`;
 log.info("datePath : ", datePath)
 //#End of Time Section#//
 
@@ -93,7 +93,7 @@ function createWindow() {
   })
 
   ipcMain.on('sendAutoSave', function (event, content) {
-    let autoSave = (preferences.value('save_settings.autoSave'))[1]
+    let autoSave = (preferences.value('save_settings.autoSave'))[0]
     console.log("autoSave :", autoSave)
     if (autoSave !== undefined) {
       fs.writeFile(autoSaveFilepath, content, (err) => {
@@ -331,7 +331,8 @@ function createWindow() {
   }
   logDefinition();
 
-  ipcMain.on('sendSaveAs', (content) => {
+  ipcMain.on('sendSaveAs', (event,content) => {
+
     filename = dialog.showSaveDialog(null, recOptions, {}
     ).then(result => {
       filename = result.filePath;
@@ -348,7 +349,7 @@ function createWindow() {
     });
   })
 
-  ipcMain.on('sendSave', (content, rSfilename) => {
+  ipcMain.on('sendSave', (event, content, rSfilename) => {
     //console.log("sendsave filepath", rSfilename);
     //console.log("sendsave content", content);
     if (rSfilename === undefined) {
@@ -416,7 +417,7 @@ function createWindow() {
 
 
   function oscListening() {
-    const oUDPport = preferences.value('network_settings.osc_receiver_port');
+    oUDPport = preferences.value('network_settings.osc_receiver_port');
     console.log('Port de reception OSC:', oUDPport);
     oscGet = new osc.UDPPort({
       localAddress: "0.0.0.0",
@@ -710,7 +711,7 @@ function createWindow() {
   // Using a button field with `channel: 'reset'`
   preferences.on('click', (key) => {
     if (key === 'resetButton') {
-      console.log("lebouton reset a ete clicke")
+      console.log("ember+ provider settings changed!")
 
       emberGet();
       main().catch(err => {
@@ -736,10 +737,10 @@ function createWindow() {
 
   preferences.on('click', (key) => {
     if (key === 'applyButton') {
-      console.log("lebouton apply a ete clicke")
+      console.log("listening port changed!")
       win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
-
-      oscListening()
+      oscGet.close();
+      oscListening();
       oscGet.on("error", function (error) {
         msg = error.message
         console.log("An error occurred with OSC listening: ", error.message);
