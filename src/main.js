@@ -11,7 +11,6 @@ const mainFunctions = require('./mainFunctions');
 const { dialog } = require('electron');
 const { send } = require('process');
 const appVersion = app.getVersion();
-const util = require ('util')
 const fs = require('fs');
 const defaultDir = app.getPath('documents') + '/MCxOSCnext';
 if (!fs.existsSync(defaultDir)) {
@@ -24,8 +23,8 @@ const log = require('electron-log');
 const stream = []
 let direction = "";
 let oUDPport;
-let gateDelayIN ="";
-let gateDelayOUT="";
+let gateDelayIN = "";
+let gateDelayOUT = "";
 
 
 
@@ -322,7 +321,7 @@ function createWindow() {
             if (result.response === 1) {
               win.webContents.send('resolveError')
             }
-          
+
             if (result.response === 2) {
               electron.app.quit();
             }
@@ -334,22 +333,22 @@ function createWindow() {
 
   contextMenu({
     window: win,
-        labels: {
-            copy: "📄 | Copy",
-            paste: "📋 | Paste",
-            cut: "✂ | Cut"
-  },
-   /* Context Menu Items */
-   menu: (actions, params, win, dicSuggestion) => [
-     /* System Buttons */
-     actions.copy(),
-     actions.cut(),
-     actions.paste(),
+    labels: {
+      copy: "📄 | Copy",
+      paste: "📋 | Paste",
+      cut: "✂ | Cut"
+    },
+    /* Context Menu Items */
+    menu: (actions, params, win, dicSuggestion) => [
+      /* System Buttons */
+      actions.copy(),
+      actions.cut(),
+      actions.paste(),
     ]
   })
 
 
-  ipcMain.on('sendSaveAs', (event,content) => {
+  ipcMain.on('sendSaveAs', (event, content) => {
 
     filename = dialog.showSaveDialog(null, recOptions, {}
     ).then(result => {
@@ -428,10 +427,10 @@ function createWindow() {
   }
   emberGet();
 
-//  function emberInputListener(node, value, row) {
-//    direction = "ET";
-//    console.log("Value", value, "received from ember+ for row", row)
-//  }
+  //  function emberInputListener(node, value, row) {
+  //    direction = "ET";
+  //    console.log("Value", value, "received from ember+ for row", row)
+  //  }
 
 
   function oscListening() {
@@ -473,15 +472,15 @@ function createWindow() {
         console.log(' connection to emberGet unsuccessful->', err);
         win.webContents.send('eServConnError', eAddress);
         win.webContents.send('resolveError');
-          return
+        return
       }
       win.webContents.send('eServerOK', eAddress);
-      
+
 
       async function getUserLabels() {
         root = await (await eGet.getDirectory(eGet.tree)).response
-        console.log("ROOT:",root)
-        
+        console.log("ROOT:", root)
+
         let inputsUserLabels = [];
         let auxesUserLabels = [];
         let mastersUserLabels = [];
@@ -540,32 +539,28 @@ function createWindow() {
       };
       getUserLabels()
 
-//      async function expandtree(){
-//        const request = await eGet.getDirectory(eGet.tree);
-//        const allroot = await request.response;
-//
-//        const getCircularReplacer = () => {
-//          const seen = new WeakSet();
-//          return (key, value) => {
-//            if (typeof value === "object" && value !== null) {
-//              if (seen.has(value)) {
-//                return;
-//              }
-//              seen.add(value);
-//            }
-//            return value;
-//          };
-//        };
-//        const expanded = await eGet.expand(request);
-//        console.log("EXPANDED:",expanded)
+//      async function expandtree() {
+//        let root = await (await eGet.getDirectory(eGet.tree)).response;
+//        try{
+//        //let first = await eGet.getElementByPath("_2._7._1._400016c0._400016c1")
+//        let second = await (await eGet.expand(root)).response;
+//        console.log("ENot:", second)
+//        }catch(e){
+//          throw Error(e)
+//        }
+//        //await (await this.getDirectory(node)).response;
+//        //let root = Object.values(eGet.tree);
+//        //let expanded_json = await(await eGet.expand(root)).response;
+//        //console.log("EXPANDED:",JSON.stringify(first))
 //      }
 //      expandtree()
 
       ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve) => {
         console.log("epath in newconnectionM ", ePath);
         sFactor = Number(sFactor);
-        
+
         let initialReq = await eGet.getElementByPath(ePath);
+        console.log("initialReq: ", initialReq);
         let state = "first";
         eGet.subscribe(initialReq, () => {
 
@@ -580,8 +575,8 @@ function createWindow() {
           } else {
             //---Sending received values from Ember+ to OSC
             direction = "EO"
-            
-            let emberValue = initialReq.contents.value;2
+
+            let emberValue = initialReq.contents.value; 2
             event.sender.send('sendEmberValue', emberValue, myRow, 1);
             //emberInputListener(initialReq, emberValue, myRow);
             if (eVarType == "Integer" && eVarCurve == "lin") {
@@ -611,6 +606,7 @@ function createWindow() {
               console.log('EMBER+ -log-> OSC : ', value);
             }
             else if (eVarType == "String") {
+              console.log("string reçu:",emberValue)
               oscGet.send({
                 address: oAddr,
                 args: [
@@ -646,17 +642,17 @@ function createWindow() {
               }, oServerIP, oServerPort);
               console.log('EMBER+ -bool-> OSC : ', emberValue);
             }
-            direction= "ET";
-            if(gateDelayIN){
+            direction = "ET";
+            if (gateDelayIN) {
               clearTimeout(gateDelayIN)
             };
 
             gateDelayIN =
-          (setTimeout(()=>{
-            event.sender.send('sendEmberValue', emberValue, myRow, 1);
-            console.log("libere")
-            direction = "";
-          },100));
+              (setTimeout(() => {
+                event.sender.send('sendEmberValue', emberValue, myRow, 1);
+                console.log("libere")
+                direction = "";
+              }, 100));
 
           } //let stringEpath = JSON.stringify(ePath);
         });
@@ -671,7 +667,7 @@ function createWindow() {
       ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve) => {
         if (direction !== "ET") {
           direction = "OE";
-          if(gateDelayOUT){
+          if (gateDelayOUT) {
             clearTimeout(gateDelayOUT)
           };
           let rereq = await eGet.getElementByPath(rEaddr);
@@ -699,10 +695,10 @@ function createWindow() {
           //eGet.subscribe(rereq);
           console.log("eGet resubscribe to", rereq)
           gateDelayOUT =
-          (setTimeout(()=>{
-            console.log("delivre")
-            direction = "";
-          },100));
+            (setTimeout(() => {
+              console.log("delivre")
+              direction = "";
+            }, 100));
         } else {
           console.log("E-->O")
         }
