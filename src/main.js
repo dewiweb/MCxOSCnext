@@ -240,7 +240,7 @@ function createWindow() {
                   options: [
                     { label: 'Save current config before close', value: 'autoSave' },
                   ],
-                }
+                },
               ]
             }
           ]
@@ -263,6 +263,20 @@ function createWindow() {
                   options: [
                     { label: 'load table content on startup', value: 'on' },
                   ],
+                },
+                {
+                  label: '',
+                  key: 'OID_to_OSC',
+                  type: 'checkbox',
+                  options: [
+                    { label: 'Send Lawo Access Channel OID Description Field', value: 'on' },
+                  ],
+                },
+                {
+                  label: 'destination:',
+                  key: 'oid2osc',
+                  type: 'text',
+                  help: 'example: 127.0.0.1:12001/_9/AccessChannelOID'
                 },
               ],
             },
@@ -427,6 +441,7 @@ function createWindow() {
   }
   emberGet();
 
+
   //  function emberInputListener(node, value, row) {
   //    direction = "ET";
   //    console.log("Value", value, "received from ember+ for row", row)
@@ -538,7 +553,38 @@ function createWindow() {
         win.webContents.send('gpcsUserLabels', gpcsUserLabels);
       };
       getUserLabels()
+      
+      async function channelAccess() {
+        root = await (await eGet.getDirectory(eGet.tree)).response
+      let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
+      let oid2osc = preferences.value('other_settings.oid2osc');
+      let o2o_address = (oid2osc.toString()).split(':')[0];
+      let o2o_port = (oid2osc.split(':')[1]).split('/')[0];
+      let o2o_path = '/' + oid2osc.slice(oid2osc.indexOf('/') + 1);
+      if (OID_to_OSC !==  undefined){
+        let init_oid2osc = await eGet.getElementByPath('_9.AccessChannelOID');
+        console.log ("init_oid2osc",init_oid2osc)
+        eGet.subscribe(init_oid2osc, () => {
+          let emberValue = init_oid2osc.contents.value;
+          console.log("channel access changed, OID:",emberValue);
+          async function bip() {
+          let CA_OID = await eGet.getElementByPath(emberValue);
+          console.log('CA_OID', CA_OID.contents.description);
+          oscGet.send({
+            address: o2o_path,
+            args: [
+              {
+                type: "s",
+                value: CA_OID.contents.description,
+              }
+            ]
+          }, o2o_address, Number(o2o_port));
+        }bip()
+      })
+  }
+}channelAccess();
 
+      
 //      async function expandtree() {
 //        let root = await (await eGet.getDirectory(eGet.tree)).response;
 //        try{
