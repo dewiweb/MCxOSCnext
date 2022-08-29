@@ -2,9 +2,12 @@
 const { ipcRenderer } = require('electron')
 const preferences = ipcRenderer.sendSync('getPreferences');
 const log = require('electron-log');
-console.log = log.log;
-Object.assign(console, log.functions);
-log.transports.console.format = '{h}:{i}:{s} > {text}';
+function logDefinition() {
+  console.log = log.log;
+  Object.assign(console, log.functions);
+  log.transports.console.format = '{h}:{i}:{s} / {text}';
+}
+logDefinition();
 
 log.transports.div = log.transports.console
 
@@ -60,21 +63,11 @@ ipcRenderer.on('udpportOK', (event, uPort) => {
   add2.classList.remove('blink')
 });
 
-ipcRenderer.on('udpportKO', (event, msg) => {
-  let add2 = document.getElementById('add2');
-  add2.removeChild(add2.firstChild);
-  add2.textContent = "An Error ocurred :" + msg;
-  let dot2 = document.getElementById('dot2');
-  dot2.style.color = "red";
-  dot2.classList.add('blink')
-  add2.style.color = "red";
-  add2.classList.add('blink')
-});
-
 
 ipcRenderer.on('eServerOK', (event, eAddress) => {
   let add1 = document.getElementById('add1');
-  add1.removeChild(add1.firstChild);
+  if(add1.firstChild){
+  add1.removeChild(add1.firstChild)};
   add1.textContent = "Connected to " + eAddress;
   let dot1 = document.getElementById('dot1');
   dot1.style.color = "green";
@@ -95,6 +88,49 @@ ipcRenderer.on('oServerOK', (event, oAddress) => {
   add3.classList.remove('blink')
 })
 
+ipcRenderer.on('udpportKO', (event, msg) => {
+  let add2 = document.getElementById('add2');
+  add2.removeChild(add2.firstChild);
+  add2.textContent = "An Error ocurred :" + msg;
+  let dot2 = document.getElementById('dot2');
+  dot2.style.color = "red";
+  dot2.classList.add('blink')
+  add2.style.color = "red";
+  add2.classList.add('blink')
+});
+
+ipcRenderer.on('eServConnError', function (event, eAddress) {
+  console.log("erreur de connection ember+")
+  let add1Error = document.getElementById("add1");
+  let dot1Error = document.getElementById("dot1");
+  add1Error.innerHTML = "Verify Ember+ Provider Address in preferences!";
+  dot1Error.style.color = "red";
+  dot1Error.classList.add('blink')
+  add1Error.style.color = "red";
+  add1Error.classList.add('blink')
+})
+
+ipcRenderer.on('eServDisconnected', function (event, eAddress) {
+  console.log("erreur de connection ember+")
+  let add1Error = document.getElementById("add1");
+  let dot1Error = document.getElementById("dot1");
+  add1Error.innerHTML = eAddress + "is disconnected!";
+  dot1Error.style.color = "red";
+  dot1Error.classList.add('blink')
+  dot1Error.classList.add('blink')
+  add1Error.style.color = "red";
+  add1Error.classList.add('blink')
+})
+
+ipcRenderer.on('resolveError',(e)=>{
+  ipcRenderer.send('showPreferences');
+})
+
+let stream_direction;
+ipcRenderer.on('streamDirection',(e, direction)=>{
+  stream_direction = direction
+})
+
 ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
@@ -111,8 +147,8 @@ let oMin2;
 let oMax2;
 let eVarCurve2;
 ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
-  dot2.classList.add("blink")
-  if (osc_adress !== oRaddr){
+//  dot2.classList.add("blink")
+//  if (osc_adress !== oRaddr){
   console.log("oRaddr",oRaddr);
   let dot2 = document.getElementById("dot2");
   dot2.classList.toggle('blink');
@@ -128,7 +164,7 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
       let p = td.parentNode;
       let myRow = p.rowIndex;
       if (txtValue.toUpperCase().indexOf(filteR) > -1) {
-      //  console.log("OSC Address Received: ", filteR, "is present in table at Row: ", myRow);
+        console.log("OSC Address Received: ", filteR, "is present in table at Row: ", myRow, "OSCvalue:",oRargs);
         table.rows[myRow].cells[3].innerHTML = oRargs.toFixed(2);
         sFactor2 = table.rows[myRow].cells[2].innerHTML;
         rEaddr2 = table.rows[myRow].cells[0].innerHTML;
@@ -149,19 +185,19 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
         else {
           oMax2 = oMaxArray2[1]
         }
-        let eVarCurve = table.rows[myRow].cells[7].innerHTML;
+        let eVarCurve2 = table.rows[myRow].cells[7].innerHTML;
         ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
       } 
       else {
-      //  console.log("OSC Address received is Undefined");
+        console.log("OSC Address received is Undefined");
       }
     }
     
   }
   
-}else{
-  ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
-}
+//}else{
+//  ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
+//}
 
 
     setTimeout(() => {
@@ -254,28 +290,7 @@ ipcRenderer.on('autoSave', function (event) {
 
 
 
-ipcRenderer.on('eServConnError', function (event, eAddress) {
-  console.log("erreur de connection ember+")
-  let add1Error = document.getElementById("add1");
-  let dot1Error = document.getElementById("dot1");
-  add1Error.innerHTML = "Verify Ember+ Provider Address in preferences!";
-  dot1Error.style.color = "red";
-  dot1Error.classList.add('blink')
-  add1Error.style.color = "red";
-  add1Error.classList.add('blink')
-})
 
-ipcRenderer.on('eServDisconnected', function (event, eAddress) {
-  console.log("erreur de connection ember+")
-  let add1Error = document.getElementById("add1");
-  let dot1Error = document.getElementById("dot1");
-  add1Error.innerHTML = eAddress + "is disconnected!";
-  dot1Error.style.color = "red";
-  dot1Error.classList.add('blink')
-  dot1Error.classList.add('blink')
-  add1Error.style.color = "red";
-  add1Error.classList.add('blink')
-})
 
 
 
@@ -368,7 +383,15 @@ function submitEmberPath(event) {
       emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2 + "." + slct3;
     };
   } else {
+    console.log("manualemberpath:",manualEmberPath);
     emBerPath = manualEmberPath;
+    if(emBerPath.includes("/") === true){
+      emBerPath = emBerPath.replaceAll("/",".");
+      if(emBerPath.charAt(0) === "."){
+        emBerPath = emBerPath.slice(1)
+      }else{emBerPath = emBerPath}
+    }else{emBerPath = emBerPath}
+    console.log("newemberpath:",emBerPath);
     eVarType = "Integer";
     eVarFactor = 1;
     eVarMin = 0;
@@ -831,6 +854,7 @@ function saveAs(saveAsBtn) {
     data.push(rowData);
   }
   let content = JSON.stringify(data, null, 2);
+  console.log("contentsended:", content)
   ipcRenderer.send('sendSaveAs', content)
 }
 

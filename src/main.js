@@ -2,6 +2,7 @@ const osc = require('osc');
 const lib = require('./mainFunctions');
 const { EmberClient } = require('emberplus-connection');
 const ElectronPreferences = require('electron-preferences');
+const contextMenu = require('electron-context-menu');
 const electron = require('electron');
 const { ipcMain } = require('electron');
 const nativeTheme = electron.nativeTheme;
@@ -9,7 +10,7 @@ const { app, BrowserWindow } = require('electron');
 const mainFunctions = require('./mainFunctions');
 const { dialog } = require('electron');
 const { send } = require('process');
-const appVersion = app.getVersion()
+const appVersion = app.getVersion();
 const fs = require('fs');
 const defaultDir = app.getPath('documents') + '/MCxOSCnext';
 if (!fs.existsSync(defaultDir)) {
@@ -17,18 +18,13 @@ if (!fs.existsSync(defaultDir)) {
 };
 const log = require('electron-log');
 
-function logDefinition() {
-  console.log = log.log;
-  Object.assign(console, log.functions);
-  log.transports.console.format = '{h}:{i}:{s} / {text}';
-}
-logDefinition();
+
 
 const stream = []
 let direction = "";
-
-let gateDelayIN ="";
-let gateDelayOUT="";
+let oUDPport;
+let gateDelayIN = "";
+let gateDelayOUT = "";
 
 
 
@@ -44,7 +40,7 @@ let year = date_ob.getFullYear();
 let hours = lib.IntTwoChars(date_ob.getHours());
 let minutes = lib.IntTwoChars(date_ob.getMinutes());
 let seconds = lib.IntTwoChars(date_ob.getSeconds());
-const datePath = `autosave_${hours}-${minutes}-${seconds}_${month}-${date}-${year}`;
+const datePath = `autosave_${hours}-${minutes}-${seconds}_${date}-${month}-${year}`;
 log.info("datePath : ", datePath)
 //#End of Time Section#//
 
@@ -90,14 +86,14 @@ function createWindow() {
   nativeTheme.themeSource = 'dark';
   win.setMenu(null);
   win.loadFile('src/index.html')
-  win.webContents.openDevTools({ mode: 'detach' });
+  //win.webContents.openDevTools({ mode: 'detach' });
 
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')
   })
 
   ipcMain.on('sendAutoSave', function (event, content) {
-    let autoSave = (preferences.value('save_settings.autoSave'))[1]
+    let autoSave = (preferences.value('save_settings.autoSave'))[0]
     console.log("autoSave :", autoSave)
     if (autoSave !== undefined) {
       fs.writeFile(autoSaveFilepath, content, (err) => {
@@ -244,7 +240,7 @@ function createWindow() {
                   options: [
                     { label: 'Save current config before close', value: 'autoSave' },
                   ],
-                }
+                },
               ]
             }
           ]
@@ -268,12 +264,27 @@ function createWindow() {
                     { label: 'load table content on startup', value: 'on' },
                   ],
                 },
+                {
+                  label: '',
+                  key: 'OID_to_OSC',
+                  type: 'checkbox',
+                  options: [
+                    { label: 'Send Lawo Access Channel OID Description Field', value: 'on' },
+                  ],
+                },
+                {
+                  label: 'destination:',
+                  key: 'oid2osc',
+                  type: 'text',
+                  help: 'example: 127.0.0.1:12001/_9/AccessChannelOID'
+                },
               ],
             },
           ],
         },
       },
-    ]
+    ],
+    //debug:true
   });
 
   const oServerIP = ((preferences.value('network_settings.osc_server')).split(":"))[0];
@@ -306,7 +317,53 @@ function createWindow() {
   }
   loadPrefs()
 
-  ipcMain.on('sendSaveAs', (content) => {
+  function logDefinition() {
+    console.log = log.log;
+    Object.assign(console, log.functions);
+    log.transports.console.format = '{h}:{i}:{s} / {text}';
+    log.catchErrors({
+      showDialog: false,
+      onError(error) {
+        electron.dialog.showMessageBox({
+          title: 'An error occurred',
+          message: error.message,
+          detail: error.stack,
+          type: 'error',
+          buttons: ['Ignore', 'Preferences', 'Exit'],
+        })
+          .then((result) => {
+            if (result.response === 1) {
+              win.webContents.send('resolveError')
+            }
+
+            if (result.response === 2) {
+              electron.app.quit();
+            }
+          });
+      }
+    })
+  }
+  logDefinition();
+
+  contextMenu({
+    window: win,
+    labels: {
+      copy: "📄 | Copy",
+      paste: "📋 | Paste",
+      cut: "✂ | Cut"
+    },
+    /* Context Menu Items */
+    menu: (actions, params, win, dicSuggestion) => [
+      /* System Buttons */
+      actions.copy(),
+      actions.cut(),
+      actions.paste(),
+    ]
+  })
+
+
+  ipcMain.on('sendSaveAs', (event, content) => {
+
     filename = dialog.showSaveDialog(null, recOptions, {}
     ).then(result => {
       filename = result.filePath;
@@ -323,7 +380,7 @@ function createWindow() {
     });
   })
 
-  ipcMain.on('sendSave', (content, rSfilename) => {
+  ipcMain.on('sendSave', (event, content, rSfilename) => {
     //console.log("sendsave filepath", rSfilename);
     //console.log("sendsave content", content);
     if (rSfilename === undefined) {
@@ -384,37 +441,15 @@ function createWindow() {
   }
   emberGet();
 
-//  function emberInputListener(node, value, row) {
-//    direction = "ET";
-//    console.log("Value", value, "received from ember+ for row", row)
-//  }
 
-  function emberPost() {
-    const eAddress = preferences.value('network_settings.ember_provider')
-    const eServerIP = ((preferences.value('network_settings.ember_provider')).split(":"))[0];
-    const eServerPort = Number(((preferences.value('network_settings.ember_provider')).split(":"))[1]);
-    ePost = new EmberClient(eServerIP, eServerPort);
-    ePost.on('connected', (e) => {
-      console.log("emberPost ", eServerIP, ":", eServerPort, " connection ok");
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('eServerOK', eAddress);
-      })
-    })
-    ePost.on('disconnected', (e) => {
-      console.log("Disconnected from emberPost");
-      win.webContents.send('eServDisconnected', eAddress);
-    })
-    ePost.on('uncaughtException', (e) => {
-      console.log(e);
-      //win.webContents.on('did-finish-load', () => {
-      win.webContents.send('eServConnError', eAddress);
-      // })
-    });
-  }
-  emberPost();
+  //  function emberInputListener(node, value, row) {
+  //    direction = "ET";
+  //    console.log("Value", value, "received from ember+ for row", row)
+  //  }
+
 
   function oscListening() {
-    const oUDPport = preferences.value('network_settings.osc_receiver_port');
+    oUDPport = preferences.value('network_settings.osc_receiver_port');
     console.log('Port de reception OSC:', oUDPport);
     oscGet = new osc.UDPPort({
       localAddress: "0.0.0.0",
@@ -451,12 +486,16 @@ function createWindow() {
       if (err) { // err = true when the first connection attempt fails (depending on timeout)
         console.log(' connection to emberGet unsuccessful->', err);
         win.webContents.send('eServConnError', eAddress);
+        win.webContents.send('resolveError');
         return
       }
       win.webContents.send('eServerOK', eAddress);
 
+
       async function getUserLabels() {
         root = await (await eGet.getDirectory(eGet.tree)).response
+        console.log("ROOT:", root)
+
         let inputsUserLabels = [];
         let auxesUserLabels = [];
         let mastersUserLabels = [];
@@ -514,12 +553,60 @@ function createWindow() {
         win.webContents.send('gpcsUserLabels', gpcsUserLabels);
       };
       getUserLabels()
+      
+      async function channelAccess() {
+        root = await (await eGet.getDirectory(eGet.tree)).response
+      let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
+      let oid2osc = preferences.value('other_settings.oid2osc');
+      let o2o_address = (oid2osc.toString()).split(':')[0];
+      let o2o_port = (oid2osc.split(':')[1]).split('/')[0];
+      let o2o_path = '/' + oid2osc.slice(oid2osc.indexOf('/') + 1);
+      if (OID_to_OSC !==  undefined){
+        let init_oid2osc = await eGet.getElementByPath('_9.AccessChannelOID');
+        console.log ("init_oid2osc",init_oid2osc)
+        eGet.subscribe(init_oid2osc, () => {
+          let emberValue = init_oid2osc.contents.value;
+          console.log("channel access changed, OID:",emberValue);
+          async function bip() {
+          let CA_OID = await eGet.getElementByPath(emberValue);
+          console.log('CA_OID', CA_OID.contents.description);
+          oscGet.send({
+            address: o2o_path,
+            args: [
+              {
+                type: "s",
+                value: CA_OID.contents.description,
+              }
+            ]
+          }, o2o_address, Number(o2o_port));
+        }bip()
+      })
+  }
+}channelAccess();
+
+      
+//      async function expandtree() {
+//        let root = await (await eGet.getDirectory(eGet.tree)).response;
+//        try{
+//        //let first = await eGet.getElementByPath("_2._7._1._400016c0._400016c1")
+//        let second = await (await eGet.expand(root)).response;
+//        console.log("ENot:", second)
+//        }catch(e){
+//          throw Error(e)
+//        }
+//        //await (await this.getDirectory(node)).response;
+//        //let root = Object.values(eGet.tree);
+//        //let expanded_json = await(await eGet.expand(root)).response;
+//        //console.log("EXPANDED:",JSON.stringify(first))
+//      }
+//      expandtree()
 
       ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve) => {
         console.log("epath in newconnectionM ", ePath);
         sFactor = Number(sFactor);
-        
+
         let initialReq = await eGet.getElementByPath(ePath);
+        console.log("initialReq: ", initialReq);
         let state = "first";
         eGet.subscribe(initialReq, () => {
 
@@ -534,7 +621,9 @@ function createWindow() {
           } else {
             //---Sending received values from Ember+ to OSC
             direction = "EO"
-            let emberValue = initialReq.contents.value;
+
+            let emberValue = initialReq.contents.value; 2
+            event.sender.send('sendEmberValue', emberValue, myRow, 1);
             //emberInputListener(initialReq, emberValue, myRow);
             if (eVarType == "Integer" && eVarCurve == "lin") {
               let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
@@ -563,6 +652,7 @@ function createWindow() {
               console.log('EMBER+ -log-> OSC : ', value);
             }
             else if (eVarType == "String") {
+              console.log("string reçu:",emberValue)
               oscGet.send({
                 address: oAddr,
                 args: [
@@ -598,17 +688,17 @@ function createWindow() {
               }, oServerIP, oServerPort);
               console.log('EMBER+ -bool-> OSC : ', emberValue);
             }
-            direction= "ET";
-            if(gateDelayIN){
+            direction = "ET";
+            if (gateDelayIN) {
               clearTimeout(gateDelayIN)
             };
 
             gateDelayIN =
-          (setTimeout(()=>{
-            event.sender.send('sendEmberValue', emberValue, myRow, 1);
-            console.log("libere")
-            direction = "";
-          },100));
+              (setTimeout(() => {
+                event.sender.send('sendEmberValue', emberValue, myRow, 1);
+                console.log("libere")
+                direction = "";
+              }, 100));
 
           } //let stringEpath = JSON.stringify(ePath);
         });
@@ -623,12 +713,12 @@ function createWindow() {
       ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve) => {
         if (direction !== "ET") {
           direction = "OE";
-          if(gateDelayOUT){
+          if (gateDelayOUT) {
             clearTimeout(gateDelayOUT)
           };
           let rereq = await eGet.getElementByPath(rEaddr);
           //eGet.unsubscribe(rereq);
-          console.log("ePost unsuscribe to ", rereq)
+          console.log("eGet unsuscribe to ", rereq)
           if (eVarType == "Integer" && eVarCurve == "lin") {
             let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
             eGet.setValue((rereq), value.toFixed(0));
@@ -651,10 +741,10 @@ function createWindow() {
           //eGet.subscribe(rereq);
           console.log("eGet resubscribe to", rereq)
           gateDelayOUT =
-          (setTimeout(()=>{
-            console.log("delivre")
-            direction = "";
-          },100));
+            (setTimeout(() => {
+              console.log("delivre")
+              direction = "";
+            }, 100));
         } else {
           console.log("E-->O")
         }
@@ -665,6 +755,7 @@ function createWindow() {
     }
   }
   main().catch(err => {
+    win.webContents.send('resolveError')
     console.error(err)
   });
 
@@ -686,34 +777,41 @@ function createWindow() {
   // Using a button field with `channel: 'reset'`
   preferences.on('click', (key) => {
     if (key === 'resetButton') {
-      console.log("lebouton reset a ete clicke")
+      console.log("ember+ provider settings changed!")
 
       emberGet();
-      emberPost();
+      main().catch(err => {
+        win.webContents.send('resolveError')
+        console.error(err)
+      });
+      //emberPost();
 
       //eGet.connect()
     }
   });
 
   oscGet.on("error", (error) => {
+
     msg = error.message;
     win.webContents.on('did-finish-load', () => {
       console.log("An error occurred with OSC listening: ", error.message);
 
       win.webContents.send('udpportKO', msg);
+      oscGet.close()
     });
   });
 
   preferences.on('click', (key) => {
     if (key === 'applyButton') {
-      console.log("lebouton apply a ete clicke")
+      console.log("listening port changed!")
       win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
-
-      listening();
+      oscGet.close();
+      oscListening();
       oscGet.on("error", function (error) {
         msg = error.message
         console.log("An error occurred with OSC listening: ", error.message);
         win.webContents.send('udpportKO', msg)
+        win.webContents.send('resolveError')
       });
 
       //eGet.connect()
