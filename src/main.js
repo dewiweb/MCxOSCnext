@@ -86,7 +86,7 @@ function createWindow() {
   nativeTheme.themeSource = 'dark';
   win.setMenu(null);
   win.loadFile('src/index.html')
-  //win.webContents.openDevTools({ mode: 'detach' });
+  win.webContents.openDevTools({ mode: 'detach' });
 
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')

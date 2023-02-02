@@ -109,6 +109,12 @@ input[type=text], input[type=number], select{
   border-radius: 10px;
 }
 
+#Connections_Settings {
+  border: solid #47496c;
+  padding: 0.001px;
+  border-radius: 10px;
+}
+
 .table{
     border: solid #47496c;
     border-radius: 10px;
