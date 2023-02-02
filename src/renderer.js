@@ -252,6 +252,7 @@ ipcRenderer.on('sendFileContent', function (event, content) {
       cell3.innerHTML = element.factor;
       cell4.innerHTML = "----";
       cell5.innerHTML = element.address;
+      cell5.contentEditable = true;
       cell6.appendChild(btnGo);
       cell6.appendChild(btnDel);
       cell7.innerHTML = element.type;
@@ -421,6 +422,7 @@ function submitEmberPath(event) {
   cell3.innerHTML = eVarFactor;
   cell4.innerHTML = "----";
   cell5.innerHTML = oscAddr;
+  cell5.contentEditable = true;
   cell6.appendChild(btnGo);
   cell6.appendChild(btnDel);
   cell7.innerHTML = eVarType;
