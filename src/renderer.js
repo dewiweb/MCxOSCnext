@@ -808,6 +808,7 @@ function remapMode(e) {
   let table = document.getElementById("tableOfConnection");
   let lastRow = table.rows[table.rows.length - 1];
   let eType = lastRow.cells[6].innerHTML;
+  let eMath =lastRow.cells[7].innerHTML;
   let eMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[0];
   let eMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[0];
   let eRange = document.getElementById("eRange");
@@ -817,7 +818,11 @@ function remapMode(e) {
   let unhideOnRemap = document.getElementsByClassName("unhideOnRemap");
   if (switcher1.className == "toggle" && eType == "Integer") {
     switcher1.className = "toggle toggle-on";
-    lCheckbox.checked = false;
+    if (eMath == "lin"){
+      lCheckbox.checked = false;
+    }else{
+      lCheckbox.checked = true;
+    }
     let oMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[1];
     let oMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[1];
     for ( i = 0; i < unhideOnRemap.length; i++) {
