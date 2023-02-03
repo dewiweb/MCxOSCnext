@@ -127,6 +127,10 @@ table{
 table, th, td {
   border: 1px solid black;
 }
+td>select{
+  background: #282C34;
+  color: #ccc;
+}
 .hiddenTd{
   visibility: hidden;
 }

@@ -426,7 +426,19 @@ function submitEmberPath(event) {
   cell6.appendChild(btnGo);
   cell6.appendChild(btnDel);
   cell7.innerHTML = eVarType;
-  cell8.innerHTML = eVarCurve;
+  if (eVarCurve == "lin"){
+    cell8.innerHTML = `<select>
+      <option value="`+ eVarCurve + `" selected >`+ eVarCurve + `</option>
+      <option value="log">log</option>
+      </select>`
+    }else 
+    if(eVarCurve == "log"){
+      cell8.innerHTML = `<select>
+      <option value="`+ eVarCurve + `" selected >`+ eVarCurve + `</option>
+      <option value="lin">lin</option>
+      </select>`
+    }
+;
   if (eVarFactor !== "") {
     cell9.innerHTML = eVarMin + "/" + (Number(eVarMin) / Number(eVarFactor)).toFixed(0);
     cell11.innerHTML = eVarMax + "/" + (Number(eVarMax) / Number(eVarFactor)).toFixed(0);
@@ -714,6 +726,7 @@ function sendConnection(o) {
     oMax = oMaxArray[1]
   }
   let eVarCurve = table.rows[myRow].cells[7].innerHTML;
+  console.log("Math innerhtml:", eVarCurve)
   console.log("epath in newconnectionR:", ePath)
   ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve);
 }
