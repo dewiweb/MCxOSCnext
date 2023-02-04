@@ -123,14 +123,31 @@ input[type=text], input[type=number], select{
 table{
   border-collapse: collapse;
 }
+td[contentEditable="true"]:hover{
+  font-size: large;
+  background: grey;
+  
+}
 
 table, th, td {
   border: 1px solid black;
 }
-td>select{
+td>select, td>input{
   background: #282C34;
   color: #ccc;
+  font-size: x-small;
+  
 }
+td>input{
+  display: inline;
+  width:33%;
+  text-align: left; 
+}
+td>input:hover, td>select:hover{
+  font-size: large;
+  background: grey;
+}
+
 .hiddenTd{
   visibility: hidden;
 }

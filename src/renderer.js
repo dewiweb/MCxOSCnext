@@ -418,6 +418,7 @@ function submitEmberPath(event) {
   let cell10 = row.insertCell(9);
   let cell11 = row.insertCell(10);
   cell1.innerHTML = emBerPath;
+  cell1.contentEditable = true;
   cell2.innerHTML = "----";
   cell3.innerHTML = eVarFactor;
   cell4.innerHTML = "----";
@@ -440,11 +441,11 @@ function submitEmberPath(event) {
     }
 ;
   if (eVarFactor !== "") {
-    cell9.innerHTML = eVarMin + "/" + (Number(eVarMin) / Number(eVarFactor)).toFixed(0);
-    cell11.innerHTML = eVarMax + "/" + (Number(eVarMax) / Number(eVarFactor)).toFixed(0);
+    cell9.innerHTML = eVarMin + "/" + `<input type="number" value=` + (Number(eVarMin) / Number(eVarFactor)).toFixed(0) + `>`;
+    cell11.innerHTML = eVarMax + "/" + `<input type="number" value=` + (Number(eVarMax) / Number(eVarFactor)).toFixed(0) + `>`;
   } else {
-    cell9.innerHTML = eVarMin + "/" + 0;
-    cell11.innerHTML = eVarMax + "/" + 1;
+    cell9.innerHTML = eVarMin + "/" + `<span value="0">0</span>`;
+    cell11.innerHTML = eVarMax + "/" + `<span value="1">1</span>`;
   }
   cell10.innerHTML = "";
   cell3.style.fontSize = 'x-small';
@@ -867,11 +868,20 @@ function saveAs(saveAsBtn) {
   for (i = 2; i < table.rows.length; i++) {
     let tableRow = table.rows[i];
     let rowData = {};
-    let x = [0, 2, 4, 6, 7, 8, 10];
+    let x = [0, 2, 4, 6];
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
+    let selected = tableRow.cells[7].innerHTML;
+    let temp = document.createElement('div');
+    temp.innerHTML = selected;
+    let seloption = temp;
+    console.log("selectedoption: ", selected.selectedOption.value);
+
+    rowData[headers[7]] = selected.selectedOption;
+    console.log("value:",selected.selectedOption)
     data.push(rowData);
+    console.log("secondpush: ", rowData)
   }
   let content = JSON.stringify(data, null, 2);
   console.log("contentsended:", content)
