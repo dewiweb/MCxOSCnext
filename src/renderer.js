@@ -278,10 +278,24 @@ ipcRenderer.on('autoSave', function (event) {
   for (i = 2; i < table.rows.length; i++) {
     let tableRow = table.rows[i];
     let rowData = {};
-    let x = [0, 2, 4, 6, 7, 8, 10];
+    let x = [0, 2, 4, 6];
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
+    if (tableRow.cells[7].firstElementChild){
+      let selected = tableRow.cells[7].firstElementChild.value;
+      rowData[headers[7]] = selected;
+    }else{
+      rowData[headers[7]] =""
+    }
+    let emin = tableRow.cells[8].innerHTML.split(`<`)[0]
+    let omin = tableRow.cells[8].firstElementChild.value;
+    let mins = (emin + omin).replace(/\s/g, '');
+    rowData[headers[8]] = mins
+    let emax = tableRow.cells[10].innerHTML.split(`<`)[0]
+    let omax = tableRow.cells[10].firstElementChild.value;
+    let maxs = (emax + omax).replace(/\s/g, '');
+    rowData[headers[10]] = maxs
     data.push(rowData);
   }
 //  data.unshift(sessionData)
@@ -444,8 +458,8 @@ function submitEmberPath(event) {
     cell9.innerHTML = eVarMin + "/" + `<input type="number" value=` + (Number(eVarMin) / Number(eVarFactor)).toFixed(0) + `>`;
     cell11.innerHTML = eVarMax + "/" + `<input type="number" value=` + (Number(eVarMax) / Number(eVarFactor)).toFixed(0) + `>`;
   } else {
-    cell9.innerHTML = eVarMin + "/" + `<span value="0">0</span>`;
-    cell11.innerHTML = eVarMax + "/" + `<span value="1">1</span>`;
+    cell9.innerHTML = eVarMin + "/" + `<input type="number" value="0">`;
+    cell11.innerHTML = eVarMax + "/" + `<input type="number" value="1">`;
   }
   cell10.innerHTML = "";
   cell3.style.fontSize = 'x-small';
@@ -872,16 +886,21 @@ function saveAs(saveAsBtn) {
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
-    let selected = tableRow.cells[7].innerHTML;
-    let temp = document.createElement('div');
-    temp.innerHTML = selected;
-    let seloption = temp;
-    console.log("selectedoption: ", selected.selectedOption.value);
-
-    rowData[headers[7]] = selected.selectedOption;
-    console.log("value:",selected.selectedOption)
+    if (tableRow.cells[7].firstElementChild){
+      let selected = tableRow.cells[7].firstElementChild.value;
+      rowData[headers[7]] = selected;
+    }else{
+      rowData[headers[7]] =""
+    }
+    let emin = tableRow.cells[8].innerHTML.split(`<`)[0]
+    let omin = tableRow.cells[8].firstElementChild.value;
+    let mins = (emin + omin).replace(/\s/g, '');
+    rowData[headers[8]] = mins
+    let emax = tableRow.cells[10].innerHTML.split(`<`)[0]
+    let omax = tableRow.cells[10].firstElementChild.value;
+    let maxs = (emax + omax).replace(/\s/g, '');
+    rowData[headers[10]] = maxs
     data.push(rowData);
-    console.log("secondpush: ", rowData)
   }
   let content = JSON.stringify(data, null, 2);
   console.log("contentsended:", content)
@@ -899,10 +918,24 @@ function save(saveBtn) {
   for (i = 2; i < table.rows.length; i++) {
     let tableRow = table.rows[i];
     let rowData = {};
-    let x = [0, 2, 4, 6, 7, 8, 10];
+    let x = [0, 2, 4, 6];
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
+    if (tableRow.cells[7].firstElementChild){
+      let selected = tableRow.cells[7].firstElementChild.value;
+      rowData[headers[7]] = selected;
+    }else{
+      rowData[headers[7]] =""
+    }
+    let emin = tableRow.cells[8].innerHTML.split(`<`)[0]
+    let omin = tableRow.cells[8].firstElementChild.value;
+    let mins = (emin + omin).replace(/\s/g, '');
+    rowData[headers[8]] = mins
+    let emax = tableRow.cells[10].innerHTML.split(`<`)[0]
+    let omax = tableRow.cells[10].firstElementChild.value;
+    let maxs = (emax + omax).replace(/\s/g, '');
+    rowData[headers[10]] = maxs
     data.push(rowData);
   }
   let content = JSON.stringify(data, null, 2);
