@@ -248,6 +248,7 @@ ipcRenderer.on('sendFileContent', function (event, content) {
       let cell10 = row.insertCell(9);
       let cell11 = row.insertCell(10);
       cell1.innerHTML = element.path;
+      cell1.contentEditable = true;
       cell2.innerHTML = "----";
       cell3.innerHTML = element.factor;
       cell4.innerHTML = "----";
@@ -256,11 +257,33 @@ ipcRenderer.on('sendFileContent', function (event, content) {
       cell6.appendChild(btnGo);
       cell6.appendChild(btnDel);
       cell7.innerHTML = element.type;
-      cell8.innerHTML = element.math;
-      cell9.innerHTML = element.min;
+
+      if (element.math == "lin"){
+    cell8.innerHTML = `<select>
+      <option value="`+ element.math + `" selected >`+ element.math+ `</option>
+      <option value="log">log</option>
+      </select>`
+    }else 
+    if(element.math == "log"){
+      cell8.innerHTML = `<select>
+      <option value="`+ element.math + `" selected >`+ element.math + `</option>
+      <option value="lin">lin</option>
+      </select>`
+    }
+;
+  if (element.factor !== "") {
+    cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.min.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
+    cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.max.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
+  } else {
+    cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value="0">`;
+    cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value="1">`;
+  }
+  cell10.innerHTML = "";
+      
       cell10.innerHTML = "";
-      cell11.innerHTML = element.max;
       cell3.style.fontSize = 'x-small';
+      cell7.style.fontSize = 'x-small';
+      cell8.style.fontSize = 'x-small';
       cell9.style.fontSize = 'x-small';
       cell11.style.fontSize = 'x-small';
     }
