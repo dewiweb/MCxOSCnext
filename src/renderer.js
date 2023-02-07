@@ -169,8 +169,8 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
         sFactor2 = table.rows[myRow].cells[2].innerHTML;
         rEaddr2 = table.rows[myRow].cells[0].innerHTML;
         eVarType2 = table.rows[myRow].cells[6].innerHTML;
-        eMin2 = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")))[0];
-        eMax2 = (Array.from((table.rows[myRow].cells[10].innerHTML).split("/")))[0];
+        eMin2 = table.rows[myRow].cells[8].innerHTML.split("<")[0].replace(/\//, "");
+        eMax2 = table.rows[myRow].cells[8].innerHTML.split("<")[0].replace(/\//, "");
         oMinArray2 = (Array.from((table.rows[myRow].cells[8].innerHTML).split("/")));
         if (typeof oMinArray2[1] === 'undefined') {
           oMin2 = eMin2
@@ -185,7 +185,7 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
         else {
           oMax2 = oMaxArray2[1]
         }
-        let eVarCurve2 = table.rows[myRow].cells[7].innerHTML;
+        let eVarCurve2 = table.rows[myRow].cells[7].firstElementChild.value;
         ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
       } 
       else {
