@@ -414,28 +414,28 @@ function submitEmberPath(event) {
   let slct2 = document.getElementById("slct2").value;
   let slct3 = document.getElementById("slct3").value;
   let emBerPath = "";
-  if (switcher.className == "toggle") {
+//  if (switcher.className == "toggle") {
     if (slct3 == "") {
       emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2;
     } else if (slct3 != "") {
       emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2 + "." + slct3;
     };
-  } else {
-    console.log("manualemberpath:",manualEmberPath);
-    emBerPath = manualEmberPath;
-    if(emBerPath.includes("/") === true){
-      emBerPath = emBerPath.replaceAll("/",".");
-      if(emBerPath.charAt(0) === "."){
-        emBerPath = emBerPath.slice(1)
-      }else{emBerPath = emBerPath}
-    }else{emBerPath = emBerPath}
-    console.log("newemberpath:",emBerPath);
-    eVarType = "Integer";
-    eVarFactor = 1;
-    eVarMin = 0;
-    eVarMax = 0
-    eVarCurve = "lin"
-  };
+//  } else {
+//    console.log("manualemberpath:",manualEmberPath);
+//    emBerPath = manualEmberPath;
+//    if(emBerPath.includes("/") === true){
+//      emBerPath = emBerPath.replaceAll("/",".");
+//      if(emBerPath.charAt(0) === "."){
+//        emBerPath = emBerPath.slice(1)
+//      }else{emBerPath = emBerPath}
+//    }else{emBerPath = emBerPath}
+//    console.log("newemberpath:",emBerPath);
+//    eVarType = "Integer";
+//    eVarFactor = 1;
+//    eVarMin = 0;
+//    eVarMax = 0
+//    eVarCurve = "lin"
+//  };
   btnDel.innerHTML = "X";
   btnDel.setAttribute('onClick', 'SomeDeleteRowFunction(this)');
   btnGo.innerHTML = "Go!";
@@ -638,64 +638,64 @@ function fillOscAddr(event) {
   let slct1 = document.getElementById("slct1");
   let slct2 = document.getElementById("slct2");
   let slct3 = document.getElementById("slct3");
-  let switcher = document.getElementById("switcher");
-  if (switcher.className == "toggle") {
+//  let switcher = document.getElementById("switcher");
+//  if (switcher.className == "toggle") {
     if (slct3.value == "") {
       oscAddr.value = "/Channels/" + slct0.value + "/" + userLabel.value + "/" + slct1.value + "/" + slct2.value;
     } else {
       oscAddr.value = "/Channels/" + slct0.value + "/" + userLabel.value + "/" + slct1.value + "/" + slct2.value + "/" + slct3.value;
     }
-  } else {
-    userLabelValid = userLabel.value.includes("/");
-    if (userLabelValid == true) {
-      userLabel.value = (userLabel.value).replace(/\//g, ".")
-    };
-    oscAddr.value = "/" + (userLabel.value).replace(/\./g, "/")
-  }
+//  } else {
+//    userLabelValid = userLabel.value.includes("/");
+//    if (userLabelValid == true) {
+//      userLabel.value = (userLabel.value).replace(/\//g, ".")
+//    };
+//    oscAddr.value = "/" + (userLabel.value).replace(/\./g, "/")
+//  }
 }
-
-function modifyOscAddr(event) {
-  let newOscAddr = document.getElementById("oscAddr").value;
-  let table = document.getElementById("tableOfConnection");
-  let switcher1 = document.getElementById("switcher1");
-  if (switcher1.className == "toggle toggle-on") {
-    let x = table.rows.length;
-    let oRange = document.getElementById("oRange");
-    let lCheckbox = document.getElementById("lCheckbox");
-    oRangeArr = Array.from(oRange.value.split(','));
-    let rows = table.getElementsByTagName('tr');
-    if (x > 2) {
-      table.rows[rows.length - 1].cells[4].innerHTML = newOscAddr;
-      let emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
-      let emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
-      table.rows[rows.length - 1].cells[8].innerHTML = emMin + "/" + oRangeArr[0];
-      table.rows[rows.length - 1].cells[10].innerHTML = emMax + "/" + oRangeArr[1];
-      if (lCheckbox.checked !== false) {
-        table.rows[rows.length - 1].cells[7].innerHTML = "log";
-      } else {
-        table.rows[rows.length - 1].cells[7].innerHTML = "lin";
-      }
-    }
-  }
-  else {
-    switcher1.className = "toggle";
-    let x = table.rows.length;
-    let oRange = document.getElementById("oRange");
-    let lCheckbox = document.getElementById("lCheckbox");
-    oRangeArr = Array.from(oRange.value.split(','));
-    let rows = table.getElementsByTagName('tr');
-    if (x > 2) {
-      table.rows[rows.length - 1].cells[4].innerHTML = newOscAddr;
-      let emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
-      let emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
-      table.rows[rows.length - 1].cells[8].innerHTML = emMin;
-      table.rows[rows.length - 1].cells[10].innerHTML = emMax;
-      lCheckbox.checked = false;
-      table.rows[rows.length - 1].cells[2].innerHTML = 1;
-    }
-  }
-}
-
+//UNUSED_FUNCTION//
+//function modifyOscAddr(event) {
+//  let newOscAddr = document.getElementById("oscAddr").value;
+//  let table = document.getElementById("tableOfConnection");
+//  let switcher1 = document.getElementById("switcher1");
+//  if (switcher1.className == "toggle toggle-on") {
+//    let x = table.rows.length;
+//    let oRange = document.getElementById("oRange");
+//    let lCheckbox = document.getElementById("lCheckbox");
+//    oRangeArr = Array.from(oRange.value.split(','));
+//    let rows = table.getElementsByTagName('tr');
+//    if (x > 2) {
+//      table.rows[rows.length - 1].cells[4].innerHTML = newOscAddr;
+//      let emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
+//      let emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
+//      table.rows[rows.length - 1].cells[8].innerHTML = emMin + "/" + oRangeArr[0];
+//      table.rows[rows.length - 1].cells[10].innerHTML = emMax + "/" + oRangeArr[1];
+//      if (lCheckbox.checked !== false) {
+//        table.rows[rows.length - 1].cells[7].innerHTML = "log";
+//      } else {
+//        table.rows[rows.length - 1].cells[7].innerHTML = "lin";
+//      }
+//    }
+//  }
+//  else {
+//    switcher1.className = "toggle";
+//    let x = table.rows.length;
+//    let oRange = document.getElementById("oRange");
+//    let lCheckbox = document.getElementById("lCheckbox");
+//    oRangeArr = Array.from(oRange.value.split(','));
+//    let rows = table.getElementsByTagName('tr');
+//    if (x > 2) {
+//      table.rows[rows.length - 1].cells[4].innerHTML = newOscAddr;
+//      let emMin = (Array.from((table.rows[rows.length - 1].cells[8].innerHTML).split("/")))[0];
+//      let emMax = (Array.from((table.rows[rows.length - 1].cells[10].innerHTML).split("/")))[0];
+//      table.rows[rows.length - 1].cells[8].innerHTML = emMin;
+//      table.rows[rows.length - 1].cells[10].innerHTML = emMax;
+//      lCheckbox.checked = false;
+//      table.rows[rows.length - 1].cells[2].innerHTML = 1;
+//    }
+//  }
+//}
+//
 function SomeDeleteRowFunction(o) {
   let table = document.getElementById("tableOfConnection");
   if (typeof (o) == "number") {
@@ -805,95 +805,98 @@ function selectedOption(slct) {
   }
 }
 
-function advancedMode(e) {
-  e.preventDefault();
-  let switcher = document.getElementById("switcher");
-  let hideOnAdvanced = document.getElementsByClassName("hideOnAdvanced");
-  //let stayOnAdvanced = document.getElementsByClassName("stayOnAdvanced");
-  let slct0 = document.getElementById("slct0");
-  let slct1 = document.getElementById("slct1");
-  let manualEmberPath = document.getElementById("manualEmberPath")
-  let eUserLabel = document.getElementById("eUserLabel");
-  if (switcher.className == "toggle") {
-    switcher.className = "toggle toggle-on";
-    manualEmberPath.style.display = "flex";
-    manualEmberPath.style.marginLeft= "0";
-    manualEmberPath.style.marginRight= "0";
-    manualEmberPath.style.top = 0;
-    manualEmberPath.style.margin= "auto";
-    manualEmberPath.style.visibility = "visible";
-    let length = hideOnAdvanced.length
-    console.log (length)
-    for ( i = 0; i < length; i++) {
-      hideOnAdvanced[i].style.display = "none";
-      hideOnAdvanced[i].style.visibility= "hidden";
-    };
-    slct0.required = false;
-    slct1.required = false;
-    eUserLabel.required = false;
-    hideOnAdvanced[0].style.display = "";
-    hideOnAdvanced[0].style.visibility = "hidden";
-  } else {
-    switcher.className = "toggle";
-    manualEmberPath.style.visibility = "hidden";
-    manualEmberPath.style.display = "none"
-    let length = hideOnAdvanced.length
-    console.log (length)
-    for ( i = 0; i < length; i++) {
-      hideOnAdvanced[i].style.display = "";
-    };
-    slct0.required = true;
-    slct1.required = true;
-    eUserLabel.required = true;
-    hideOnAdvanced[0].style.visibility = "visible";
-    hideOnAdvanced[1].style.visibility = "visible";
-    hideOnAdvanced[2].style.visibility = "visible";
-    hideOnAdvanced[3].style.visibility = "visible";
-    hideOnAdvanced[4].style.visibility = "visible";
-    hideOnAdvanced[5].style.visibility = "visible";
-  };
-}
-
-function remapMode(e) {
-  e.preventDefault();
-  let table = document.getElementById("tableOfConnection");
-  let lastRow = table.rows[table.rows.length - 1];
-  let eType = lastRow.cells[6].innerHTML;
-  let eMath =lastRow.cells[7].innerHTML;
-  let eMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[0];
-  let eMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[0];
-  let eRange = document.getElementById("eRange");
-  let oRange = document.getElementById("oRange");
-  let lCheckbox = document.getElementById("lCheckbox");
-  let switcher1 = document.getElementById("switcher1");
-  let unhideOnRemap = document.getElementsByClassName("unhideOnRemap");
-  if (switcher1.className == "toggle" && eType == "Integer") {
-    switcher1.className = "toggle toggle-on";
-    if (eMath == "lin"){
-      lCheckbox.checked = false;
-    }else{
-      lCheckbox.checked = true;
-    }
-    let oMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[1];
-    let oMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[1];
-    for ( i = 0; i < unhideOnRemap.length; i++) {
-      unhideOnRemap[i].style.visibility = "visible";
-      if (eType == "Integer") {
-        eRange.innerHTML = "from : " + eMin + "," + eMax + " to : "
-        oRange.value = oMin + "," + oMax;
-        oRange.required = true;
-      };
-    }
-  } else {
-    switcher1.className = "toggle";
-    for ( i = 0; i < unhideOnRemap.length; i++) {
-      unhideOnRemap[i].style.visibility = "hidden";
-      oRange.required = false;
-    };
-  };
-}
+//UNUSED_FUNCTIONS//
+//function advancedMode(e) {
+//  e.preventDefault();
+//  let switcher = document.getElementById("switcher");
+//  let hideOnAdvanced = document.getElementsByClassName("hideOnAdvanced");
+//  //let stayOnAdvanced = document.getElementsByClassName("stayOnAdvanced");
+//  let slct0 = document.getElementById("slct0");
+//  let slct1 = document.getElementById("slct1");
+//  let manualEmberPath = document.getElementById("manualEmberPath")
+//  let eUserLabel = document.getElementById("eUserLabel");
+//  if (switcher.className == "toggle") {
+//    switcher.className = "toggle toggle-on";
+//    manualEmberPath.style.display = "flex";
+//    manualEmberPath.style.marginLeft= "0";
+//    manualEmberPath.style.marginRight= "0";
+//    manualEmberPath.style.top = 0;
+//    manualEmberPath.style.margin= "auto";
+//    manualEmberPath.style.visibility = "visible";
+//    let length = hideOnAdvanced.length
+//    console.log (length)
+//    for ( i = 0; i < length; i++) {
+//      hideOnAdvanced[i].style.display = "none";
+//      hideOnAdvanced[i].style.visibility= "hidden";
+//    };
+//    slct0.required = false;
+//    slct1.required = false;
+//    eUserLabel.required = false;
+//    hideOnAdvanced[0].style.display = "";
+//    hideOnAdvanced[0].style.visibility = "hidden";
+//  } else {
+//    switcher.className = "toggle";
+//    manualEmberPath.style.visibility = "hidden";
+//    manualEmberPath.style.display = "none"
+//    let length = hideOnAdvanced.length
+//    console.log (length)
+//    for ( i = 0; i < length; i++) {
+//      hideOnAdvanced[i].style.display = "";
+//    };
+//    slct0.required = true;
+//    slct1.required = true;
+//    eUserLabel.required = true;
+//    hideOnAdvanced[0].style.visibility = "visible";
+//    hideOnAdvanced[1].style.visibility = "visible";
+//    hideOnAdvanced[2].style.visibility = "visible";
+//    hideOnAdvanced[3].style.visibility = "visible";
+//    hideOnAdvanced[4].style.visibility = "visible";
+//    hideOnAdvanced[5].style.visibility = "visible";
+//  };
+//}
+//
+//function remapMode(e) {
+//  e.preventDefault();
+//  let table = document.getElementById("tableOfConnection");
+//  let lastRow = table.rows[table.rows.length - 1];
+//  let eType = lastRow.cells[6].innerHTML;
+//  let eMath =lastRow.cells[7].innerHTML;
+//  let eMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[0];
+//  let eMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[0];
+//  let eRange = document.getElementById("eRange");
+//  let oRange = document.getElementById("oRange");
+//  let lCheckbox = document.getElementById("lCheckbox");
+//  let switcher1 = document.getElementById("switcher1");
+//  let unhideOnRemap = document.getElementsByClassName("unhideOnRemap");
+//  if (switcher1.className == "toggle" && eType == "Integer") {
+//    switcher1.className = "toggle toggle-on";
+//    if (eMath == "lin"){
+//      lCheckbox.checked = false;
+//    }else{
+//      lCheckbox.checked = true;
+//    }
+//    let oMax = (Array.from((lastRow.cells[10].innerHTML).split("/")))[1];
+//    let oMin = (Array.from((lastRow.cells[8].innerHTML).split("/")))[1];
+//    for ( i = 0; i < unhideOnRemap.length; i++) {
+//      unhideOnRemap[i].style.visibility = "visible";
+//      if (eType == "Integer") {
+//        eRange.innerHTML = "from : " + eMin + "," + eMax + " to : "
+//        oRange.value = oMin + "," + oMax;
+//        oRange.required = true;
+//      };
+//    }
+//  } else {
+//    switcher1.className = "toggle";
+//    for ( i = 0; i < unhideOnRemap.length; i++) {
+//      unhideOnRemap[i].style.visibility = "hidden";
+//      oRange.required = false;
+//    };
+//  };
+//}
+//
 
 //Menu Section//
+
 function saveAs(saveAsBtn) {
   table = document.getElementById('tableOfConnection');
   let data = [];
