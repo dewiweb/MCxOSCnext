@@ -124,8 +124,9 @@ table{
   border-collapse: collapse;
 }
 td[contentEditable="true"]:hover{
-  font-size: large;
-  background: grey;
+  font-size: small;
+  background: #ccc;
+  color: #282C34;
   
 }
 
@@ -140,12 +141,13 @@ td>select, td>input{
 }
 td>input{
   display: inline;
-  width:33%;
+  width:4.5em;
   text-align: left; 
 }
-td>input:hover, td>select:hover{
-  font-size: large;
-  background: grey;
+td>input[type=number]:hover, td>select:hover{
+  font-size: small;
+  background: #ccc;
+  color: #282C34;
 }
 
 .hiddenTd{
@@ -299,4 +301,8 @@ caption{
   100%{
     opacity: 0;
   }
+}
+
+#logging{
+  font-size: x-small;
 }
