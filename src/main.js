@@ -65,7 +65,7 @@ function createWindow() {
   nativeTheme.themeSource = 'dark';
   win.setMenu(null);
   win.loadFile('src/index.html')
-  win.webContents.openDevTools({ mode: 'detach' });
+//  win.webContents.openDevTools({ mode: 'detach' });
 
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')
@@ -312,17 +312,17 @@ function createWindow() {
   function loadPrefs() {
     let autoLoad = (preferences.value('save_settings.autoLoad'))[0]
     win.webContents.on('did-finish-load', () => {
-      win.webContents.send('loginfo', "valeur autoload lue: " + autoLoad)
+//      win.webContents.send('loginfo', "valeur autoload lue: " + autoLoad)
     })
     let default_file = preferences.value("save_settings.default_file")
     let autoGo = (preferences.value('other_settings.autoGo'))[0]
     win.webContents.on('did-finish-load', () => {
-      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
+//      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
     })
     if (autoLoad !== undefined) {
       win.webContents.on('did-finish-load', () => {
         console.log("la fenetre est prete et peut recevoir les options")
-        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
+//        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
         let content = fs.readFileSync(default_file, 'utf-8');
         let sendedContent = JSON.stringify(content);
         win.webContents.send("sendFileContent", sendedContent)
