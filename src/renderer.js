@@ -1,5 +1,6 @@
 //const { ipcRenderer, remote } = require('electron');
 const { ipcRenderer } = require('electron')
+const mainFunctions = require('./mainFunctions');
 const preferences = ipcRenderer.sendSync('getPreferences');
 const log = require('electron-log');
 function logDefinition() {
@@ -52,6 +53,11 @@ ipcRenderer.on('sumsUserLabels', (event, sumsUserLabels) => {
 })
 ipcRenderer.on('gpcsUserLabels', (event, gpcsUserLabels) => {
   rGpcsUserLabels = gpcsUserLabels
+})
+
+ipcRenderer.on('resubscribe', (event, myRow)=>{
+  let table = document.getElementById("tableOfConnection");
+  table.rows[myRow].cells[5].firstElementChild.click()
 })
 
 ipcRenderer.on('udpportOK', (event, uPort) => {
@@ -125,17 +131,25 @@ ipcRenderer.on('eServDisconnected', function (event, eAddress) {
 })
 
 ipcRenderer.on('resolveError',(e,msg)=>{
+  if("error-msg: ",msg){
+    console.log(msg)
   let date =new Date()
-  date = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() +  '-->'
+  date = date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes() + ':' + (date.getSeconds()<10?'0':'') +date.getSeconds() +  '-->'
+  console.log(date)
   document.getElementById('logging').insertAdjacentHTML('beforeend',date + msg + "<br>");
   scrollToBottom()
   ipcRenderer.send('showPreferences');
+  }
 })
+
 ipcRenderer.on ('loginfo',(e,msg)=>{
+  if("info-msg: ",msg){
+    console.log(msg)
   let date =new Date()
-  date = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() +  '-->'
+  date = date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes() + ':' + (date.getSeconds()<10?'0':'') +date.getSeconds() +  '-->'
   document.getElementById('logging').insertAdjacentHTML('beforeend',date + msg + "<br>");
   scrollToBottom()
+  }
 })
 
 function logRenderer(msg){
@@ -155,7 +169,10 @@ ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
 })
 
-let osc_adress;
+
+
+ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
+  let osc_address;
 let blink2;
 let rEaddr2; 
 let sFactor2;
@@ -165,10 +182,9 @@ let eMax2;
 let oMin2;
 let oMax2;
 let eVarCurve2;
-ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
 //  dot2.classList.add("blink")
-//  if (osc_adress !== oRaddr){
-  logRenderer("oRaddr"+oRaddr);
+//  if (osc_address !== oRaddr){
+//  logRenderer("oRaddr"+oRaddr);
   let dot2 = document.getElementById("dot2");
   dot2.classList.toggle('blink');
   filteR = oRaddr.toUpperCase();
@@ -183,13 +199,13 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
       let p = td.parentNode;
       let myRow = p.rowIndex;
       if (txtValue.toUpperCase().indexOf(filteR) > -1) {
-        logRenderer("OSC Address Received: "+ filteR + "is present in table at Row: " +  myRow + "OSCvalue:" + oRargs);
+//        logRenderer("OSC Address Received: "+ filteR + "is present in table at Row: " +  myRow + "OSCvalue:" + oRargs);
         table.rows[myRow].cells[3].innerHTML = oRargs.toFixed(2);
         sFactor2 = table.rows[myRow].cells[2].innerHTML;
         rEaddr2 = table.rows[myRow].cells[0].innerHTML;
         eVarType2 = table.rows[myRow].cells[6].innerHTML;
         eMin2 = table.rows[myRow].cells[8].innerHTML.split("<")[0].replace(/\//, "");
-        eMax2 = table.rows[myRow].cells[8].innerHTML.split("<")[0].replace(/\//, "");
+        eMax2 = table.rows[myRow].cells[10].innerHTML.split("<")[0].replace(/\//, "");
         oMin2 = table.rows[myRow].cells[8].firstElementChild.value;
         if (typeof oMin2 === 'undefined') {
           oMin2 = eMin2
@@ -198,12 +214,13 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
         if (typeof oMax2 === 'undefined') {
           oMax2 = eMax2
         }
-        let eVarCurve2 = table.rows[myRow].cells[7].firstElementChild.value;
-        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
+        eVarCurve2 = table.rows[myRow].cells[7].firstElementChild.value;
+        console.log('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2)
+        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2,myRow);
       } 
-      else {
-        logRenderer("OSC Address received is Undefined");
-      }
+//      else {
+//        logRenderer("OSC Address received is Undefined");
+//      }
     }
     
   }
@@ -218,8 +235,8 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
       },2000);
 
 
-  osc_adress = oRaddr
-  logRenderer("osc_address"+osc_adress)
+  osc_address = oRaddr
+//  logRenderer("osc_address"+osc_address)
 })
 
 
@@ -746,7 +763,7 @@ function deleteAllRows(o) {
 }
 
 function sendConnection(o) {
-  logRenderer("ooooo : "+ o)
+//  logRenderer("ooooo : "+ o)
   var table = document.getElementById("tableOfConnection");
   if (typeof o == "number") {
       myRow = o
@@ -755,13 +772,14 @@ function sendConnection(o) {
     var p = o.parentNode.parentNode;
     myRow = p.rowIndex;
   }
-  logRenderer("myrow : "+myRow);
+//  logRenderer("myrow : "+myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
   let eVarType = table.rows[myRow].cells[6].innerHTML;
-  let eMin = table.rows[myRow].cells[8].innerHTML.split(`<`)[0];
-  let eMax = table.rows[myRow].cells[10].innerHTML.split(`<`)[0];
+  let eMin = table.rows[myRow].cells[8].innerHTML.split(`<`)[0].replace("/","");
+//  console.log("emin new connection: ", eMin)
+  let eMax = table.rows[myRow].cells[10].innerHTML.split(`<`)[0].replace("/","");
   let oMin = table.rows[myRow].cells[8].firstElementChild.value;;
   if (typeof oMin === 'undefined') {
     oMin2 = eMin
@@ -771,8 +789,8 @@ function sendConnection(o) {
     oMax = eMax
   }
   let eVarCurve = table.rows[myRow].cells[7].firstElementChild.value;
-  logRenderer("Math innerhtml:"+ eVarCurve)
-  logRenderer("epath in newconnectionR:"+ ePath)
+//  logRenderer("Math innerhtml:"+ eVarCurve)
+//  logRenderer("epath in newconnectionR:"+ ePath)
   ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve);
 }
 
@@ -925,11 +943,11 @@ function saveAs(saveAsBtn) {
     }else{
       rowData[headers[7]] =""
     }
-    let emin = tableRow.cells[8].innerHTML.split(`<`)[0]
+    let emin = tableRow.cells[8].innerHTML.split(`<`)[0].replace('/','')
     let omin = tableRow.cells[8].firstElementChild.value;
     let mins = (emin + omin).replace(/\s/g, '');
     rowData[headers[8]] = mins
-    let emax = tableRow.cells[10].innerHTML.split(`<`)[0]
+    let emax = tableRow.cells[10].innerHTML.split(`<`)[0].replace('/','')
     let omax = tableRow.cells[10].firstElementChild.value;
     let maxs = (emax + omax).replace(/\s/g, '');
     rowData[headers[10]] = maxs
@@ -1010,12 +1028,28 @@ function menu (){
   
 }
 }
-function logview(){
-  let log = document.getElementById('logging')
-  if (log.style.display === "none"){
-  log.style.display = 'flex';
+function viewlogs(){
+  let logs = document.getElementById('logging')
+  if (logs.style.visibility === "hidden"){
+  logs.style.visibility = 'visible';
+  logs.style.maxHeight = "150px";
   }else{
-  log.style.display = 'none'
+  logs.style.visibility = 'hidden';
+  logs.style.maxHeight = "1px";
+  }
+  let clearlogs = document.getElementById('clearlogs')
+  if (clearlogs.style.visibility === "hidden"){
+  clearlogs.style.visibility = 'visible';
+  clearlogs.style.height = "20px"
+  }else{
+  clearlogs.style.visibility = 'hidden';
+  clearlogs.style.height = '1px'
+  }
+  let deploy = document.getElementById('viewlogs')
+  if (deploy.innerHTML == "►"){
+    deploy.innerHTML ="▼"
+  }else{
+    deploy.innerHTML = "►"
   }
 }
 

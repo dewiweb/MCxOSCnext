@@ -73,16 +73,19 @@ function createWindow() {
 
   ipcMain.on('sendAutoSave', function (event, content) {
     let autoSave = (preferences.value('save_settings.autoSave'))[0]
-    console.log("autoSave :", autoSave)
-    win.webContents.send('loginfo', "autoSave :"+ autoSave)
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('loginfo', "autoSave :" + autoSave)
+    })
     if (autoSave !== undefined) {
       fs.writeFile(autoSaveFilepath, content, (err) => {
         if (err) {
-          console.log('an error occurred with file creation ' + err.message);
-          win.webContents.send('loginfo', 'an error occurred with file creation ' + err.message);
+          win.webContents.on('did-finish-load', () => {
+            win.webContents.send('loginfo', 'an error occurred with file creation ' + err.message);
+          })
         }
-        console.log('WE CREATED YOUR FILE SUCCESFULLY');
-        win.webContents.send('loginfo','WE CREATED YOUR FILE SUCCESFULLY'); 
+        win.webContents.on('did-finish-load', () => {
+          win.webContents.send('loginfo', 'WE CREATED YOUR FILE SUCCESFULLY');
+        })
       });
     };
     win = null;
@@ -110,8 +113,9 @@ function createWindow() {
       defaultPath: defaultDir,
     }
     autoSaveFilepath = defaultDir + "/" + datePath + ".session"
-    console.log("autoSaveFilepath: ", autoSaveFilepath)
-    win.webContents.send('loginfo',"autoSaveFilepath: "+ autoSaveFilepath)
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('loginfo', "autoSaveFilepath: " + autoSaveFilepath)
+    })
   }
   optionsDef()
 
@@ -297,25 +301,28 @@ function createWindow() {
   const oServerPort = Number(((preferences.value('network_settings.osc_server')).split(":"))[1]);
 
   preferences.on('save', (preferences) => {
-    console.log("preferences:", preferences);
-    win.webContents.send('loginfo', "preferences:"+ preferences);
-    console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
-    win.webContents.send('loginfo', `Preferences were saved.`+ JSON.stringify(preferences, null, 4));
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('loginfo', "preferences:" + preferences);
+      console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
+      win.webContents.send('loginfo', `Preferences were saved.` + JSON.stringify(preferences, null, 4));
+    })
   });
 
   // load auto-options on startup  
   function loadPrefs() {
     let autoLoad = (preferences.value('save_settings.autoLoad'))[0]
-    console.log("valeur autoload lue: ", autoLoad)
-    win.webContents.send('loginfo', "valeur autoload lue: "+ autoLoad)
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('loginfo', "valeur autoload lue: " + autoLoad)
+    })
     let default_file = preferences.value("save_settings.default_file")
     let autoGo = (preferences.value('other_settings.autoGo'))[0]
-    console.log("valeur autoGo lue", autoGo)
-    win.webContents.send('loginfo', "valeur autoGo lue: "+ autoGo)
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
+    })
     if (autoLoad !== undefined) {
       win.webContents.on('did-finish-load', () => {
         console.log("la fenetre est prete et peut recevoir les options")
-        win.webContents.send('loginfo',"la fenetre est prete et peut recevoir les options")
+        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
         let content = fs.readFileSync(default_file, 'utf-8');
         let sendedContent = JSON.stringify(content);
         win.webContents.send("sendFileContent", sendedContent)
@@ -335,22 +342,26 @@ function createWindow() {
     log.catchErrors({
       showDialog: false,
       onError(error) {
-        electron.dialog.showMessageBox({
-          title: 'An error occurred',
-          message: error.message,
-          detail: error.stack,
-          type: 'error',
-          buttons: ['Ignore', 'Preferences', 'Exit'],
+        msg = error.message;
+        win.webContents.on('did-finish-load', () => {
+          win.webContents.send('resolveError', error)
         })
-          .then((result) => {
-            if (result.response === 1) {
-              win.webContents.send('resolveError')
-            }
-
-            if (result.response === 2) {
-              electron.app.quit();
-            }
-          });
+        //      electron.dialog.showMessageBox({
+        //        title: 'An error occurred',
+        //        message: error.message,
+        //        detail: error.stack,
+        //        type: 'error',
+        //        buttons: ['Ignore', 'Preferences', 'Exit'],
+        //      })
+        //        .then((result) => {
+        //          if (result.response === 1) {
+        //            win.webContents.send('resolveError')
+        //          }
+        //
+        //          if (result.response === 2) {
+        //            electron.app.quit();
+        //          }
+        //        });
       }
     })
   }
@@ -435,21 +446,26 @@ function createWindow() {
     eGet = new EmberClient(eServerIP, eServerPort);
     eGet.on('connected', () => {
       console.log("emberGet ", eServerIP, ":", eServerPort, " connection ok");
+
       win.webContents.on('did-finish-load', () => {
         win.webContents.send('eServerOK', eAddress);
+
+
+
+        win.webContents.send('loginfo', "emberGet " + eServerIP + ":" + eServerPort + " connection ok");
       })
     })
     eGet.on('disconnected', () => {
-      console.log("Disconnected from emberGet");
       win.webContents.send('eServDisconnected', eAddress);
-      win.webContents.send('loginfo',"Disconnected from emberGet");
+      win.webContents.on('did-finish-load', () => {
+        win.webContents.send('loginfo', "Disconnected from emberGet");
+      })
     })
     eGet.on('uncaughtException', (e) => {
-      console.log(e);
-      //win.webContents.on('did-finish-load', () => {
-      win.webContents.send('eServConnError', eAddress);
-      win.webContents.send('loginfo', eAddress)
-      // })
+      win.webContents.on('did-finish-load', () => {
+        win.webContents.send('eServConnError', eAddress);
+        win.webContents.send('loginfo', eAddress)
+      })
     });
   }
   emberGet();
@@ -464,9 +480,11 @@ function createWindow() {
   function oscListening() {
     oUDPport = preferences.value('network_settings.osc_receiver_port');
     console.log('Port de reception OSC:', oUDPport);
-    win.webContents.send('loginfo', 'Port de reception OSC:'+ oUDPport);
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('loginfo', 'Port de reception OSC:' + oUDPport);
+    })
     oscGet = new osc.UDPPort({
-      localAddress: "0.0.0.0",
+      localAddress: "127.0.0.1",
       localPort: Number(oUDPport),
       metadata: true
     })
@@ -482,12 +500,13 @@ function createWindow() {
 
   function oscToTable() {
     oscGet.on("message", (oscBundle) => {
-      win.webContents.send('loginfo','oscBundle : '+ oscBundle);
       let oRaddr = JSON.stringify(oscBundle.address);
-      win.webContents.send('loginfo',"OSC Address received"+ oRaddr);
       let oRargs = mainFunctions.oscToEmber(oscBundle);
-      win.webContents.send('loginfo',"oRargs"+ oRargs);
+
       win.webContents.send('oReceivedAddr', oRaddr, oRargs);
+//      win.webContents.send('loginfo', 'oscBundle : ' + oscBundle);
+//      win.webContents.send('loginfo', "OSC Address received" + oRaddr);
+//      win.webContents.send('loginfo', "oRargs: " + oRargs);
     })
   }
   oscToTable();
@@ -498,18 +517,20 @@ function createWindow() {
       const eAddress = preferences.value('network_settings.ember_provider');
       const err = await eGet.connect()
       if (err) { // err = true when the first connection attempt fails (depending on timeout)
-        win.webContents.send('loginfo',' connection to emberGet unsuccessful->'+ err);
-        win.webContents.send('eServConnError', eAddress);
-        win.webContents.send('resolveError', err.message);
+        win.webContents.on('did-finish-load', () => {
+          win.webContents.send('loginfo', ' connection to emberGet unsuccessful->' + err);
+          win.webContents.send('eServConnError', eAddress);
+          win.webContents.send('resolveError', err.message);
+        })
         return
       }
       win.webContents.send('eServerOK', eAddress);
 
 
       async function getUserLabels() {
-        
+
         root = await (await eGet.getDirectory(eGet.tree)).response
-        win.webContents.send('loginfo',"ROOT:"+ root)
+        win.webContents.send('loginfo', "ROOT:" + root)
 
         let inputsUserLabels = [];
         let auxesUserLabels = [];
@@ -519,7 +540,7 @@ function createWindow() {
         await mainFunctions.sleep(2000);
         for (i = 0x01; i < 0x0C1; i++) {
           try {
-  //          await mainFunctions.sleep(2000);
+            //          await mainFunctions.sleep(2000);
             let req = await eGet.getElementByPath("_2._1._" + i.toString(16))
             inputsUserLabels.push(req.contents.description)
           } catch (e) {
@@ -585,7 +606,9 @@ function createWindow() {
             init_oid2osc = await eGet.getElementByPath('Console.AccessChannelOID');
             let emberValue = init_oid2osc.contents.value;
             let CA_OID = await eGet.getElementByPath(emberValue);
-            win.webContents.send('loginfo',"initial ChannelAccess name is: "+ CA_OID.contents.description)
+            win.webContents.on('did-finish-load', () => {
+              win.webContents.send('loginfo', "initial ChannelAccess name is: " + CA_OID.contents.description)
+            })
             oscGet.send({
               address: o2o_path,
               args: [
@@ -597,11 +620,11 @@ function createWindow() {
             }, o2o_address, Number(o2o_port));
 
             eGet.subscribe(init_oid2osc, () => {
-              
-              win.webContents.send('loginfo',"ChannelAccess changed to: "+ CA_OID.contents.description);
+
+              win.webContents.send('loginfo', "ChannelAccess changed to: " + CA_OID.contents.description);
               async function bip() {
-                
-                win.webContents.send('loginfo','CA_OID'+ CA_OID.contents.description);
+
+                win.webContents.send('loginfo', 'CA_OID' + CA_OID.contents.description);
                 oscGet.send({
                   address: o2o_path,
                   args: [
@@ -616,7 +639,9 @@ function createWindow() {
           }
           catch (e) {
             const message = await e.message
-            win.webContents.send('loginfo',"oid2osc failed due to: "+ message)
+            win.webContents.on('did-finish-load', () => {
+              win.webContents.send('loginfo', "oid2osc failed due to: " + message)
+            })
           }
         }
       } channelAccess();
@@ -638,28 +663,32 @@ function createWindow() {
       //      }
       //      expandtree()
 
+
+
       ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve) => {
-        win.webContents.send('loginfo',"epath in newconnectionM "+ ePath);
+//        console.log('loginfo', "epath in newconnectionM " + ePath);
         sFactor = Number(sFactor);
 
         let initialReq = await eGet.getElementByPath(ePath);
-        win.webContents.send('loginfo',"initialReq: "+ initialReq);
+//        win.webContents.send('loginfo', "initialReq: " + initialReq);
         let state = "first";
         eGet.subscribe(initialReq, () => {
 
           if (state == "first") {
             direction = "ET";
-            win.webContents.send('loginfo',"subscribed to "+ ePath);
+//            console.log("direction set to ET")
+            win.webContents.send('loginfo', "subscribed to " + ePath);
             let emberValue = initialReq.contents.value;
             event.sender.send('sendEmberValue', emberValue, myRow, 1);
             state = "nonFirst";
-
+            direction = ""
             ;
           } else {
             //---Sending received values from Ember+ to OSC
             direction = "EO"
+ //           console.log("direction set to E->O")
 
-            let emberValue = initialReq.contents.value; 2
+            let emberValue = initialReq.contents.value;
             event.sender.send('sendEmberValue', emberValue, myRow, 1);
             //emberInputListener(initialReq, emberValue, myRow);
             if (eVarType == "Integer" && eVarCurve == "lin") {
@@ -673,10 +702,12 @@ function createWindow() {
                   }
                 ]
               }, oServerIP, oServerPort);
-              win.webContents.send('loginfo','EMBER+ -lin-> OSC : '+ value);
+              win.webContents.send('loginfo', 'EMBER+ -lin-> OSC : ' + value);
             }
             else if (eVarType == "Integer" && eVarCurve == "log") {
+//              console.log("values sended to maptoscale: ", Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
               let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true);
+//              console.log("value mapped:", value)
               oscGet.send({
                 address: oAddr,
                 args: [
@@ -686,10 +717,10 @@ function createWindow() {
                   }
                 ]
               }, oServerIP, oServerPort);
-              win.webContents.send('loginfo','EMBER+ -log-> OSC : '+ value);
+              win.webContents.send('loginfo', 'EMBER+ -log-> OSC : ' + value);
             }
             else if (eVarType == "String") {
-              win.webContents.send('loginfo',"string reçu:"+ emberValue)
+              win.webContents.send('loginfo', "string reçu:" + emberValue)
               oscGet.send({
                 address: oAddr,
                 args: [
@@ -699,7 +730,7 @@ function createWindow() {
                   }
                 ]
               }, oServerIP, oServerPort);
-              win.webContents.send('loginfo','EMBER+ -string-> OSC : '+ emberValue);
+              win.webContents.send('loginfo', 'EMBER+ -string-> OSC : ' + emberValue);
             }
             else if (eVarType == "Boolean" && emberValue == true) {
               oscGet.send({
@@ -711,7 +742,7 @@ function createWindow() {
                   }
                 ]
               }, oServerIP, oServerPort);
-              win.webContents.send('loginfo','EMBER+ -bool-> OSC : '+ emberValue);
+              win.webContents.send('loginfo', 'EMBER+ -bool-> OSC : ' + emberValue);
             }
             else if (eVarType == "Boolean" && emberValue == false) {
               oscGet.send({
@@ -723,9 +754,9 @@ function createWindow() {
                   }
                 ]
               }, oServerIP, oServerPort);
-              win.webContents.send('loginfo','EMBER+ -bool-> OSC : '+ emberValue);
+              win.webContents.send('loginfo', 'EMBER+ -bool-> OSC : ' + emberValue);
             }
-            direction = "ET";
+//            direction = "ET";
             if (gateDelayIN) {
               clearTimeout(gateDelayIN)
             };
@@ -733,57 +764,72 @@ function createWindow() {
             gateDelayIN =
               (setTimeout(() => {
                 event.sender.send('sendEmberValue', emberValue, myRow, 1);
-                win.webContents.send('loginfo',"libere")
+                win.webContents.send('loginfo', "waiting")
                 direction = "";
-              }, 100));
+              }, 2000));
 
           } //let stringEpath = JSON.stringify(ePath);
         });
       });
 
       ipcMain.on("deleteConnection", async (event, ePath, oAddr, myRow, eVarType, sFactor) => {
+
         let req = await eGet.getElementByPath(ePath);
         eGet.unsubscribe(req);
-        win.webContents.send('loginfo','unsuscribe to '+ ePath);
+        win.webContents.send('loginfo', 'unsuscribe to ' + ePath);
       })
 
-      ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve) => {
-        if (direction !== "ET") {
+      let ro = 0;
+
+      ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve, myRow) => {
+        ro = ro+1
+//        console.log("ro = ", ro)
+        if (direction !== "EO") {
           direction = "OE";
+//          console.log("direction set to O->E")
           if (gateDelayOUT) {
             clearTimeout(gateDelayOUT)
           };
           let rereq = await eGet.getElementByPath(rEaddr);
-          //eGet.unsubscribe(rereq);
-          win.webContents.send('loginfo',"eGet unsuscribe to "+ rereq)
+          if (ro == 1) {
+            eGet.unsubscribe(rereq);
+            state = "first";
+            win.webContents.send('loginfo', "eGet unsuscribe to " + rereq)
+          }
           if (eVarType == "Integer" && eVarCurve == "lin") {
-            let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
+            let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(oMin), Number(oMax)], [Number(eMin), Number(eMax)], 2);
             eGet.setValue((rereq), value.toFixed(0));
-            win.webContents.send('loginfo','OSC -lin-> EMBER+ : '+ value.toFixed(0));
+            win.webContents.send('loginfo', 'OSC -lin-> EMBER+ : ' + value.toFixed(0));
           } else if (eVarType == "Integer" && eVarCurve == "log") {
-            let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true, -1);
+            let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(oMin), Number(oMax)], [Number(eMin), Number(eMax)], 2, true, -1);
+//            console.log("values submitted to maptoscale: ", Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
+//            console.log("remapped value: ", value)
             eGet.setValue((rereq), value.toFixed(0));
-            win.webContents.send('loginfo','OSC -log-> EMBER+ : '+ value.toFixed(0));
+            win.webContents.send('loginfo', 'OSC -log-> EMBER+ : ' + value.toFixed(0));
           } else if (eVarType == "Boolean" && rOrArgs == "1") {
             eGet.setValue((rereq), true);
-            win.webContents.send('loginfo',("OSC -bool-> EMBER+", rOrArgs));
+            win.webContents.send('loginfo', ("OSC -bool-> EMBER+", rOrArgs));
           } else if (eVarType == "Boolean" && rOrArgs == "0") {
             eGet.setValue((rereq), false);
-            win.webContents.send('loginfo',("OSC -bool-> EMBER+", rOrArgs));
+            win.webContents.send('loginfo', ("OSC -bool-> EMBER+", rOrArgs));
           } else {
             eGet.setValue((rereq), rOrArgs);
-            win.webContents.send('loginfo',("OSC -string-> EMBER+", rOrArgs));
+            win.webContents.send('loginfo', ("OSC -string-> EMBER+", rOrArgs));
           }
 
-          //eGet.subscribe(rereq);
-          win.webContents.send('loginfo',"eGet resubscribe to"+ rereq)
+
+          //win.webContents.send('loginfo',"eGet resubscribe to"+ rereq)
           gateDelayOUT =
             (setTimeout(() => {
-              win.webContents.send('loginfo',"delivre")
+              win.webContents.send('loginfo', "waiting")
+              win.webContents.send("resubscribe", myRow)
+//              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
               direction = "";
-            }, 100));
+//              console.log("direction set to none")
+              ro = 0
+            }, 1000));
         } else {
-          win.webContents.send('loginfo',"E-->O")
+          win.webContents.send('loginfo', "can't use O->E actual direction is set to E->O")
         }
       })
 
@@ -792,9 +838,11 @@ function createWindow() {
     }
   }
   main().catch(err => {
-    msg = error.message;
-    win.webContents.send('resolveError',err)
-    console.error(err)
+    msg = err.message;
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send('resolveError', msg)
+    })
+    console.error(msg)
   });
 
 
@@ -815,12 +863,14 @@ function createWindow() {
   // Using a button field with `channel: 'reset'`
   preferences.on('click', (key) => {
     if (key === 'resetButton') {
-      win.webContents.send('loginfo',"ember+ provider settings changed!")
+      win.webContents.send('loginfo', "ember+ provider settings changed!")
 
       emberGet();
       main().catch(err => {
         msg = err.message;
-        win.webContents.send('resolveError',err)
+        win.webContents.on('did-finish-load', () => {
+          win.webContents.send('resolveError', err)
+        })
         console.error(err)
       });
       //emberPost();
@@ -836,14 +886,16 @@ function createWindow() {
       console.log("An error occurred with OSC listening: ", error.message);
 
       win.webContents.send('udpportKO', msg);
-      win.webContents.send('resolveError',msg);
+      win.webContents.on('did-finish-load', () => {
+        win.webContents.send('resolveError', msg);
+      })
       oscGet.close()
     });
   });
 
   preferences.on('click', (key) => {
     if (key === 'applyButton') {
-      win.webContents.send('loginfo',"listening port changed!")
+      win.webContents.send('loginfo', "listening port changed!")
       win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
       oscGet.close();
       oscListening();
@@ -851,7 +903,9 @@ function createWindow() {
         msg = error.message
         console.log("An error occurred with OSC listening: ", error.message);
         win.webContents.send('udpportKO', msg)
-        win.webContents.send('resolveError',msg)
+
+        win.webContents.send('resolveError', msg)
+
       });
 
       //eGet.connect()

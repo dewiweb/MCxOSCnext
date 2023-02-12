@@ -30,7 +30,7 @@
 }
 
 #logging {
-  height: 150px;
+  max-height: 1px;
   overflow: auto;
   flex-direction: column;
 }
