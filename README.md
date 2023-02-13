@@ -54,10 +54,9 @@ Heavily based on <https://github.com/nrkno/tv-automation-emberplus-connection> \
 ]
 ````
 
-- A pre-configured form , dedicated for Lawo MC²36 console, helps you to specify ember+ paths.
-- If you want to connect other parameters or devices, toggle the 'manual mode' switch.
-- You'll be able to paste  an ember+ path.
-- You can retrieve paths with [emberplus viewer](https://github.com/Lawo/ember-plus/releases).
+- A pre-configured form , dedicated for Lawo MC²36 console (not tested yet on other models), helps you to specify ember+ paths.
 - Clicking 'Add' button add a line in the table of connections.
-- Once you've clicked it, you can modify OSC address(and data conversions for floated values) automatically filled in the table.
+- Once you've clicked it, you can modify OSC addresses, ember+ paths, types, OSC mins, OSC maxs directly in table cells.
+- If you want to connect other parameters or devices, you can edit ember+ path directly in the table of connections.
+- You can retrieve paths needed with [emberplus viewer](https://github.com/Lawo/ember-plus/releases).
 - Then you've got to click "go" buttons to establish connections.
