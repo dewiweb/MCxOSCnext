@@ -1,4 +1,5 @@
 const osc = require('osc');
+const net = require('net')
 const lib = require('./mainFunctions');
 const { EmberClient } = require('emberplus-connection');
 const ElectronPreferences = require('electron-preferences');
@@ -22,11 +23,23 @@ const { fail } = require('assert');
 
 
 const stream = []
-let direction = "";
+let directions = [];
 let oUDPport;
 let gateDelayIN = "";
 let gateDelayOUT = "";
 
+
+
+let timestamp = [];
+let OSCin=[];
+let OSCout=[];
+let OSCrate = 25;
+
+let EmberIn=[];
+let EmberOut=[];
+let EmberRate = 8;
+
+let ro = [];
 
 
 
@@ -65,7 +78,7 @@ function createWindow() {
   nativeTheme.themeSource = 'dark';
   win.setMenu(null);
   win.loadFile('src/index.html')
-//  win.webContents.openDevTools({ mode: 'detach' });
+  //  win.webContents.openDevTools({ mode: 'detach' });
 
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')
@@ -312,17 +325,17 @@ function createWindow() {
   function loadPrefs() {
     let autoLoad = (preferences.value('save_settings.autoLoad'))[0]
     win.webContents.on('did-finish-load', () => {
-//      win.webContents.send('loginfo', "valeur autoload lue: " + autoLoad)
+      //      win.webContents.send('loginfo', "valeur autoload lue: " + autoLoad)
     })
     let default_file = preferences.value("save_settings.default_file")
     let autoGo = (preferences.value('other_settings.autoGo'))[0]
     win.webContents.on('did-finish-load', () => {
-//      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
+      //      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
     })
     if (autoLoad !== undefined) {
       win.webContents.on('did-finish-load', () => {
         console.log("la fenetre est prete et peut recevoir les options")
-//        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
+        //        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
         let content = fs.readFileSync(default_file, 'utf-8');
         let sendedContent = JSON.stringify(content);
         win.webContents.send("sendFileContent", sendedContent)
@@ -444,28 +457,23 @@ function createWindow() {
     const eServerIP = ((preferences.value('network_settings.ember_provider')).split(":"))[0];
     const eServerPort = Number(((preferences.value('network_settings.ember_provider')).split(":"))[1]);
     eGet = new EmberClient(eServerIP, eServerPort);
+    let status = net.createConnection(eServerPort, eServerIP)
+    status.on("error", (e) => {
+      win.webContents.send('eServConnError', "Ember+ server " + eAddress + " is unreachable, please verify preferences!");
+    })
     eGet.on('connected', () => {
       console.log("emberGet ", eServerIP, ":", eServerPort, " connection ok");
 
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('eServerOK', eAddress);
-
-
-
-        win.webContents.send('loginfo', "emberGet " + eServerIP + ":" + eServerPort + " connection ok");
-      })
+      win.webContents.send('eServerOK', eAddress);
+      win.webContents.send('loginfo', "Connection to Ember+ Server  " + eServerIP + ":" + eServerPort + " OK");
     })
     eGet.on('disconnected', () => {
       win.webContents.send('eServDisconnected', eAddress);
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('loginfo', "Disconnected from emberGet");
-      })
+      win.webContents.send('loginfo', "Disconnected from emberGet");
     })
-    eGet.on('uncaughtException', (e) => {
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('eServConnError', eAddress);
-        win.webContents.send('loginfo', eAddress)
-      })
+    eGet.on('error', (e, err) => {
+      win.webContents.send('eServConnError', "le serveur " + eAddress + " ne répond pas : " + err);
+      //       win.webContents.send('loginfo', msg)
     });
   }
   emberGet();
@@ -504,9 +512,9 @@ function createWindow() {
       let oRargs = mainFunctions.oscToEmber(oscBundle);
 
       win.webContents.send('oReceivedAddr', oRaddr, oRargs);
-//      win.webContents.send('loginfo', 'oscBundle : ' + oscBundle);
-//      win.webContents.send('loginfo', "OSC Address received" + oRaddr);
-//      win.webContents.send('loginfo', "oRargs: " + oRargs);
+      //      win.webContents.send('loginfo', 'oscBundle : ' + oscBundle);
+      //      win.webContents.send('loginfo', "OSC Address received" + oRaddr);
+      //      win.webContents.send('loginfo', "oRargs: " + oRargs);
     })
   }
   oscToTable();
@@ -517,11 +525,9 @@ function createWindow() {
       const eAddress = preferences.value('network_settings.ember_provider');
       const err = await eGet.connect()
       if (err) { // err = true when the first connection attempt fails (depending on timeout)
-        win.webContents.on('did-finish-load', () => {
-          win.webContents.send('loginfo', ' connection to emberGet unsuccessful->' + err);
-          win.webContents.send('eServConnError', eAddress);
-          win.webContents.send('resolveError', err.message);
-        })
+        win.webContents.send('loginfo', ' connection to emberGet unsuccessful->' + err);
+        win.webContents.send('eServConnError', eAddress);
+        win.webContents.send('resolveError', err);
         return
       }
       win.webContents.send('eServerOK', eAddress);
@@ -595,12 +601,13 @@ function createWindow() {
       async function channelAccess() {
         root = await (await eGet.getDirectory(eGet.tree)).response;
         let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
-        let oid2osc = preferences.value('other_settings.oid2osc');
-        let o2o_address = (oid2osc.toString()).split(':')[0];
-        let o2o_port = (oid2osc.split(':')[1]).split('/')[0];
-        let o2o_path = '/' + oid2osc.slice(oid2osc.indexOf('/') + 1);
-        let init_oid2osc = ''
+
         if (OID_to_OSC[0] !== undefined) {
+          let oid2osc = preferences.value('other_settings.oid2osc');
+          let o2o_address = (oid2osc.toString()).split(':')[0];
+          let o2o_port = (oid2osc.split(':')[1]).split('/')[0];
+          let o2o_path = '/' + oid2osc.slice(oid2osc.indexOf('/') + 1);
+          let init_oid2osc = ''
           try {
             await mainFunctions.sleep(2000);
             init_oid2osc = await eGet.getElementByPath('Console.AccessChannelOID');
@@ -665,31 +672,43 @@ function createWindow() {
 
 
 
-      ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve) => {
-//        console.log('loginfo', "epath in newconnectionM " + ePath);
-        sFactor = Number(sFactor);
+      ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve, direction, tableLength) => {
+        console.log('loginfo', "epath in newconnectionM " + ePath);
+        console.log("direction1",myRow, directions[myRow])
+        directions[myRow] = direction
 
+        sFactor = Number(sFactor);
         let initialReq = await eGet.getElementByPath(ePath);
-//        win.webContents.send('loginfo', "initialReq: " + initialReq);
-        let state = "first";
+        //        win.webContents.send('loginfo', "initialReq: " + initialReq);
+        let state = ['first', myRow];
+          console.log("state: ",JSON.stringify(state))
         eGet.subscribe(initialReq, () => {
 
-          if (state == "first") {
-            direction = "ET";
-//            console.log("direction set to ET")
+          if ( JSON.stringify(state) === JSON.stringify(['first', myRow])) {
+            //            direction = "ET";
+            console.log("direction2",myRow, directions[myRow])
             win.webContents.send('loginfo', "subscribed to " + ePath);
             let emberValue = initialReq.contents.value;
-            event.sender.send('sendEmberValue', emberValue, myRow, 1);
-            state = "nonFirst";
-            direction = ""
+            directions[myRow] = "-"
+            event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
+            state = ["nonFirst", myRow];
+            //            direction = ""
             ;
           } else {
+            EmberIn[myRow] = Date.now();
+            if (EmberOut[myRow]){
+              console.log("Ember in/out:" ,myRow, EmberIn[myRow]-EmberOut[myRow])
+              console.log("directionsss",myRow, directions[myRow])
+              if(EmberIn[myRow]-EmberOut[myRow]>EmberRate){
+
+                if(directions[myRow] !=="◄"){
+            
             //---Sending received values from Ember+ to OSC
-            direction = "EO"
- //           console.log("direction set to E->O")
+            directions[myRow] = "►"
+            //           console.log("direction set to E->O")
 
             let emberValue = initialReq.contents.value;
-            event.sender.send('sendEmberValue', emberValue, myRow, 1);
+            event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
             //emberInputListener(initialReq, emberValue, myRow);
             if (eVarType == "Integer" && eVarCurve == "lin") {
               let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
@@ -705,9 +724,9 @@ function createWindow() {
               win.webContents.send('loginfo', 'EMBER+ -lin-> OSC : ' + value);
             }
             else if (eVarType == "Integer" && eVarCurve == "log") {
-//              console.log("values sended to maptoscale: ", Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
+              //              console.log("values sended to maptoscale: ", Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
               let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2, true);
-//              console.log("value mapped:", value)
+              //              console.log("value mapped:", value)
               oscGet.send({
                 address: oAddr,
                 args: [
@@ -756,18 +775,57 @@ function createWindow() {
               }, oServerIP, oServerPort);
               win.webContents.send('loginfo', 'EMBER+ -bool-> OSC : ' + emberValue);
             }
-//            direction = "ET";
+
+            //            direction = "ET";
             if (gateDelayIN) {
+              if(Object.values(gateDelayIN)[5][0] == myRow){
+              //console.log(Object.values(gateDelayIN)[5][0])
+              console.log("gateDelayIn aborted")
               clearTimeout(gateDelayIN)
+              }
             };
 
             gateDelayIN =
               (setTimeout(() => {
-                event.sender.send('sendEmberValue', emberValue, myRow, 1);
+                console.log("gateDelayIn launched")
+                directions[myRow] = "-";
+                event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
                 win.webContents.send('loginfo', "waiting")
-                direction = "";
-              }, 2000));
+              }, 100,myRow));
+            EmberOut[myRow] = Date.now()
+            console.log("default case0", myRow)
+            }else{
+             // let emberValue = initialReq.contents.value;
+              if (gateDelayIN) {
+              if(Object.values(gateDelayIN)[5][0] == myRow){
+              //console.log(Object.values(gateDelayIN)[5][0])
+              console.log("gateDelayIn aborted")
+              clearTimeout(gateDelayIN)
+              }
+            };
 
+            gateDelayIN =
+              (setTimeout(() => {
+                console.log("gateDelayIn launched")
+                directions[myRow] = "-";
+             //   event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
+                win.webContents.send('loginfo', "waiting")
+              }, 100,myRow));
+            EmberOut[myRow] = Date.now()
+              console.log("default case1", myRow)
+            }
+            
+          }else {
+            console.log("else1", myRow)
+            EmberOut[myRow] = Date.now() ;
+            directions[myRow] = "-";
+            console.log("Ember dropped")
+        }
+        } else {
+          console.log("else2", myRow)
+            EmberOut[myRow] = Date.now()
+            directions[myRow] = "-";
+        }
           } //let stringEpath = JSON.stringify(ePath);
         });
       });
@@ -779,21 +837,35 @@ function createWindow() {
         win.webContents.send('loginfo', 'unsuscribe to ' + ePath);
       })
 
-      let ro = 0;
+      
 
-      ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve, myRow) => {
-        ro = ro+1
-//        console.log("ro = ", ro)
-        if (direction !== "EO") {
-          direction = "OE";
-//          console.log("direction set to O->E")
+      ipcMain.on('reSendOrArgs', async (event, rOrArgs, rEaddr, sFactor, eVarType, eMin, eMax, oMin, oMax, eVarCurve, myRow, direction, tableLength) => {
+        if (!ro[myRow]){
+        ro[myRow] = 1;
+        }
+        console.log("ro[myRow]",ro)
+        OSCin[myRow] = Date.now()
+        directions[myRow] = direction
+        if (OSCout[myRow]){
+          console.log("OSC in/out:",myRow, OSCin[myRow]-OSCout[myRow])
+          if (OSCin[myRow]-OSCout[myRow]>OSCrate){
+        
+        //        console.log("ro = ", ro)
+        if (directions[myRow] !== "►") {
+          directions[myRow] = "◄";
+          win.webContents.send("updateDirection", myRow, directions[myRow])
+          //          console.log("direction set to O->E")
           if (gateDelayOUT) {
+            if (Object.values(gateDelayOUT)[5][0] == myRow){
+          //  console.log("gateDelayOUT: " , Object.values(gateDelayOUT))
             clearTimeout(gateDelayOUT)
+            }
           };
           let rereq = await eGet.getElementByPath(rEaddr);
-          if (ro == 1) {
+          
+          if (ro[myRow] == 1) {
             eGet.unsubscribe(rereq);
-            state = "first";
+            state = ["first",myRow];
             win.webContents.send('loginfo', "eGet unsuscribe to " + rereq)
           }
           if (eVarType == "Integer" && eVarCurve == "lin") {
@@ -802,8 +874,8 @@ function createWindow() {
             win.webContents.send('loginfo', 'OSC -lin-> EMBER+ : ' + value.toFixed(0));
           } else if (eVarType == "Integer" && eVarCurve == "log") {
             let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(oMin), Number(oMax)], [Number(eMin), Number(eMax)], 2, true, -1);
-//            console.log("values submitted to maptoscale: ", Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
-//            console.log("remapped value: ", value)
+            //            console.log("values submitted to maptoscale: ", Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
+            //            console.log("remapped value: ", value)
             eGet.setValue((rereq), value.toFixed(0));
             win.webContents.send('loginfo', 'OSC -log-> EMBER+ : ' + value.toFixed(0));
           } else if (eVarType == "Boolean" && rOrArgs == "1") {
@@ -819,18 +891,46 @@ function createWindow() {
 
 
           //win.webContents.send('loginfo',"eGet resubscribe to"+ rereq)
-          gateDelayOUT =
+          gateDelayOUT= 
             (setTimeout(() => {
               win.webContents.send('loginfo', "waiting")
               win.webContents.send("resubscribe", myRow)
-//              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
-              direction = "";
-//              console.log("direction set to none")
-              ro = 0
-            }, 1000));
+              //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
+              directions[myRow] = "-";
+              win.webContents.send("updateDirection", myRow, directions[myRow])
+              //              console.log("direction set to none")
+              ro[myRow] = null;
+              console.log("ro[myRow]",ro)
+            }, 200,myRow));
+            console.log("directionzzzz",myRow, directions[myRow])
         } else {
+          gateDelayOUT= 
+            (setTimeout(() => {
+              win.webContents.send('loginfo', "waiting")
+            //  win.webContents.send("resubscribe", myRow)
+              //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
+              directions[myRow] = "-";
+              win.webContents.send("updateDirection", myRow, directions[myRow])
+              //              console.log("direction set to none")
+              ro[myRow] = null
+              console.log("ro[myRow]",ro)
+            }, 200,myRow));
+            console.log("directionzzzz2",myRow, directions[myRow])
           win.webContents.send('loginfo', "can't use O->E actual direction is set to E->O")
         }
+        console.log("direction3",myRow, directions[myRow])
+        OSCout[myRow] = Date.now()
+      } else{
+        console.log("direction4",myRow, directions[myRow])
+        OSCout[myRow] = Date.now() ;
+        directions[myRow] = "-";
+        console.log("OSC dropped")
+      }
+      }else{
+        OSCout[myRow] = Date.now();
+        console.log("direction5",myRow, directions[myRow])
+      }
+      console.log("ro[myRow]",ro)
       })
 
     } catch (error) {

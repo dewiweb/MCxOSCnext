@@ -107,8 +107,8 @@ ipcRenderer.on('udpportKO', (event, msg) => {
   add2.classList.add('blink')
 });
 
-ipcRenderer.on('eServConnError', function (event, eAddress) {
-  logRenderer("erreur de connection ember+")
+ipcRenderer.on('eServConnError', function (event, msg) {
+  logRenderer(msg)
   let add1Error = document.getElementById("add1");
   let dot1Error = document.getElementById("dot1");
   add1Error.innerHTML = "Verify Ember+ Provider Address in preferences!";
@@ -143,18 +143,15 @@ ipcRenderer.on('resolveError',(e,msg)=>{
 })
 
 ipcRenderer.on ('loginfo',(e,msg)=>{
-  if("info-msg: ",msg){
-    console.log(msg)
   let date =new Date()
   date = date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes() + ':' + (date.getSeconds()<10?'0':'') +date.getSeconds() +  '-->'
   document.getElementById('logging').insertAdjacentHTML('beforeend',date + msg + "<br>");
   scrollToBottom()
-  }
 })
 
 function logRenderer(msg){
   let date =new Date()
-  date = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() +  '-->'
+  date = date.getHours() + ':' + (date.getMinutes()<10?'0':'') +date.getMinutes() + ':' +(date.getSeconds()<10?'0':'') + date.getSeconds() +  '-->'
   document.getElementById('logging').insertAdjacentHTML('beforeend',date + msg + "<br>");
   scrollToBottom()
 }
@@ -164,9 +161,11 @@ ipcRenderer.on('streamDirection',(e, direction)=>{
   stream_direction = direction
 })
 
-ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell) => {
+ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell,direction) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
+  table.rows[whichRow].cells[9].innerHTML = direction;
+
 })
 
 
@@ -215,8 +214,9 @@ let eVarCurve2;
           oMax2 = eMax2
         }
         eVarCurve2 = table.rows[myRow].cells[7].firstElementChild.value;
-        console.log('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2)
-        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2,myRow);
+        direction = table.rows[myRow].cells[9].innerHTML;
+        console.log('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2,myRow,direction, table.rows.length)
+        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2,myRow,direction, table.rows.length);
       } 
 //      else {
 //        logRenderer("OSC Address received is Undefined");
@@ -239,6 +239,10 @@ let eVarCurve2;
 //  logRenderer("osc_address"+osc_address)
 })
 
+ipcRenderer.on("updateDirection", (e,myRow,direction)=>{
+  let table = document.getElementById("tableOfConnection");
+  table.rows[myRow].cells[9].innerHTML = direction
+})
 
 ipcRenderer.on('sendFilename', (event, filename) => {
   let filePath = filename.toString();
@@ -308,9 +312,7 @@ ipcRenderer.on('sendFileContent', function (event, content) {
     cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value="0">`;
     cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value="1">`;
   }
-  cell10.innerHTML = "";
-      
-      cell10.innerHTML = "";
+  cell10.innerHTML = "-";
       cell3.style.fontSize = 'x-small';
       cell7.style.fontSize = 'x-small';
       cell8.style.fontSize = 'x-small';
@@ -514,7 +516,7 @@ function submitEmberPath(event) {
     cell9.innerHTML = eVarMin + "/" + `<input type="number" value="0">`;
     cell11.innerHTML = eVarMax + "/" + `<input type="number" value="1">`;
   }
-  cell10.innerHTML = "";
+  cell10.innerHTML = "-";
   cell3.style.fontSize = 'x-small';
   cell7.style.fontSize = 'x-small';
   cell8.style.fontSize = 'x-small';
@@ -789,9 +791,10 @@ function sendConnection(o) {
     oMax = eMax
   }
   let eVarCurve = table.rows[myRow].cells[7].firstElementChild.value;
+  let direction = table.rows[myRow].cells[9].innerHTML;
 //  logRenderer("Math innerhtml:"+ eVarCurve)
 //  logRenderer("epath in newconnectionR:"+ ePath)
-  ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve);
+  ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve,direction, table.rows.length);
 }
 
 function sendAllConnections() {
