@@ -30,7 +30,7 @@ const autoSave = null;
 
 // Listen to the `preferencesUpdated` event to be notified when preferences are changed.
 ipcRenderer.on('preferencesUpdated', (e, preferences) => {
-  logRenderer('Preferences were updated'+ preferences);
+  logRenderer('Preferences were updated' + preferences);
 });
 
 // Instruct the preferences service to update the preferences object from within the renderer.
@@ -55,7 +55,7 @@ ipcRenderer.on('gpcsUserLabels', (event, gpcsUserLabels) => {
   rGpcsUserLabels = gpcsUserLabels
 })
 
-ipcRenderer.on('resubscribe', (event, myRow)=>{
+ipcRenderer.on('resubscribe', (event, myRow) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[myRow].cells[5].firstElementChild.click()
 })
@@ -74,8 +74,9 @@ ipcRenderer.on('udpportOK', (event, uPort) => {
 
 ipcRenderer.on('eServerOK', (event, eAddress) => {
   let add1 = document.getElementById('add1');
-  if(add1.firstChild){
-  add1.removeChild(add1.firstChild)};
+  if (add1.firstChild) {
+    add1.removeChild(add1.firstChild)
+  };
   add1.textContent = "Connected to " + eAddress;
   let dot1 = document.getElementById('dot1');
   dot1.style.color = "green";
@@ -130,38 +131,38 @@ ipcRenderer.on('eServDisconnected', function (event, eAddress) {
   add1Error.classList.add('blink')
 })
 
-ipcRenderer.on('resolveError',(e,msg)=>{
-  if("error-msg: ",msg){
+ipcRenderer.on('resolveError', (e, msg) => {
+  if ("error-msg: ", msg) {
     console.log(msg)
-  let date =new Date()
-  date = date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes() + ':' + (date.getSeconds()<10?'0':'') +date.getSeconds() +  '-->'
-  console.log(date)
-  document.getElementById('logging').insertAdjacentHTML('beforeend',date + msg + "<br>");
-  scrollToBottom()
-  ipcRenderer.send('showPreferences');
+    let date = new Date()
+    date = date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '-->'
+    console.log(date)
+    document.getElementById('logging').insertAdjacentHTML('beforeend', date + msg + "<br>");
+    scrollToBottom()
+    ipcRenderer.send('showPreferences');
   }
 })
 
-ipcRenderer.on ('loginfo',(e,msg)=>{
-  let date =new Date()
-  date = date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes() + ':' + (date.getSeconds()<10?'0':'') +date.getSeconds() +  '-->'
-  document.getElementById('logging').insertAdjacentHTML('beforeend',date + msg + "<br>");
+ipcRenderer.on('loginfo', (e, msg) => {
+  let date = new Date()
+  date = date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '-->'
+  document.getElementById('logging').insertAdjacentHTML('beforeend', date + msg + "<br>");
   scrollToBottom()
 })
 
-function logRenderer(msg){
-  let date =new Date()
-  date = date.getHours() + ':' + (date.getMinutes()<10?'0':'') +date.getMinutes() + ':' +(date.getSeconds()<10?'0':'') + date.getSeconds() +  '-->'
-  document.getElementById('logging').insertAdjacentHTML('beforeend',date + msg + "<br>");
+function logRenderer(msg) {
+  let date = new Date()
+  date = date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '-->'
+  document.getElementById('logging').insertAdjacentHTML('beforeend', date + msg + "<br>");
   scrollToBottom()
 }
 
 let stream_direction;
-ipcRenderer.on('streamDirection',(e, direction)=>{
+ipcRenderer.on('streamDirection', (e, direction) => {
   stream_direction = direction
 })
 
-ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell,direction) => {
+ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell, direction) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
   table.rows[whichRow].cells[9].innerHTML = direction;
@@ -172,18 +173,18 @@ ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell,directi
 
 ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
   let osc_address;
-let blink2;
-let rEaddr2; 
-let sFactor2;
-let eVarType2;
-let eMin2;
-let eMax2;
-let oMin2;
-let oMax2;
-let eVarCurve2;
-//  dot2.classList.add("blink")
-//  if (osc_address !== oRaddr){
-//  logRenderer("oRaddr"+oRaddr);
+  let blink2;
+  let rEaddr2;
+  let sFactor2;
+  let eVarType2;
+  let eMin2;
+  let eMax2;
+  let oMin2;
+  let oMax2;
+  let eVarCurve2;
+  //  dot2.classList.add("blink")
+  //  if (osc_address !== oRaddr){
+  //  logRenderer("oRaddr"+oRaddr);
   let dot2 = document.getElementById("dot2");
   dot2.classList.toggle('blink');
   filteR = oRaddr.toUpperCase();
@@ -198,7 +199,7 @@ let eVarCurve2;
       let p = td.parentNode;
       let myRow = p.rowIndex;
       if (txtValue.toUpperCase().indexOf(filteR) > -1) {
-//        logRenderer("OSC Address Received: "+ filteR + "is present in table at Row: " +  myRow + "OSCvalue:" + oRargs);
+        //        logRenderer("OSC Address Received: "+ filteR + "is present in table at Row: " +  myRow + "OSCvalue:" + oRargs);
         table.rows[myRow].cells[3].innerHTML = oRargs.toFixed(2);
         sFactor2 = table.rows[myRow].cells[2].innerHTML;
         rEaddr2 = table.rows[myRow].cells[0].innerHTML;
@@ -209,37 +210,37 @@ let eVarCurve2;
         if (typeof oMin2 === 'undefined') {
           oMin2 = eMin2
         }
-          oMax2 = table.rows[myRow].cells[10].firstElementChild.value;
+        oMax2 = table.rows[myRow].cells[10].firstElementChild.value;
         if (typeof oMax2 === 'undefined') {
           oMax2 = eMax2
         }
         eVarCurve2 = table.rows[myRow].cells[7].firstElementChild.value;
         direction = table.rows[myRow].cells[9].innerHTML;
-        console.log('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2,myRow,direction, table.rows.length)
-        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2,myRow,direction, table.rows.length);
-      } 
-//      else {
-//        logRenderer("OSC Address received is Undefined");
-//      }
+        console.log('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2, myRow, direction, table.rows.length)
+        ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2, myRow, direction, table.rows.length);
+      }
+      //      else {
+      //        logRenderer("OSC Address received is Undefined");
+      //      }
     }
-    
+
   }
-  
-//}else{
-//  ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
-//}
+
+  //}else{
+  //  ipcRenderer.send('reSendOrArgs', oRargs, rEaddr2, sFactor2, eVarType2, eMin2, eMax2, oMin2, oMax2, eVarCurve2);
+  //}
 
 
-    setTimeout(() => {
-      dot2.classList.remove("blink")
-      },2000);
+  setTimeout(() => {
+    dot2.classList.remove("blink")
+  }, 2000);
 
 
   osc_address = oRaddr
-//  logRenderer("osc_address"+osc_address)
+  //  logRenderer("osc_address"+osc_address)
 })
 
-ipcRenderer.on("updateDirection", (e,myRow,direction)=>{
+ipcRenderer.on("updateDirection", (e, myRow, direction) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[myRow].cells[9].innerHTML = direction
 })
@@ -260,7 +261,7 @@ ipcRenderer.on('sendFileContent', function (event, content) {
   let sendedJSON = JSON.parse(content);
   sendedJSON = sendedJSON.replace(/\\n/g, "");
   sendedJSON = JSON.parse(sendedJSON);
-    sendedJSON.forEach(element => {
+  sendedJSON.forEach(element => {
     if (element.path) {
       let btnDel = document.createElement("BUTTON");
       let btnGo = document.createElement("BUTTON");
@@ -292,27 +293,27 @@ ipcRenderer.on('sendFileContent', function (event, content) {
       cell6.appendChild(btnDel);
       cell7.innerHTML = element.type;
 
-      if (element.math == "lin"){
-    cell8.innerHTML = `<select>
-      <option value="`+ element.math + `" selected >`+ element.math+ `</option>
+      if (element.math == "lin") {
+        cell8.innerHTML = `<select>
+      <option value="`+ element.math + `" selected >` + element.math + `</option>
       <option value="log">log</option>
       </select>`
-    }else 
-    if(element.math == "log"){
-      cell8.innerHTML = `<select>
-      <option value="`+ element.math + `" selected >`+ element.math + `</option>
+      } else
+        if (element.math == "log") {
+          cell8.innerHTML = `<select>
+      <option value="`+ element.math + `" selected >` + element.math + `</option>
       <option value="lin">lin</option>
       </select>`
-    }
-;
-  if (element.factor !== "") {
-    cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.min.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
-    cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.max.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
-  } else {
-    cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value="0">`;
-    cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value="1">`;
-  }
-  cell10.innerHTML = "-";
+        }
+      ;
+      if (element.factor !== "") {
+        cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.min.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
+        cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.max.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
+      } else {
+        cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value="0">`;
+        cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value="1">`;
+      }
+      cell10.innerHTML = "-";
       cell3.style.fontSize = 'x-small';
       cell7.style.fontSize = 'x-small';
       cell8.style.fontSize = 'x-small';
@@ -337,11 +338,11 @@ ipcRenderer.on('autoSave', function (event) {
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
-    if (tableRow.cells[7].firstElementChild){
+    if (tableRow.cells[7].firstElementChild) {
       let selected = tableRow.cells[7].firstElementChild.value;
       rowData[headers[7]] = selected;
-    }else{
-      rowData[headers[7]] =""
+    } else {
+      rowData[headers[7]] = ""
     }
     let emin = tableRow.cells[8].innerHTML.split(`<`)[0]
     let omin = tableRow.cells[8].firstElementChild.value;
@@ -353,7 +354,7 @@ ipcRenderer.on('autoSave', function (event) {
     rowData[headers[10]] = maxs
     data.push(rowData);
   }
-//  data.unshift(sessionData)
+  //  data.unshift(sessionData)
   let content = JSON.stringify(data, null, 2);
   ipcRenderer.send('sendAutoSave', content, autoSave)
 })
@@ -367,11 +368,11 @@ ipcRenderer.on('autoSave', function (event) {
 ipcRenderer.on('appVersion', function (event, appVersion) {
   document.getElementById("appVersion").innerHTML = document.getElementById("appVersion").innerHTML + appVersion;
   //document.getElementById("filepath").innerHTML = "none";
-  logRenderer("appVersion:"+ appVersion);
+  logRenderer("appVersion:" + appVersion);
 
 })
 
-ipcRenderer.on('autoGo', function(event){
+ipcRenderer.on('autoGo', function (event) {
   sendAllConnections()
 })
 
@@ -446,28 +447,28 @@ function submitEmberPath(event) {
   let slct2 = document.getElementById("slct2").value;
   let slct3 = document.getElementById("slct3").value;
   let emBerPath = "";
-//  if (switcher.className == "toggle") {
-    if (slct3 == "") {
-      emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2;
-    } else if (slct3 != "") {
-      emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2 + "." + slct3;
-    };
-//  } else {
-//    console.log("manualemberpath:",manualEmberPath);
-//    emBerPath = manualEmberPath;
-//    if(emBerPath.includes("/") === true){
-//      emBerPath = emBerPath.replaceAll("/",".");
-//      if(emBerPath.charAt(0) === "."){
-//        emBerPath = emBerPath.slice(1)
-//      }else{emBerPath = emBerPath}
-//    }else{emBerPath = emBerPath}
-//    console.log("newemberpath:",emBerPath);
-//    eVarType = "Integer";
-//    eVarFactor = 1;
-//    eVarMin = 0;
-//    eVarMax = 0
-//    eVarCurve = "lin"
-//  };
+  //  if (switcher.className == "toggle") {
+  if (slct3 == "") {
+    emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2;
+  } else if (slct3 != "") {
+    emBerPath = "Channels." + slct0 + "." + userLabel + "." + slct1 + "." + slct2 + "." + slct3;
+  };
+  //  } else {
+  //    console.log("manualemberpath:",manualEmberPath);
+  //    emBerPath = manualEmberPath;
+  //    if(emBerPath.includes("/") === true){
+  //      emBerPath = emBerPath.replaceAll("/",".");
+  //      if(emBerPath.charAt(0) === "."){
+  //        emBerPath = emBerPath.slice(1)
+  //      }else{emBerPath = emBerPath}
+  //    }else{emBerPath = emBerPath}
+  //    console.log("newemberpath:",emBerPath);
+  //    eVarType = "Integer";
+  //    eVarFactor = 1;
+  //    eVarMin = 0;
+  //    eVarMax = 0
+  //    eVarCurve = "lin"
+  //  };
   btnDel.innerHTML = "X";
   btnDel.setAttribute('onClick', 'SomeDeleteRowFunction(this)');
   btnGo.innerHTML = "Go!";
@@ -496,19 +497,19 @@ function submitEmberPath(event) {
   cell6.appendChild(btnGo);
   cell6.appendChild(btnDel);
   cell7.innerHTML = eVarType;
-  if (eVarCurve == "lin"){
+  if (eVarCurve == "lin") {
     cell8.innerHTML = `<select>
-      <option value="`+ eVarCurve + `" selected >`+ eVarCurve + `</option>
+      <option value="`+ eVarCurve + `" selected >` + eVarCurve + `</option>
       <option value="log">log</option>
       </select>`
-    }else 
-    if(eVarCurve == "log"){
+  } else
+    if (eVarCurve == "log") {
       cell8.innerHTML = `<select>
-      <option value="`+ eVarCurve + `" selected >`+ eVarCurve + `</option>
+      <option value="`+ eVarCurve + `" selected >` + eVarCurve + `</option>
       <option value="lin">lin</option>
       </select>`
     }
-;
+  ;
   if (eVarFactor !== "") {
     cell9.innerHTML = eVarMin + "/" + `<input type="number" value=` + (Number(eVarMin) / Number(eVarFactor)).toFixed(0) + `>`;
     cell11.innerHTML = eVarMax + "/" + `<input type="number" value=` + (Number(eVarMax) / Number(eVarFactor)).toFixed(0) + `>`;
@@ -650,7 +651,7 @@ function populate(s1, s2, s3, s4) {
     s2.innerHTML = "";
   }
   else {
-    for ( option in optionArray) {
+    for (option in optionArray) {
       let pair = optionArray[option].split("|");
       let newOption = document.createElement("option");
       newOption.value = pair[0];
@@ -670,20 +671,20 @@ function fillOscAddr(event) {
   let slct1 = document.getElementById("slct1");
   let slct2 = document.getElementById("slct2");
   let slct3 = document.getElementById("slct3");
-//  let switcher = document.getElementById("switcher");
-//  if (switcher.className == "toggle") {
-    if (slct3.value == "") {
-      oscAddr.value = "/Channels/" + slct0.value + "/" + userLabel.value + "/" + slct1.value + "/" + slct2.value;
-    } else {
-      oscAddr.value = "/Channels/" + slct0.value + "/" + userLabel.value + "/" + slct1.value + "/" + slct2.value + "/" + slct3.value;
-    }
-//  } else {
-//    userLabelValid = userLabel.value.includes("/");
-//    if (userLabelValid == true) {
-//      userLabel.value = (userLabel.value).replace(/\//g, ".")
-//    };
-//    oscAddr.value = "/" + (userLabel.value).replace(/\./g, "/")
-//  }
+  //  let switcher = document.getElementById("switcher");
+  //  if (switcher.className == "toggle") {
+  if (slct3.value == "") {
+    oscAddr.value = "/Channels/" + slct0.value + "/" + userLabel.value + "/" + slct1.value + "/" + slct2.value;
+  } else {
+    oscAddr.value = "/Channels/" + slct0.value + "/" + userLabel.value + "/" + slct1.value + "/" + slct2.value + "/" + slct3.value;
+  }
+  //  } else {
+  //    userLabelValid = userLabel.value.includes("/");
+  //    if (userLabelValid == true) {
+  //      userLabel.value = (userLabel.value).replace(/\//g, ".")
+  //    };
+  //    oscAddr.value = "/" + (userLabel.value).replace(/\./g, "/")
+  //  }
 }
 //UNUSED_FUNCTION//
 //function modifyOscAddr(event) {
@@ -738,7 +739,7 @@ function SomeDeleteRowFunction(o) {
     let eVarType = table.rows[myRow].cells[6].innerHTML;
     ipcRenderer.send('deleteConnection', ePath, oAddr, myRow, eVarType, eVarFactor);
     table.deleteRow(o)
-    logRenderer("delete Row number: "+ o);
+    logRenderer("delete Row number: " + o);
   }
   else {
     let p = o.parentNode.parentNode;
@@ -750,7 +751,7 @@ function SomeDeleteRowFunction(o) {
     let eVarType = table.rows[myRow].cells[6].innerHTML;
     ipcRenderer.send('deleteConnection', ePath, oAddr, myRow, eVarType, eVarFactor);
     p.parentNode.removeChild(p);
-    logRenderer("delete row number: "+ myRow);
+    logRenderer("delete row number: " + myRow);
   }
 }
 
@@ -765,47 +766,47 @@ function deleteAllRows(o) {
 }
 
 function sendConnection(o) {
-//  logRenderer("ooooo : "+ o)
+  //  logRenderer("ooooo : "+ o)
   var table = document.getElementById("tableOfConnection");
   if (typeof o == "number") {
-      myRow = o
+    myRow = o
   }
   else {
     var p = o.parentNode.parentNode;
     myRow = p.rowIndex;
   }
-//  logRenderer("myrow : "+myRow);
+  //  logRenderer("myrow : "+myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
   let eVarType = table.rows[myRow].cells[6].innerHTML;
-  let eMin = table.rows[myRow].cells[8].innerHTML.split(`<`)[0].replace("/","");
-//  console.log("emin new connection: ", eMin)
-  let eMax = table.rows[myRow].cells[10].innerHTML.split(`<`)[0].replace("/","");
+  let eMin = table.rows[myRow].cells[8].innerHTML.split(`<`)[0].replace("/", "");
+  //  console.log("emin new connection: ", eMin)
+  let eMax = table.rows[myRow].cells[10].innerHTML.split(`<`)[0].replace("/", "");
   let oMin = table.rows[myRow].cells[8].firstElementChild.value;;
   if (typeof oMin === 'undefined') {
     oMin2 = eMin
   }
-    oMax = table.rows[myRow].cells[10].firstElementChild.value;
+  oMax = table.rows[myRow].cells[10].firstElementChild.value;
   if (typeof oMax === 'undefined') {
     oMax = eMax
   }
   let eVarCurve = table.rows[myRow].cells[7].firstElementChild.value;
   let direction = table.rows[myRow].cells[9].innerHTML;
-//  logRenderer("Math innerhtml:"+ eVarCurve)
-//  logRenderer("epath in newconnectionR:"+ ePath)
-  ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve,direction, table.rows.length);
+  //  logRenderer("Math innerhtml:"+ eVarCurve)
+  //  logRenderer("epath in newconnectionR:"+ ePath)
+  ipcRenderer.send('newConnection', ePath, oAddr, myRow, eVarType, eVarFactor, eMin, eMax, oMin, oMax, eVarCurve, direction, table.rows.length);
 }
 
 function sendAllConnections() {
   var table = document.getElementById("tableOfConnection");
-  logRenderer("taille du tableau"+ table.rows.length);
+  logRenderer("taille du tableau" + table.rows.length);
   for (i = 2; i < table.rows.length; i++) {
-    (function(n){
-    setTimeout(() => {
-      sendConnection(n);
-    }, 25);
-  }(i))
+    (function (n) {
+      setTimeout(() => {
+        sendConnection(n);
+      }, 25);
+    }(i))
   }
 }
 
@@ -940,24 +941,24 @@ function saveAs(saveAsBtn) {
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
-    if (tableRow.cells[7].firstElementChild){
+    if (tableRow.cells[7].firstElementChild) {
       let selected = tableRow.cells[7].firstElementChild.value;
       rowData[headers[7]] = selected;
-    }else{
-      rowData[headers[7]] =""
+    } else {
+      rowData[headers[7]] = ""
     }
-    let emin = tableRow.cells[8].innerHTML.split(`<`)[0].replace('/','')
+    let emin = tableRow.cells[8].innerHTML.split(`<`)[0].replace('/', '')
     let omin = tableRow.cells[8].firstElementChild.value;
     let mins = (emin + omin).replace(/\s/g, '');
     rowData[headers[8]] = mins
-    let emax = tableRow.cells[10].innerHTML.split(`<`)[0].replace('/','')
+    let emax = tableRow.cells[10].innerHTML.split(`<`)[0].replace('/', '')
     let omax = tableRow.cells[10].firstElementChild.value;
     let maxs = (emax + omax).replace(/\s/g, '');
     rowData[headers[10]] = maxs
     data.push(rowData);
   }
   let content = JSON.stringify(data, null, 2);
-  logRenderer("contentsended:"+ content)
+  logRenderer("contentsended:" + content)
   ipcRenderer.send('sendSaveAs', content)
 }
 
@@ -976,11 +977,11 @@ function save(saveBtn) {
     x.forEach(item => {
       rowData[headers[item]] = tableRow.cells[item].innerHTML;
     })
-    if (tableRow.cells[7].firstElementChild){
+    if (tableRow.cells[7].firstElementChild) {
       let selected = tableRow.cells[7].firstElementChild.value;
       rowData[headers[7]] = selected;
-    }else{
-      rowData[headers[7]] =""
+    } else {
+      rowData[headers[7]] = ""
     }
     let emin = tableRow.cells[8].innerHTML.split(`<`)[0]
     let omin = tableRow.cells[8].firstElementChild.value;
@@ -1012,46 +1013,46 @@ function prefs(preferencesBtn) {
   ipcRenderer.send('showPreferences');
 }
 
-function menu (){
+function menu() {
   let menu = document.getElementById("menu").querySelectorAll(".button")
   let menuDiv = document.getElementById("menu")
-  logRenderer("menubkgcolor"+ menuDiv.style.backgroundColor )
-  if (menuDiv.style.backgroundColor === "rgb(71, 73, 108)"){
+  logRenderer("menubkgcolor" + menuDiv.style.backgroundColor)
+  if (menuDiv.style.backgroundColor === "rgb(71, 73, 108)") {
     menuDiv.style.backgroundColor = "rgb(40, 44, 52)"
-  }else{
+  } else {
     menuDiv.style.backgroundColor = "rgb(71, 73, 108)"
   }
-  for (i=1; i< menu.length;i++){
-    if (menu[i].style.display === "none"){
-    menu[i].style.display = "flex"
+  for (i = 1; i < menu.length; i++) {
+    if (menu[i].style.display === "none") {
+      menu[i].style.display = "flex"
+    }
+    else {
+      menu[i].style.display = "none"
+    }
+
   }
-  else {
-    menu[i].style.display = "none"
-  }
-  
 }
-}
-function viewlogs(){
+function viewlogs() {
   let logs = document.getElementById('logging')
-  if (logs.style.visibility === "hidden"){
-  logs.style.visibility = 'visible';
-  logs.style.maxHeight = "150px";
-  }else{
-  logs.style.visibility = 'hidden';
-  logs.style.maxHeight = "1px";
+  if (logs.style.visibility === "hidden") {
+    logs.style.visibility = 'visible';
+    logs.style.maxHeight = "150px";
+  } else {
+    logs.style.visibility = 'hidden';
+    logs.style.maxHeight = "1px";
   }
   let clearlogs = document.getElementById('clearlogs')
-  if (clearlogs.style.visibility === "hidden"){
-  clearlogs.style.visibility = 'visible';
-  clearlogs.style.height = "20px"
-  }else{
-  clearlogs.style.visibility = 'hidden';
-  clearlogs.style.height = '1px'
+  if (clearlogs.style.visibility === "hidden") {
+    clearlogs.style.visibility = 'visible';
+    clearlogs.style.height = "20px"
+  } else {
+    clearlogs.style.visibility = 'hidden';
+    clearlogs.style.height = '1px'
   }
   let deploy = document.getElementById('viewlogs')
-  if (deploy.innerHTML == "►"){
-    deploy.innerHTML ="▼"
-  }else{
+  if (deploy.innerHTML == "►") {
+    deploy.innerHTML = "▼"
+  } else {
     deploy.innerHTML = "►"
   }
 }
@@ -1095,7 +1096,7 @@ function tableToJson(table) {
 //}
 //});
 
-function  clearLog() { 
+function clearLog() {
   document.getElementById('logging').innerHTML = '<div id="anchor"></div>'
 }
 

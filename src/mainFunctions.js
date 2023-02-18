@@ -94,7 +94,7 @@ module.exports = {
     return (`0${i}`).slice(-2);
   },
 
-  sleep : function (ms) {
+  sleep: function (ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   },
 
