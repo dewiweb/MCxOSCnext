@@ -78,7 +78,7 @@ function createWindow() {
   nativeTheme.themeSource = 'dark';
   win.setMenu(null);
   win.loadFile('src/index.html')
-  //  win.webContents.openDevTools({ mode: 'detach' });
+    win.webContents.openDevTools({ mode: 'detach' });
 
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')
@@ -675,6 +675,7 @@ function createWindow() {
       ipcMain.on('newConnection', async (event, ePath, oAddr, myRow, eVarType, sFactor, eMin, eMax, oMin, oMax, eVarCurve, direction, tableLength) => {
         console.log('loginfo', "epath in newconnectionM " + ePath);
         console.log("direction1", myRow, directions[myRow])
+        console.log("oAddr received", oAddr)
         directions[myRow] = direction
 
         sFactor = Number(sFactor);

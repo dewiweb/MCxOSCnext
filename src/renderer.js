@@ -146,8 +146,10 @@ ipcRenderer.on('resolveError', (e, msg) => {
 ipcRenderer.on('loginfo', (e, msg) => {
   let date = new Date()
   date = date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '-->'
+  if(document.getElementById('logging')){
   document.getElementById('logging').insertAdjacentHTML('beforeend', date + msg + "<br>");
   scrollToBottom()
+  }
 })
 
 function logRenderer(msg) {
@@ -284,34 +286,37 @@ ipcRenderer.on('sendFileContent', function (event, content) {
       let cell11 = row.insertCell(10);
       cell1.innerHTML = element.path;
       cell1.contentEditable = true;
+      cell1.oninput = function(){changedPath(this.parentNode.rowIndex)};
+      cell1.title = "click Go! button for changes to take effect";
       cell2.innerHTML = "----";
       cell3.innerHTML = element.factor;
       cell4.innerHTML = "----";
       cell5.innerHTML = element.address;
       cell5.contentEditable = true;
+      cell5.oninput = function(){changed(this.parentNode.rowIndex)};
       cell6.appendChild(btnGo);
       cell6.appendChild(btnDel);
       cell7.innerHTML = element.type;
 
       if (element.math == "lin") {
-        cell8.innerHTML = `<select>
+        cell8.innerHTML = `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="`+ element.math + `" selected >` + element.math + `</option>
       <option value="log">log</option>
       </select>`
       } else
         if (element.math == "log") {
-          cell8.innerHTML = `<select>
+          cell8.innerHTML = `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="`+ element.math + `" selected >` + element.math + `</option>
       <option value="lin">lin</option>
       </select>`
         }
       ;
       if (element.factor !== "") {
-        cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.min.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
-        cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value=` + (Number(element.max.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
+        cell9.innerHTML = element.min.split("/")[0] + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` + (Number(element.min.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
+        cell11.innerHTML = element.max.split("/")[0] + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` + (Number(element.max.split("/")[0]) / Number(element.factor)).toFixed(0) + `>`;
       } else {
-        cell9.innerHTML = element.min.split("/")[0] + "/" + `<input type="number" value="0">`;
-        cell11.innerHTML = element.max.split("/")[0] + "/" + `<input type="number" value="1">`;
+        cell9.innerHTML = element.min.split("/")[0] + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+        cell11.innerHTML = element.max.split("/")[0] + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
       }
       cell10.innerHTML = "-";
       cell3.style.fontSize = 'x-small';
@@ -322,6 +327,20 @@ ipcRenderer.on('sendFileContent', function (event, content) {
     }
   });
 })
+
+function changed(myRow){
+  table = document.getElementById("tableOfConnection");
+  line = table.rows[myRow]
+  console.log("there's a changed on line",myRow, line.cells[0].innerHTML)
+  ipcRenderer.send('reSendOrArgs', line.cells[3].innerHTML, line.cells[0].innerHTML, line.cells[2].innerHTML, line.cells[6].innerHTML, line.cells[8].innerHTML.split("<")[0].replace(/\//, ""), line.cells[10].innerHTML.split("<")[0].replace(/\//, ""), line.cells[8].firstElementChild.value, line.cells[10].firstElementChild.value, line.cells[7].firstElementChild.value, myRow, line.cells[9].innerHTML, table.rows.length)
+}
+function changedPath(myRow){
+  table = document.getElementById("tableOfConnection");
+  line = table.rows[myRow]
+  //line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;", " ")
+ //ipcRenderer.send('newConnection', line.cells[0].innerHTML, line.cells[4].innerHTML, myRow, line.cells[6].innerHTML, line.cells[2].innerHTML, line.cells[8].innerHTML.split("<")[0].replace(/\//, ""), line.cells[10].innerHTML.split("<")[0].replace(/\//, ""), line.cells[8].firstElementChild.value, line.cells[10].firstElementChild.value, line.cells[7].firstElementChild.value, line.cells[9].innerHTML, table.rows.length);
+
+}
 
 ipcRenderer.on('autoSave', function (event) {
   table = document.getElementById('tableOfConnection');
@@ -489,33 +508,36 @@ function submitEmberPath(event) {
   let cell11 = row.insertCell(10);
   cell1.innerHTML = emBerPath;
   cell1.contentEditable = true;
+  cell1.oninput = function(){changedPath(this.parentNode.rowIndex)};
+  cell1.title = "click Go! button for changes to take effect"
   cell2.innerHTML = "----";
   cell3.innerHTML = eVarFactor;
   cell4.innerHTML = "----";
   cell5.innerHTML = oscAddr;
   cell5.contentEditable = true;
+  cell5.oninput = function(){changed(this.parentNode.rowIndex)};
   cell6.appendChild(btnGo);
   cell6.appendChild(btnDel);
   cell7.innerHTML = eVarType;
   if (eVarCurve == "lin") {
-    cell8.innerHTML = `<select>
+    cell8.innerHTML = `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="`+ eVarCurve + `" selected >` + eVarCurve + `</option>
       <option value="log">log</option>
       </select>`
   } else
     if (eVarCurve == "log") {
-      cell8.innerHTML = `<select>
+      cell8.innerHTML = `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="`+ eVarCurve + `" selected >` + eVarCurve + `</option>
       <option value="lin">lin</option>
       </select>`
     }
   ;
   if (eVarFactor !== "") {
-    cell9.innerHTML = eVarMin + "/" + `<input type="number" value=` + (Number(eVarMin) / Number(eVarFactor)).toFixed(0) + `>`;
-    cell11.innerHTML = eVarMax + "/" + `<input type="number" value=` + (Number(eVarMax) / Number(eVarFactor)).toFixed(0) + `>`;
+    cell9.innerHTML = eVarMin + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` + (Number(eVarMin) / Number(eVarFactor)).toFixed(0) + `>`;
+    cell11.innerHTML = eVarMax + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` + (Number(eVarMax) / Number(eVarFactor)).toFixed(0) + `>`;
   } else {
-    cell9.innerHTML = eVarMin + "/" + `<input type="number" value="0">`;
-    cell11.innerHTML = eVarMax + "/" + `<input type="number" value="1">`;
+    cell9.innerHTML = eVarMin + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+    cell11.innerHTML = eVarMax + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
   }
   cell10.innerHTML = "-";
   cell3.style.fontSize = 'x-small';
@@ -778,6 +800,7 @@ function sendConnection(o) {
   //  logRenderer("myrow : "+myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
+  console.log("oAddr sended", oAddr)
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
   let eVarType = table.rows[myRow].cells[6].innerHTML;
   let eMin = table.rows[myRow].cells[8].innerHTML.split(`<`)[0].replace("/", "");
