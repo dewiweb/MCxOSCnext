@@ -85,9 +85,10 @@
       </div>
     </div>
     <div id="Connections_Settings">
-      <class="form">
+<!--      <class="form">
+-->
         <label style="text-align: center; position: absolute;margin: auto;left: 0;right: 0;margin-top: 0;" for="fname"
-          >Ember+ Path to OSC Address</label
+          >Ember+ to OSC connection creator</label
         ><br />
         <br />
 
@@ -168,7 +169,7 @@
             type="submit"
             value="Add!"
           />
-          <div
+<!--          <div
             style="
               display: block;
               padding-left: 7%;
@@ -176,90 +177,23 @@
               font-size: smaller;
             "
           >
-            <div class="toggle" id="switcher">
-              <script>
-                switcher.addEventListener("click", advancedMode);
-              </script>
-              <div class="glow-comp"></div>
-              <div class="toggle-button"></div>
-            </div>
-            <span
-              style="font-style: italic"
-              title="examples:&#34;10623.126277.126278.126283.126284&#34; or &#34;_2._4._1._400016b0._400016b1&#34;"
-              >Manual Mode(put an ember+ path if you know it!)</span
-            >
-          </div>
-        </form>
-      <br />
-        <form id="form5" onsubmit="return false">
+-->
+    </form>
+        <div id="form5" >
           <label for="fname" title="keep it or put your own! Works on last added
           connection"
-            >/OSC Address (autofill but you can modify it)</label
+            >/OSC Address (autofill but you can modify it!)</label
           ><br /><br />
           <div style="padding-left: 10%">
-            <input type="text" id="oscAddr" name="oscAddr" value="/Channels" />
-            <input style="position:absolute;right: 10px; top: -15px;"
-              class="button"
-              id="modifyOscAddr"
-              style="text-align: center"
-              type="submit"
-              value="Modify!"
-            />
+            <input type="text" id="oscAddr" name="oscAddr" value="/Channels" onchange="return false"/>
           </div>
           <br />
-          <div
-            style="
-              display: block;
-              padding-left: 7%;
-              font-weight: normal;
-              font-size: smaller;
-            "
-          >
-            <div class="toggle" id="switcher1">
-              <script>
-                switcher1.addEventListener("click", remapMode);
-              </script>
-              <div class="glow-comp"></div>
-              <div class="toggle-button"></div>
-            </div>
-            <span style="font-style: italic" title=""
-              >Remap Values (only avalaible for Integer parameters!) &ensp;
-              &ensp;
-            </span>
-            <label
-              id="labelErange"
-              style="visibility: hidden"
-              class="unhideOnRemap"
-            >
-              <span id="eRange" title="ember+ range"></span>
-            </label>
-            <label
-              id="labelOrange"
-              style="visibility: hidden"
-              class="unhideOnRemap"
-              title="OSC range &nbsp;example:&nbsp;min,max"
-              value=""
-            >
-              <input type="text" id="oRange" />
-            </label>
-            <label
-              id="logCheckbox"
-              style="visibility: hidden"
-              class="unhideOnRemap"
-              >log to linear
-              <input type="checkbox" id="lCheckbox" name="checkbox" />
-              <span class="checkmark"></span>
-            </label>
-          </div>
-          <br />
-          <br />
-        </form>
       </div>
     </div>
     <div class="table">
       <table id="tableOfConnection" style="width: 100%; text-align: center">
         <caption>
-          List of connections
+          OVERVIEW
         </caption>
         <tr>
           <th colspan="2">Ember+</th>
@@ -279,21 +213,25 @@
           <td class="little">Min</td>
           <td class="hiddenTd"></td>
           <td class="little">Max</td>
-          <!--
-          <td class="little">dir</td>
-          -->
         </tr>
       </table>
     </div>
-    <div id="logging" style="display: none; background-color: black;">
 
+    <div style="background-color: black; width: 100%; height: 20px; text-align: center;">
+    LOGS <button id="viewlogs" onclick="viewlogs()">►</button>
+  </div>
+    <div id="logging" style=" background-color: black; visibility: hidden;">
       <div id="anchor"></div>
     </div>
-
+    <div id="clearlogs" style="background-color: black; width: 100%; height: 1px;visibility: hidden;">
+    <button  style="position:absolute; left: 50%;margin-left: -20px; " onclick="clearLog()">Clear</button>
+    </div>
+    </br>
     <script>
-      form4.addEventListener("submit", fillOscAddr);
+//      form4.addEventListener("submit", fillOscAddr);
+      form4.addEventListener("change", fillOscAddr);
       form4.addEventListener("submit", submitEmberPath);
-      form5.addEventListener("submit", modifyOscAddr);
+//      form5.addEventListener("change", modifyOscAddr);
     </script>
   </body>
   <footer class="little" style="display: inline-block">

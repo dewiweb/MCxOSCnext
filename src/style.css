@@ -30,7 +30,7 @@
 }
 
 #logging {
-  height: 150px;
+  max-height: 1px;
   overflow: auto;
   flex-direction: column;
 }
@@ -109,6 +109,12 @@ input[type=text], input[type=number], select{
   border-radius: 10px;
 }
 
+#Connections_Settings {
+  border: solid #47496c;
+  padding: 0.001px;
+  border-radius: 10px;
+}
+
 .table{
     border: solid #47496c;
     border-radius: 10px;
@@ -117,10 +123,33 @@ input[type=text], input[type=number], select{
 table{
   border-collapse: collapse;
 }
+td[contentEditable="true"]:hover{
+  font-size: small;
+  background: #ccc;
+  color: #282C34;
+  
+}
 
 table, th, td {
   border: 1px solid black;
 }
+td>select, td>input{
+  background: #282C34;
+  color: #ccc;
+  font-size: x-small;
+  
+}
+td>input{
+  display: inline;
+  width:4.5em;
+  text-align: left; 
+}
+td>input[type=number]:hover, td>select:hover{
+  font-size: small;
+  background: #ccc;
+  color: #282C34;
+}
+
 .hiddenTd{
   visibility: hidden;
 }
@@ -272,4 +301,8 @@ caption{
   100%{
     opacity: 0;
   }
+}
+
+#logging{
+  font-size: x-small;
 }
