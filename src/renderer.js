@@ -143,12 +143,24 @@ ipcRenderer.on('resolveError', (e, msg) => {
   }
 })
 
+ipcRenderer.on('errorOnEditedPath', (e, myRow) => {
+  let table = document.getElementById("tableOfConnection");
+  let epath = table.rows[myRow].cells[0]
+  epath.style.color = "red"
+})
+
+ipcRenderer.on('noError', (e, myRow) => {
+  let table = document.getElementById("tableOfConnection");
+  let epath = table.rows[myRow].cells[0]
+  epath.style.color = ""
+})
+
 ipcRenderer.on('loginfo', (e, msg) => {
   let date = new Date()
   date = date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '-->'
-  if(document.getElementById('logging')){
-  document.getElementById('logging').insertAdjacentHTML('beforeend', date + msg + "<br>");
-  scrollToBottom()
+  if (document.getElementById('logging')) {
+    document.getElementById('logging').insertAdjacentHTML('beforeend', date + msg + "<br>");
+    scrollToBottom()
   }
 })
 
@@ -286,14 +298,14 @@ ipcRenderer.on('sendFileContent', function (event, content) {
       let cell11 = row.insertCell(10);
       cell1.innerHTML = element.path;
       cell1.contentEditable = true;
-      cell1.oninput = function(){changedPath(this.parentNode.rowIndex)};
+      cell1.onblur = function () { changedPath(this.parentNode.rowIndex) };
       cell1.title = "click Go! button for changes to take effect";
       cell2.innerHTML = "----";
       cell3.innerHTML = element.factor;
       cell4.innerHTML = "----";
       cell5.innerHTML = element.address;
       cell5.contentEditable = true;
-      cell5.oninput = function(){changed(this.parentNode.rowIndex)};
+      cell5.onblur = function () { changed(this.parentNode.rowIndex) };
       cell6.appendChild(btnGo);
       cell6.appendChild(btnDel);
       cell7.innerHTML = element.type;
@@ -328,17 +340,20 @@ ipcRenderer.on('sendFileContent', function (event, content) {
   });
 })
 
-function changed(myRow){
+function changed(myRow) {
   table = document.getElementById("tableOfConnection");
   line = table.rows[myRow]
-  console.log("there's a changed on line",myRow, line.cells[0].innerHTML)
+  line.cells[4].innerHTML = line.cells[4].innerHTML.replace("&nbsp;"," ")
+  console.log("there's a changed on line", myRow, line.cells[0].innerHTML)
   ipcRenderer.send('reSendOrArgs', line.cells[3].innerHTML, line.cells[0].innerHTML, line.cells[2].innerHTML, line.cells[6].innerHTML, line.cells[8].innerHTML.split("<")[0].replace(/\//, ""), line.cells[10].innerHTML.split("<")[0].replace(/\//, ""), line.cells[8].firstElementChild.value, line.cells[10].firstElementChild.value, line.cells[7].firstElementChild.value, myRow, line.cells[9].innerHTML, table.rows.length)
 }
-function changedPath(myRow){
+function changedPath(myRow) {
+  console.log("Ember+ Path was changed in row", myRow)
   table = document.getElementById("tableOfConnection");
   line = table.rows[myRow]
+  line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;"," ")
   //line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;", " ")
- //ipcRenderer.send('newConnection', line.cells[0].innerHTML, line.cells[4].innerHTML, myRow, line.cells[6].innerHTML, line.cells[2].innerHTML, line.cells[8].innerHTML.split("<")[0].replace(/\//, ""), line.cells[10].innerHTML.split("<")[0].replace(/\//, ""), line.cells[8].firstElementChild.value, line.cells[10].firstElementChild.value, line.cells[7].firstElementChild.value, line.cells[9].innerHTML, table.rows.length);
+  ipcRenderer.send('newConnection', line.cells[0].innerHTML, line.cells[4].innerHTML, myRow, line.cells[6].innerHTML, line.cells[2].innerHTML, line.cells[8].innerHTML.split("<")[0].replace(/\//, ""), line.cells[10].innerHTML.split("<")[0].replace(/\//, ""), line.cells[8].firstElementChild.value, line.cells[10].firstElementChild.value, line.cells[7].firstElementChild.value, line.cells[9].innerHTML, table.rows.length);
 
 }
 
@@ -508,14 +523,14 @@ function submitEmberPath(event) {
   let cell11 = row.insertCell(10);
   cell1.innerHTML = emBerPath;
   cell1.contentEditable = true;
-  cell1.oninput = function(){changedPath(this.parentNode.rowIndex)};
+  cell1.onblur = function () { changedPath(this.parentNode.rowIndex) };
   cell1.title = "click Go! button for changes to take effect"
   cell2.innerHTML = "----";
   cell3.innerHTML = eVarFactor;
   cell4.innerHTML = "----";
   cell5.innerHTML = oscAddr;
   cell5.contentEditable = true;
-  cell5.oninput = function(){changed(this.parentNode.rowIndex)};
+  cell5.onblur = function () { changed(this.parentNode.rowIndex) };
   cell6.appendChild(btnGo);
   cell6.appendChild(btnDel);
   cell7.innerHTML = eVarType;

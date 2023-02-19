@@ -78,7 +78,9 @@ function createWindow() {
   nativeTheme.themeSource = 'dark';
   win.setMenu(null);
   win.loadFile('src/index.html')
-    win.webContents.openDevTools({ mode: 'detach' });
+//    win.on("ready-to-show", () => {
+//      win.webContents.openDevTools({ mode: 'detach' });
+//    });
 
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')
@@ -463,9 +465,10 @@ function createWindow() {
     })
     eGet.on('connected', () => {
       console.log("emberGet ", eServerIP, ":", eServerPort, " connection ok");
-
+      win.webContents.on('did-finish-load', () => {
       win.webContents.send('eServerOK', eAddress);
       win.webContents.send('loginfo', "Connection to Ember+ Server  " + eServerIP + ":" + eServerPort + " OK");
+      })
     })
     eGet.on('disconnected', () => {
       win.webContents.send('eServDisconnected', eAddress);
@@ -530,8 +533,9 @@ function createWindow() {
         win.webContents.send('resolveError', err);
         return
       }
+      win.webContents.on('did-finish-load', () => {
       win.webContents.send('eServerOK', eAddress);
-
+      })
 
       async function getUserLabels() {
 
@@ -679,7 +683,9 @@ function createWindow() {
         directions[myRow] = direction
 
         sFactor = Number(sFactor);
+        try{
         let initialReq = await eGet.getElementByPath(ePath);
+        
         //        win.webContents.send('loginfo', "initialReq: " + initialReq);
         let state = ['first', myRow];
         console.log("state: ", JSON.stringify(state))
@@ -830,6 +836,16 @@ function createWindow() {
             }
           } //let stringEpath = JSON.stringify(ePath);
         });
+        win.webContents.send('noError',myRow)
+      } catch (error) {
+        msg = error.message;
+        console.log('error msg',msg)
+      win.webContents.send('loginfo', msg)
+      win.webContents.send('errorOnEditedPath', myRow)
+      //  throw Error(error);
+        
+      }
+      
       });
 
       ipcMain.on("deleteConnection", async (event, ePath, oAddr, myRow, eVarType, sFactor) => {
