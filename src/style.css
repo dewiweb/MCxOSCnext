@@ -306,3 +306,5 @@ caption{
 #logging{
   font-size: x-small;
 }
+
+select.without-icon {appearance:none;background-image:url('');}

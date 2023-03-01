@@ -214,7 +214,11 @@ ipcRenderer.on('oReceivedAddr', (event, oRaddr, oRargs) => {
       let myRow = p.rowIndex;
       if (txtValue.toUpperCase().indexOf(filteR) > -1) {
         //        logRenderer("OSC Address Received: "+ filteR + "is present in table at Row: " +  myRow + "OSCvalue:" + oRargs);
+        if (isNaN(oRargs)){
+          table.rows[myRow].cells[3].innerHTML = oRargs
+        }else{
         table.rows[myRow].cells[3].innerHTML = oRargs.toFixed(2);
+        }
         sFactor2 = table.rows[myRow].cells[2].innerHTML;
         rEaddr2 = table.rows[myRow].cells[0].innerHTML;
         eVarType2 = table.rows[myRow].cells[6].innerHTML;
@@ -320,6 +324,11 @@ ipcRenderer.on('sendFileContent', function (event, content) {
           cell8.innerHTML = `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="`+ element.math + `" selected >` + element.math + `</option>
       <option value="lin">lin</option>
+      </select>`
+        } else
+        if (element.math == "") {
+          cell8.innerHTML = `<select>
+      <option value="" selected class="without_icon"></option>
       </select>`
         }
       ;
@@ -465,6 +474,58 @@ function setEuserLabel(typeOfChan) {
   }
 }
 
+function addemptyrow(event){
+  let btnDel = document.createElement("BUTTON");
+  let btnGo = document.createElement("BUTTON");
+  let emBerPath = ""
+  let oscAddr =""
+  btnDel.innerHTML = "X";
+  btnDel.setAttribute('onClick', 'SomeDeleteRowFunction(this)');
+  btnGo.innerHTML = "Go!";
+  btnGo.setAttribute('onClick', 'sendConnection(this)');
+  let table = document.getElementById("tableOfConnection");
+  let row = table.insertRow(-1);
+  row.style.fontSize = "smaller";
+  let cell1 = row.insertCell(0);
+  let cell2 = row.insertCell(1);
+  let cell3 = row.insertCell(2);
+  let cell4 = row.insertCell(3);
+  let cell5 = row.insertCell(4);
+  let cell6 = row.insertCell(5);
+  let cell7 = row.insertCell(6);
+  let cell8 = row.insertCell(7);
+  let cell9 = row.insertCell(8);
+  let cell10 = row.insertCell(9);
+  let cell11 = row.insertCell(10);
+  cell1.innerHTML = emBerPath;
+  cell1.contentEditable = true;
+  cell1.onblur = function () { changedPath(this.parentNode.rowIndex) };
+  cell1.title = "click Go! button for changes to take effect"
+  cell2.innerHTML = "----";
+  cell3.innerHTML = "";
+  cell4.innerHTML = "----";
+  cell5.innerHTML = "";
+  cell5.contentEditable = true;
+  cell5.onblur = function () { changed(this.parentNode.rowIndex) };
+  cell6.appendChild(btnGo);
+  cell6.appendChild(btnDel);
+  cell7.innerHTML = "String";
+  cell8.innerHTML = `<select><option value="" selected class="without-icon"></option></select>`;
+  cell9.innerHTML = " /" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+  cell11.innerHTML = " /" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+  cell10.innerHTML = "-";
+  cell3.style.fontSize = 'x-small';
+  cell7.style.fontSize = 'x-small';
+  cell8.style.fontSize = 'x-small';
+  cell9.style.fontSize = 'x-small';
+  cell11.style.fontSize = 'x-small';
+  if (table.rows.length == 3) {
+    if (table.rows[1].cells[5].innerHTML == "") {
+      addGenBtns();
+    }
+  };
+ // event.preventDefault();
+}
 
 function submitEmberPath(event) {
   let btnDel = document.createElement("BUTTON");
@@ -545,6 +606,11 @@ function submitEmberPath(event) {
       <option value="`+ eVarCurve + `" selected >` + eVarCurve + `</option>
       <option value="lin">lin</option>
       </select>`
+    } else
+    if (element.math == "") {
+      cell8.innerHTML = `<select>
+  <option value="" selected class="without-icon"></option>
+  </select>`
     }
   ;
   if (eVarFactor !== "") {

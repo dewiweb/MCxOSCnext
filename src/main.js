@@ -78,9 +78,9 @@ function createWindow() {
   nativeTheme.themeSource = 'dark';
   win.setMenu(null);
   win.loadFile('src/index.html')
-//    win.on("ready-to-show", () => {
-//      win.webContents.openDevTools({ mode: 'detach' });
-//    });
+    win.on("ready-to-show", () => {
+      win.webContents.openDevTools({ mode: 'detach' });
+    });
 
   win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')
@@ -880,7 +880,6 @@ function createWindow() {
                 }
               };
               let rereq = await eGet.getElementByPath(rEaddr);
-
               if (ro[myRow] == 1) {
                 eGet.unsubscribe(rereq);
                 state = ["first", myRow];
@@ -902,9 +901,13 @@ function createWindow() {
               } else if (eVarType == "Boolean" && rOrArgs == "0") {
                 eGet.setValue((rereq), false);
                 win.webContents.send('loginfo', ("OSC -bool-> EMBER+", rOrArgs));
-              } else {
+              } else if (eVarType == "String"){
+                eGet.setValue((rereq), rOrArgs.toString());
+                win.webContents.send('loginfo', ("OSC -string-> EMBER+", rOrArgs));
+              } else{
                 eGet.setValue((rereq), rOrArgs);
                 win.webContents.send('loginfo', ("OSC -string-> EMBER+", rOrArgs));
+
               }
 
 

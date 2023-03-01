@@ -61,12 +61,23 @@ module.exports = {
   },
 
   oscToEmber: function (oscBundle) {
-    let oscArgs = JSON.stringify(oscBundle.args);
-    oscArgs = oscArgs.replace(/\s|\[|\]/g, "");
-    oscArgs = JSON.parse(oscArgs);
-    oscArgs = oscArgs.value;
-    oscArgs = Number(oscArgs);
-    console.log("oscArgs", oscArgs);
+    console.log("oscbundle:",oscBundle)
+    //let oscArgs = JSON.stringify(oscBundle.args);
+    //console.log("oscbundlestringified:",oscArgs)
+    //oscArgs = oscArgs.replace(/\s|\[|\]/g, "");
+    //oscArgs = JSON.parse(oscArgs);
+    let oscArgs
+    console.log("osc_type", oscBundle.args[0].type)
+    console.log("osc_value", oscBundle.args[0].value)
+    if (oscBundle.args[0].type !== "s"){
+    oscArgs = Number(oscBundle.args[0].value);
+    console.log("cas1")
+    }else{
+      oscArgs = oscBundle.args[0].value.toString()
+      console.log("cas2")
+    }
+    
+    console.log("output_oscArgs", oscArgs);
     return oscArgs
   },
   embChPath: function (chNumb) {
