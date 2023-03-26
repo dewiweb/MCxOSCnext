@@ -80,27 +80,27 @@ function createWindow() {
   win.loadFile('src/index.html')
     win.on("ready-to-show", () => {
       win.webContents.openDevTools({ mode: 'detach' });
-    });
+//    });
 
-  win.webContents.on('did-finish-load', () => {
+//  win.webContents.on('did-finish-load', () => {
     win.webContents.send('ready')
   })
 
   ipcMain.on('sendAutoSave', function (event, content) {
     let autoSave = (preferences.value('save_settings.autoSave'))[0]
-    win.webContents.on('did-finish-load', () => {
+//    win.webContents.on('did-finish-load', () => {
       win.webContents.send('loginfo', "autoSave :" + autoSave)
-    })
+//    })
     if (autoSave !== undefined) {
       fs.writeFile(autoSaveFilepath, content, (err) => {
         if (err) {
-          win.webContents.on('did-finish-load', () => {
+//          win.webContents.on('did-finish-load', () => {
             win.webContents.send('loginfo', 'an error occurred with file creation ' + err.message);
-          })
+//          })
         }
-        win.webContents.on('did-finish-load', () => {
+//        win.webContents.on('did-finish-load', () => {
           win.webContents.send('loginfo', 'WE CREATED YOUR FILE SUCCESFULLY');
-        })
+//        })
       });
     };
     win = null;
@@ -128,9 +128,9 @@ function createWindow() {
       defaultPath: defaultDir,
     }
     autoSaveFilepath = defaultDir + "/" + datePath + ".session"
-    win.webContents.on('did-finish-load', () => {
+  //  win.webContents.on('did-finish-load', () => {
       win.webContents.send('loginfo', "autoSaveFilepath: " + autoSaveFilepath)
-    })
+  //  })
   }
   optionsDef()
 
@@ -301,7 +301,14 @@ function createWindow() {
                   label: 'destination:',
                   key: 'oid2osc',
                   type: 'text',
-                  help: 'example: 127.0.0.1:12001/_9/AccessChannelOID'
+                },
+                {
+                  label: '',
+                  key: 'change_oid_dest',
+                  type: 'button',
+                  buttonLabel: 'Apply',
+                  help: 'example: 127.0.0.1:12001/_9/AccessChannelOID',
+                  hideLabel: true,
                 },
               ],
             },
@@ -316,26 +323,26 @@ function createWindow() {
   const oServerPort = Number(((preferences.value('network_settings.osc_server')).split(":"))[1]);
 
   preferences.on('save', (preferences) => {
-    win.webContents.on('did-finish-load', () => {
+  //  win.webContents.on('did-finish-load', () => {
       win.webContents.send('loginfo', "preferences:" + preferences);
-      console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
+//      console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
       win.webContents.send('loginfo', `Preferences were saved.` + JSON.stringify(preferences, null, 4));
-    })
+  //  })
   });
 
   // load auto-options on startup  
   function loadPrefs() {
     let autoLoad = (preferences.value('save_settings.autoLoad'))[0]
-    win.webContents.on('did-finish-load', () => {
+  //  win.webContents.on('did-finish-load', () => {
       //      win.webContents.send('loginfo', "valeur autoload lue: " + autoLoad)
-    })
+  //  })
     let default_file = preferences.value("save_settings.default_file")
     let autoGo = (preferences.value('other_settings.autoGo'))[0]
-    win.webContents.on('did-finish-load', () => {
+//    win.webContents.on('did-finish-load', () => {
       //      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
-    })
+//    })
     if (autoLoad !== undefined) {
-      win.webContents.on('did-finish-load', () => {
+//      win.webContents.on('did-finish-load', () => {
         console.log("la fenetre est prete et peut recevoir les options")
         //        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
         let content = fs.readFileSync(default_file, 'utf-8');
@@ -345,7 +352,7 @@ function createWindow() {
         if (autoGo !== undefined) {
           win.webContents.send("autoGo")
         }
-      });
+//      });
     }
   }
   loadPrefs()
@@ -358,9 +365,9 @@ function createWindow() {
       showDialog: false,
       onError(error) {
         msg = error.message;
-        win.webContents.on('did-finish-load', () => {
-          win.webContents.send('resolveError', error)
-        })
+  //      win.webContents.on('did-finish-load', () => {
+          win.webContents.send('resolveError', msg)
+  //      })
         //      electron.dialog.showMessageBox({
         //        title: 'An error occurred',
         //        message: error.message,
@@ -465,19 +472,20 @@ function createWindow() {
     })
     eGet.on('connected', () => {
       console.log("emberGet ", eServerIP, ":", eServerPort, " connection ok");
-      win.webContents.on('did-finish-load', () => {
+//      win.webContents.on('did-finish-load', () => {
       win.webContents.send('eServerOK', eAddress);
       win.webContents.send('loginfo', "Connection to Ember+ Server  " + eServerIP + ":" + eServerPort + " OK");
-      })
+//      })
     })
     eGet.on('disconnected', () => {
       win.webContents.send('eServDisconnected', eAddress);
       win.webContents.send('loginfo', "Disconnected from emberGet");
     })
-    eGet.on('error', (e, err) => {
-      win.webContents.send('eServConnError', "le serveur " + eAddress + " ne répond pas : " + err);
-      //       win.webContents.send('loginfo', msg)
-    });
+  //  eGet.on('error', (e, err) => {
+  //    console.log("478",e.message)
+  //    win.webContents.send('eServConnError', "le serveur " + eAddress + " ne répond pas : " + err);
+  //    //       win.webContents.send('loginfo', msg)
+  //  });
   }
   emberGet();
 
@@ -491,9 +499,9 @@ function createWindow() {
   function oscListening() {
     oUDPport = preferences.value('network_settings.osc_receiver_port');
     console.log('Port de reception OSC:', oUDPport);
-    win.webContents.on('did-finish-load', () => {
+  //  win.webContents.on('did-finish-load', () => {
       win.webContents.send('loginfo', 'Port de reception OSC:' + oUDPport);
-    })
+  //  })
     oscGet = new osc.UDPPort({
       localAddress: "127.0.0.1",
       localPort: Number(oUDPport),
@@ -501,10 +509,10 @@ function createWindow() {
     })
     oscGet.open();
     oscGet.on('ready', function () {
-      win.webContents.on('did-finish-load', () => {
+//      win.webContents.on('did-finish-load', () => {
         win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
         win.webContents.send('oServerOK', (preferences.value('network_settings.osc_server')));
-      })
+//      })
     })
   }
   oscListening();
@@ -602,11 +610,14 @@ function createWindow() {
       };
       getUserLabels()
 
-      async function channelAccess() {
-        root = await (await eGet.getDirectory(eGet.tree)).response;
-        let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
 
-        if (OID_to_OSC[0] !== undefined) {
+      let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
+
+      async function channelAccess(OID_to_OSC) {
+      //  root = await (await eGet.getDirectory(eGet.tree)).response;
+        
+
+        if (OID_to_OSC[0] !== []) {
           let oid2osc = preferences.value('other_settings.oid2osc');
           let o2o_address = (oid2osc.toString()).split(':')[0];
           let o2o_port = (oid2osc.split(':')[1]).split('/')[0];
@@ -615,27 +626,27 @@ function createWindow() {
           try {
             await mainFunctions.sleep(2000);
             init_oid2osc = await eGet.getElementByPath('Console.AccessChannelOID');
-            let emberValue = init_oid2osc.contents.value;
-            let CA_OID = await eGet.getElementByPath(emberValue);
-            win.webContents.on('did-finish-load', () => {
-              win.webContents.send('loginfo', "initial ChannelAccess name is: " + CA_OID.contents.description)
-            })
+            let init_emberValue = init_oid2osc.contents.value;
+            let init_CA_OID = await eGet.getElementByPath(init_emberValue);
+//            win.webContents.on('did-finish-load', () => {
+            win.webContents.send('loginfo', "initial ChannelAccess name is: " + init_CA_OID.contents.description)
+//            })
             oscGet.send({
               address: o2o_path,
               args: [
                 {
                   type: "s",
-                  value: CA_OID.contents.description,
+                  value: init_CA_OID.contents.description,
                 }
               ]
             }, o2o_address, Number(o2o_port));
 
             eGet.subscribe(init_oid2osc, () => {
 
-              win.webContents.send('loginfo', "ChannelAccess changed to: " + CA_OID.contents.description);
               async function bip() {
-
-                win.webContents.send('loginfo', 'CA_OID' + CA_OID.contents.description);
+                let emberValue = init_oid2osc.contents.value;
+                let CA_OID = await eGet.getElementByPath(emberValue);
+                win.webContents.send('loginfo', 'CA_OID changed: ' + CA_OID.contents.description);
                 oscGet.send({
                   address: o2o_path,
                   args: [
@@ -650,14 +661,18 @@ function createWindow() {
           }
           catch (e) {
             const message = await e.message
-            win.webContents.on('did-finish-load', () => {
+  //          win.webContents.on('did-finish-load', () => {
               win.webContents.send('loginfo', "oid2osc failed due to: " + message)
-            })
+  //          })
           }
         }
-      } channelAccess();
+      } channelAccess(OID_to_OSC);
 
-
+      preferences.on('click', (key) => {
+        if (key === 'change_oid_dest') {
+          channelAccess(OID_to_OSC)
+        }
+      })
       //      async function expandtree() {
       //        let root = await (await eGet.getDirectory(eGet.tree)).response;
       //        try{
@@ -683,19 +698,24 @@ function createWindow() {
         directions[myRow] = direction
 
         sFactor = Number(sFactor);
-        try{
-        let initialReq = await eGet.getElementByPath(ePath);
         
+        let initialReq = await eGet.getElementByPath(ePath);
+        let emberValue = initialReq.contents.value;
+        console.log('689 initial value : ',initialReq.contents.value)
+        event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
         //        win.webContents.send('loginfo', "initialReq: " + initialReq);
         let state = ['first', myRow];
         console.log("state: ", JSON.stringify(state))
+        console.log("epath",ePath)
+        //try{
         eGet.subscribe(initialReq, () => {
 
           if (JSON.stringify(state) === JSON.stringify(['first', myRow])) {
             //            direction = "ET";
             console.log("direction2", myRow, directions[myRow])
             win.webContents.send('loginfo', "subscribed to " + ePath);
-            let emberValue = initialReq.contents.value;
+            emberValue = initialReq.contents.value;
+            console.log('702 emberValue : ',emberValue)
             directions[myRow] = "-"
             event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
             state = ["nonFirst", myRow];
@@ -714,7 +734,8 @@ function createWindow() {
                   directions[myRow] = "►"
                   //           console.log("direction set to E->O")
 
-                  let emberValue = initialReq.contents.value;
+                  emberValue = initialReq.contents.value;
+                  console.log('722 emberValue : ',emberValue)
                   event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
                   //emberInputListener(initialReq, emberValue, myRow);
                   if (eVarType == "Integer" && eVarCurve == "lin") {
@@ -837,14 +858,14 @@ function createWindow() {
           } //let stringEpath = JSON.stringify(ePath);
         });
         win.webContents.send('noError',myRow)
-      } catch (error) {
-        msg = error.message;
-        console.log('error msg',msg)
-      win.webContents.send('loginfo', msg)
-      win.webContents.send('errorOnEditedPath', myRow)
-      //  throw Error(error);
-        
-      }
+    //  } catch (error) {
+    //    msg = error.message;
+    //    console.log('error msg',msg)
+    //  win.webContents.send('loginfo', msg)
+    //  win.webContents.send('errorOnEditedPath', myRow)
+    //  //  throw Error(error);
+    //    
+    //  }
       
       });
 
@@ -956,15 +977,15 @@ function createWindow() {
       })
 
     } catch (error) {
-      throw Error(error);
+      throw Error("965",error);
     }
   }
   main().catch(err => {
     msg = err.message;
-    win.webContents.on('did-finish-load', () => {
+  //  win.webContents.on('did-finish-load', () => {
       win.webContents.send('resolveError', msg)
-    })
-    console.error(msg)
+  //  })
+    console.error("973",msg)
   });
 
 
@@ -990,40 +1011,23 @@ function createWindow() {
       emberGet();
       main().catch(err => {
         msg = err.message;
-        win.webContents.on('did-finish-load', () => {
+  //      win.webContents.on('did-finish-load', () => {
           win.webContents.send('resolveError', err)
-        })
+  //      })
         console.error(err)
       });
       //emberPost();
 
       //eGet.connect()
     }
-  });
-
-  oscGet.on("error", (error) => {
-
-    msg = error.message;
-    win.webContents.on('did-finish-load', () => {
-      console.log("An error occurred with OSC listening: ", error.message);
-
-      win.webContents.send('udpportKO', msg);
-      win.webContents.on('did-finish-load', () => {
-        win.webContents.send('resolveError', msg);
-      })
-      oscGet.close()
-    });
-  });
-
-  preferences.on('click', (key) => {
-    if (key === 'applyButton') {
+    else if (key === 'applyButton') {
       win.webContents.send('loginfo', "listening port changed!")
       win.webContents.send('udpportOK', (preferences.value('network_settings.osc_receiver_port')));
       oscGet.close();
       oscListening();
       oscGet.on("error", function (error) {
         msg = error.message
-        console.log("An error occurred with OSC listening: ", error.message);
+        console.log("1033 An error occurred with OSC listening: ", error.message);
         win.webContents.send('udpportKO', msg)
 
         win.webContents.send('resolveError', msg)
@@ -1034,10 +1038,25 @@ function createWindow() {
     }
   });
 
+  oscGet.on("error", (error) => {
+
+    msg = error.message;
+//    win.webContents.on('did-finish-load', () => {
+      console.log("1015 An error occurred with OSC listening: ", error.message);
+
+      win.webContents.send('udpportKO', msg);
+//      win.webContents.on('did-finish-load', () => {
+        win.webContents.send('resolveError', msg);
+//      })
+      oscGet.close()
+//    });
+  });
+
+
 
   win.autoHideMenuBar = "true"
   win.menuBarVisible = "false"
-  win.webContents.on('did-finish-load', () => {
+//  win.webContents.on('did-finish-load', () => {
     console.log("appVersion :", appVersion);
     win.webContents.send('appVersion', app.getVersion());
 
@@ -1048,7 +1067,7 @@ function createWindow() {
       }
     });
 
-  })
+//  })
 }
 
 app.whenReady().then(createWindow)

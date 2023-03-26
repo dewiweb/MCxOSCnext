@@ -1,7 +1,7 @@
 const { EmberClient } = require('emberplus-connection');
 const { EmberNodeImpl, NumberedTreeNodeImpl } = require('emberplus-connection/dist/model');
 
-let eGet = new EmberClient("192.168.0.35", 9000);
+let eGet = new EmberClient("192.168.100.94", 9000);
 eGet.on('connected', () => {
     console.log("emberGet connection ok");
     
@@ -23,24 +23,39 @@ async function walkthrough() {
 
     const req = await eGet.getDirectory(eGet.tree)
     const root = await req.response
+ //   console.log("ROOT",root)
     let first_level = Object.values(eGet.tree).map(({number})=> number)
     console.log("first_level",first_level)
+    if (first_level.length > 1){
     for (const element of first_level){
         let req_first = await eGet.getElementByPath(element.toString())
-        await eGet.expand(req_first)
+//        await eGet.expand(req_first)
         let req_first_content = Object.values(req_first)
-        console.log("req_first values",req_first_content)
-        let second_level = req_first_content.filter(el=>el!=undefined && "number" in Object.keys(el)) 
-        console.log("second_level_1",second_level)
-       // second_level = Object.values(second_level).filter(el=>el != 'NODE')
-       // console.log("second_level_2",second_level)
-        second_level= second_level.map(({number})=>number)
-        console.log("second_level_3",second_level)
-        for (const second of second_level){
-            req_second = await eGet.getElementByPath(element.toString()+"."+second.toString())
-            await eGet.expand(req_second)
-            let req_second_content = Object.values(req_second)
-            console.log("req_second values",req_second_content)
+//        console.log("req_first values type",req_first_content[0].type)
+        if (req_first_content[0].type === 'NODE'){
+            await eGet.expand(req_first)
+            console.log("req_first values",req_first_content)
+        }
+//        let second_level = req_first_content.filter(el=>el!=undefined && "number" in Object.keys(el)) 
+//        console.log("second_level_1",second_level)
+//       // second_level = Object.values(second_level).filter(el=>el != 'NODE')
+//       // console.log("second_level_2",second_level)
+//        second_level= second_level.map(({number})=>number)
+//        console.log("second_level_3",second_level)
+//        for (const second of second_level){
+//            req_second = await eGet.getElementByPath(element.toString()+"."+second.toString())
+//            await eGet.expand(req_second)
+//            let req_second_content = Object.values(req_second)
+//            console.log("req_second values",req_second_content)
+        }
+    }else{
+        let req_first = await eGet.getElementByPath(first_level[0].toString()+".1")
+//        await eGet.expand(req_first)
+        let req_first_content = Object.values(req_first)
+//        console.log("req_first values type",req_first_content[0].type)
+        if (req_first_content[0].type === 'NODE'){
+            await eGet.expand(req_first)
+            console.log("req_first values",req_first_content)
         }
     };
    // console.log("second_level",req_second)
