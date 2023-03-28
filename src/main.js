@@ -460,6 +460,21 @@ function createWindow() {
       })
   })
 
+  ipcMain.on('choose_type',()=>{
+    const dial_options = {
+      type: 'question',
+      buttons: ['String', 'Boolean', 'Integer','Float'],
+      defaultId: 0,
+      title: '',
+      message: 'Which type of data?',
+      detail: 'It does really matter'
+    };
+    dialog.showMessageBox(win, dial_options).then ((response) => {
+      console.log("type choosen: ",Object.values(response)[0]);
+      win.webContents.send('choosen_type',Object.values(response)[0])
+    });
+  })
+
   //---Network Settings Section---//
   //---Initiating Ember and OSC---//
   function emberGet() {

@@ -164,6 +164,35 @@ ipcRenderer.on('loginfo', (e, msg) => {
   }
 })
 
+ipcRenderer.on('choosen_type',(e, response)=>{
+  let types = ['String', 'Boolean', 'Integer','Float']
+  let table = document.getElementById("tableOfConnection");
+  let x = table.rows.length;
+  table.rows[x-1].cells[6].innerHTML = types[response]
+  if(response > 1){
+    table.rows[x-1].cells[7].innerHTML =  `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
+                                          <option value="log" selected >log</option>
+                                          <option value="lin">lin</option>
+                                          </select>`
+    table.rows[x-1].cells[8].innerHTML = "0/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+    table.rows[x-1].cells[10].innerHTML = "1/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
+  }
+  else if (response == 1){
+    table.rows[x-1].cells[7].innerHTML =  `<select>
+                                          <option value="" selected class="without_icon"></option>
+                                          </select>`
+    table.rows[x-1].cells[8].innerHTML = "false/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+    table.rows[x-1].cells[10].innerHTML = "true/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
+  }
+  else{
+    table.rows[x-1].cells[7].innerHTML =  `<select>
+                                          <option value="" selected class="without_icon"></option>
+                                          </select>`
+    table.rows[x-1].cells[8].innerHTML = "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+    table.rows[x-1].cells[10].innerHTML = "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
+  }
+})
+
 function logRenderer(msg) {
   let date = new Date()
   date = date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '-->'
@@ -475,6 +504,7 @@ function setEuserLabel(typeOfChan) {
 }
 
 function addemptyrow(event){
+  ipcRenderer.send('choose_type')
   let btnDel = document.createElement("BUTTON");
   let btnGo = document.createElement("BUTTON");
   let emBerPath = ""
@@ -607,7 +637,7 @@ function submitEmberPath(event) {
       <option value="lin">lin</option>
       </select>`
     } else
-    if (element.math == "") {
+    if (eVarCurve == "") {
       cell8.innerHTML = `<select>
   <option value="" selected class="without-icon"></option>
   </select>`
