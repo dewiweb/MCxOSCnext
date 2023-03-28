@@ -59,7 +59,7 @@
         {
           "target": "deb",
           "arch": [
-            "arm7l"
+            "armv7l"
           ]
         }
       ]
