@@ -53,6 +53,16 @@
           ]
         }
       ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "deb",
+          "arch": [
+            "arm7l"
+          ]
+        }
+      ]
     }
   },
   "dependencies": {

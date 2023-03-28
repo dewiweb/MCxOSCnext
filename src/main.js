@@ -321,6 +321,7 @@ function createWindow() {
 
   const oServerIP = ((preferences.value('network_settings.osc_server')).split(":"))[0];
   const oServerPort = Number(((preferences.value('network_settings.osc_server')).split(":"))[1]);
+  let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
 
   preferences.on('save', (preferences) => {
   //  win.webContents.on('did-finish-load', () => {
@@ -611,7 +612,7 @@ function createWindow() {
       getUserLabels()
 
 
-      let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
+      
 
       async function channelAccess(OID_to_OSC) {
       //  root = await (await eGet.getDirectory(eGet.tree)).response;
@@ -701,7 +702,13 @@ function createWindow() {
         
         let initialReq = await eGet.getElementByPath(ePath);
         let emberValue = initialReq.contents.value;
-        console.log('689 initial value : ',initialReq.contents.value)
+        console.log("embervalue", emberValue)
+        //let enumList = []
+        //enumList  = (initialReq.contents.enumeration).split('\n')
+        console.log('705 initial value : ',initialReq.contents.value)
+        //console.log('706 initial enum : ',enumList)
+        console.log('705 initial value type : ',initialReq.contents.type)
+
         event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
         //        win.webContents.send('loginfo', "initialReq: " + initialReq);
         let state = ['first', myRow];
