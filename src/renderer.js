@@ -159,13 +159,13 @@ ipcRenderer.on('loginfo', (e, msg) => {
   let date = new Date()
   date = date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '-->'
   if (document.getElementById('logging')) {
-    document.getElementById('logging').insertAdjacentHTML('beforeend', date + msg + "<br>");
+    document.getElementById('logging').insertAdjacentHTML('beforeend', date + JSON.stringify(msg) + "<br>");
     scrollToBottom()
   }
 })
 
 ipcRenderer.on('choosen_type',(e, response)=>{
-  let types = ['String', 'Boolean', 'Integer','Float']
+  let types = ['String', 'Boolean', 'Integer','Float','Enum']
   let table = document.getElementById("tableOfConnection");
   let x = table.rows.length;
   table.rows[x-1].cells[6].innerHTML = types[response]
@@ -205,10 +205,13 @@ ipcRenderer.on('streamDirection', (e, direction) => {
   stream_direction = direction
 })
 
-ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell, direction) => {
+ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell, direction,embmax,embmin,embfactor) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
   table.rows[whichRow].cells[9].innerHTML = direction;
+  table.rows[whichRow].cells[2].innerHTML = embfactor;
+  table.rows[whichRow].cells[8].innerHTML = embmin + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+  table.rows[whichRow].cells[10].innerHTML = embmax + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
 
 })
 
@@ -390,6 +393,20 @@ function changedPath(myRow) {
   table = document.getElementById("tableOfConnection");
   line = table.rows[myRow]
   line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;"," ")
+  let emberP = line.cells[0].innerHTML
+  if (emberP.includes('/') ){
+    console('emberp include slash',emberP)
+    if (emberP.charAt(0) == '/'){
+      console('charat emberp',emberP)  
+      emberP = emberP.substring(1)
+    
+      emberP = emberP.replaceA(/\//g,'.')
+    }
+    else {
+      emberP = emberP.replace(/\//g,'.') 
+    }
+  }
+  line.cells[0].innerHTML = emberP
   //line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;", " ")
   ipcRenderer.send('newConnection', line.cells[0].innerHTML, line.cells[4].innerHTML, myRow, line.cells[6].innerHTML, line.cells[2].innerHTML, line.cells[8].innerHTML.split("<")[0].replace(/\//, ""), line.cells[10].innerHTML.split("<")[0].replace(/\//, ""), line.cells[8].firstElementChild.value, line.cells[10].firstElementChild.value, line.cells[7].firstElementChild.value, line.cells[9].innerHTML, table.rows.length);
 

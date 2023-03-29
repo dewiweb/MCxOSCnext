@@ -321,7 +321,7 @@ function createWindow() {
 
   const oServerIP = ((preferences.value('network_settings.osc_server')).split(":"))[0];
   const oServerPort = Number(((preferences.value('network_settings.osc_server')).split(":"))[1]);
-  let OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
+  const OID_to_OSC = preferences.value('other_settings.OID_to_OSC');
 
   preferences.on('save', (preferences) => {
   //  win.webContents.on('did-finish-load', () => {
@@ -632,8 +632,8 @@ function createWindow() {
       async function channelAccess(OID_to_OSC) {
       //  root = await (await eGet.getDirectory(eGet.tree)).response;
         
-
-        if (OID_to_OSC[0] !== []) {
+        console.log("oid to osc enabled?: ",OID_to_OSC)
+        if (OID_to_OSC !== []) {
           let oid2osc = preferences.value('other_settings.oid2osc');
           let o2o_address = (oid2osc.toString()).split(':')[0];
           let o2o_port = (oid2osc.split(':')[1]).split('/')[0];
@@ -716,15 +716,33 @@ function createWindow() {
         sFactor = Number(sFactor);
         
         let initialReq = await eGet.getElementByPath(ePath);
+        let parameter_type = initialReq.parameterType
+        let contents = initialReq.contents
         let emberValue = initialReq.contents.value;
-        console.log("embervalue", emberValue)
-        //let enumList = []
-        //enumList  = (initialReq.contents.enumeration).split('\n')
+        console.log("contents", initialReq.contents)
         console.log('705 initial value : ',initialReq.contents.value)
-        //console.log('706 initial enum : ',enumList)
         console.log('705 initial value type : ',initialReq.contents.type)
+        if (parameter_type == 'ENUM'){
+          let enumList = initialReq.contents.enumeration.split('\n')
+          console.log("enumList:",enumList)
+          enum_length = length(enumList)
+        }
+        else if (parameter_type == 'INTEGER'){
+          if (initialReq.maximum !== eMax){
+            eMax = initialReq.maximum
+            console.log('updated emax',eMax)
+          }
+          if (initialReq.minimum !== eMin){
+            eMin = initialReq.minimum
+            console.log('updated emin',eMin)
+          }
+          if (Number(initialReq.factor) !== sFactor){
+            sFactor = initialReq.factor
+            console.log('updated sfactor',sFactor)
+          }
 
-        event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
+        }
+        event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor);
         //        win.webContents.send('loginfo', "initialReq: " + initialReq);
         let state = ['first', myRow];
         console.log("state: ", JSON.stringify(state))
@@ -736,10 +754,11 @@ function createWindow() {
             //            direction = "ET";
             console.log("direction2", myRow, directions[myRow])
             win.webContents.send('loginfo', "subscribed to " + ePath);
+            win.webContents.send('loginfo',contents)
             emberValue = initialReq.contents.value;
             console.log('702 emberValue : ',emberValue)
             directions[myRow] = "-"
-            event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
+            event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor);
             state = ["nonFirst", myRow];
             //            direction = ""
             ;
@@ -758,7 +777,7 @@ function createWindow() {
 
                   emberValue = initialReq.contents.value;
                   console.log('722 emberValue : ',emberValue)
-                  event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
+                  event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor);
                   //emberInputListener(initialReq, emberValue, myRow);
                   if (eVarType == "Integer" && eVarCurve == "lin") {
                     let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
@@ -806,7 +825,7 @@ function createWindow() {
                       address: oAddr,
                       args: [
                         {
-                          type: "f",
+                          type: "T",
                           value: 1,
                         }
                       ]
@@ -818,7 +837,7 @@ function createWindow() {
                       address: oAddr,
                       args: [
                         {
-                          type: "f",
+                          type: "F",
                           value: 0,
                         }
                       ]
