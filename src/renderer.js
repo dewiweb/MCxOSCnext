@@ -394,7 +394,7 @@ function changedPath(myRow) {
   line = table.rows[myRow]
   line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;"," ")
   let emberP = line.cells[0].innerHTML
-  if (emberP.includes('/') ){
+  if (emberP.indexOf('/') > -1 ){
     console('emberp include slash',emberP)
     if (emberP.charAt(0) == '/'){
       console('charat emberp',emberP)  
