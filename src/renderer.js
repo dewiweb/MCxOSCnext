@@ -205,13 +205,13 @@ ipcRenderer.on('streamDirection', (e, direction) => {
   stream_direction = direction
 })
 
-ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell, direction,embmax,embmin,embfactor) => {
+ipcRenderer.on('sendEmberValue', (event, emberValue, whichRow, whichCell, direction,embmax,embmin,embfactor,oscmax,oscmin) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[whichRow].cells[whichCell].innerHTML = emberValue;
   table.rows[whichRow].cells[9].innerHTML = direction;
   table.rows[whichRow].cells[2].innerHTML = embfactor;
-  table.rows[whichRow].cells[8].innerHTML = embmin + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
-  table.rows[whichRow].cells[10].innerHTML = embmax + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+  table.rows[whichRow].cells[8].innerHTML = embmin + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="`+Number(oscmin)+`">`;
+  table.rows[whichRow].cells[10].innerHTML = embmax + "/" + `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="`+Number(oscmax)+`">`;
 
 })
 
@@ -395,9 +395,9 @@ function changedPath(myRow) {
   line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;"," ")
   let emberP = line.cells[0].innerHTML
   if (emberP.indexOf('/') > -1 ){
-    console('emberp include slash',emberP)
+    console.log('emberp include slash',emberP)
     if (emberP.charAt(0) == '/'){
-      console('charat emberp',emberP)  
+      console.log('charat emberp',emberP)  
       emberP = emberP.substring(1)
     
       emberP = emberP.replaceA(/\//g,'.')

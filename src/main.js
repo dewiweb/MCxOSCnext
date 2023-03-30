@@ -742,12 +742,12 @@ function createWindow() {
           }
 
         }
-        event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor);
+        event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor,oMax,oMin);
         //        win.webContents.send('loginfo', "initialReq: " + initialReq);
         let state = ['first', myRow];
         console.log("state: ", JSON.stringify(state))
         console.log("epath",ePath)
-        //try{
+        try{
         eGet.subscribe(initialReq, () => {
 
           if (JSON.stringify(state) === JSON.stringify(['first', myRow])) {
@@ -758,11 +758,12 @@ function createWindow() {
             emberValue = initialReq.contents.value;
             console.log('702 emberValue : ',emberValue)
             directions[myRow] = "-"
-            event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor);
+            event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor,oMax,oMin);
             state = ["nonFirst", myRow];
             //            direction = ""
             ;
           } else {
+            console.log("766",EmberIn[myRow])
             EmberIn[myRow] = Date.now();
             if (EmberOut[myRow]) {
               console.log("Ember in/out:", myRow, EmberIn[myRow] - EmberOut[myRow])
@@ -777,7 +778,7 @@ function createWindow() {
 
                   emberValue = initialReq.contents.value;
                   console.log('722 emberValue : ',emberValue)
-                  event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor);
+                  event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor,oMax,oMin);
                   //emberInputListener(initialReq, emberValue, myRow);
                   if (eVarType == "Integer" && eVarCurve == "lin") {
                     let value = mainFunctions.mapToScale(Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)], 2);
@@ -858,7 +859,7 @@ function createWindow() {
                     (setTimeout(() => {
                       console.log("gateDelayIn launched")
                       directions[myRow] = "-";
-                      event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
+                      event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow],eMax,eMin,sFactor,oMax,oMin);
                       win.webContents.send('loginfo', "waiting")
                     }, 500, myRow));
                   EmberOut[myRow] = Date.now()
@@ -899,14 +900,14 @@ function createWindow() {
           } //let stringEpath = JSON.stringify(ePath);
         });
         win.webContents.send('noError',myRow)
-    //  } catch (error) {
-    //    msg = error.message;
-    //    console.log('error msg',msg)
+      } catch (error) {
+        msg = error.message;
+        console.log('905error msg',msg)
     //  win.webContents.send('loginfo', msg)
     //  win.webContents.send('errorOnEditedPath', myRow)
     //  //  throw Error(error);
     //    
-    //  }
+      }
       
       });
 
@@ -930,14 +931,14 @@ function createWindow() {
           console.log("OSC in/out:", myRow, OSCin[myRow] - OSCout[myRow])
           if (OSCin[myRow] - OSCout[myRow] > OSCrate) {
 
-            //        console.log("ro = ", ro)
+                    console.log("ro = ", ro)
             if (directions[myRow] !== "►") {
               directions[myRow] = "◄";
               win.webContents.send("updateDirection", myRow, directions[myRow])
-              //          console.log("direction set to O->E")
+                        console.log("direction set to O->E")
               if (gateDelayOUT[myRow]) {
                 if (Object.values(gateDelayOUT[myRow])[5][0] == myRow) {
-                  //  console.log("gateDelayOUT: " , Object.values(gateDelayOUT))
+                    console.log("gateDelayOUT: " , Object.values(gateDelayOUT))
                   clearTimeout(gateDelayOUT[myRow])
                 }
               };
@@ -948,25 +949,32 @@ function createWindow() {
                 win.webContents.send('loginfo', "eGet unsuscribe to " + rereq)
               }
               if (eVarType == "Integer" && eVarCurve == "lin") {
+                console.log("952-->",rOrArgs)
                 let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(oMin), Number(oMax)], [Number(eMin), Number(eMax)], 2);
-                eGet.setValue((rereq), value.toFixed(0));
+                console.log("954-->",value.toFixed(0))
+                eGet.setValue((rereq), Number(value.toFixed(0)));
                 win.webContents.send('loginfo', 'OSC -lin-> EMBER+ : ' + value.toFixed(0));
               } else if (eVarType == "Integer" && eVarCurve == "log") {
+                console.log("956-->",value)
                 let value = mainFunctions.mapToScale(Number(rOrArgs), [Number(oMin), Number(oMax)], [Number(eMin), Number(eMax)], 2, true, -1);
-                //            console.log("values submitted to maptoscale: ", Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
-                //            console.log("remapped value: ", value)
-                eGet.setValue((rereq), value.toFixed(0));
+                            console.log("values submitted to maptoscale: ", Number(rOrArgs), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
+                            console.log("remapped value: ", value)
+                eGet.setValue((rereq), Number(value.toFixed(0)));
                 win.webContents.send('loginfo', 'OSC -log-> EMBER+ : ' + value.toFixed(0));
               } else if (eVarType == "Boolean" && rOrArgs == "1") {
+                console.log("965-->true")
                 eGet.setValue((rereq), true);
                 win.webContents.send('loginfo', ("OSC -bool-> EMBER+", rOrArgs));
               } else if (eVarType == "Boolean" && rOrArgs == "0") {
+                console.log("969-->false")
                 eGet.setValue((rereq), false);
                 win.webContents.send('loginfo', ("OSC -bool-> EMBER+", rOrArgs));
               } else if (eVarType == "String"){
+                console.log("973-->string")
                 eGet.setValue((rereq), rOrArgs.toString());
                 win.webContents.send('loginfo', ("OSC -string-> EMBER+", rOrArgs));
               } else{
+                console.log("974-->",rOrArgs)
                 eGet.setValue((rereq), rOrArgs);
                 win.webContents.send('loginfo', ("OSC -string-> EMBER+", rOrArgs));
 
@@ -981,9 +989,9 @@ function createWindow() {
                   //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
                   directions[myRow] = "-";
                   win.webContents.send("updateDirection", myRow, directions[myRow])
-                  //              console.log("direction set to none")
+                                console.log("direction set to none")
                   ro[myRow] = null;
-                  console.log("ro[myRow]", ro)
+                  console.log("986ro[myRow]", ro)
                 }, 500, myRow));
               console.log("directionzzzz", myRow, directions[myRow])
             }
@@ -1014,11 +1022,11 @@ function createWindow() {
           OSCout[myRow] = Date.now();
           console.log("direction5", myRow, directions[myRow])
         }
-        console.log("ro[myRow]", ro)
+        console.log("1017ro[myRow]", ro)
       })
 
     } catch (error) {
-      throw Error("965",error);
+      throw Error("1021",error);
     }
   }
   main().catch(err => {
@@ -1026,7 +1034,7 @@ function createWindow() {
   //  win.webContents.on('did-finish-load', () => {
       win.webContents.send('resolveError', msg)
   //  })
-    console.error("973",msg)
+    console.error("1029",msg)
   });
 
 
