@@ -1,0 +1,74 @@
+[
+  {
+    "path": "mediornet.switchingMatrices.video.labels.targets.t-1",
+    "factor": "0",
+    "address": "/t-1/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  },
+  {
+    "path": "mediornet.switchingMatrices.video.labels.targets.t-2",
+    "factor": "0",
+    "address": "/t-2/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  },
+  {
+    "path": "mediornet.switchingMatrices.video.labels.targets.t-3",
+    "factor": "0",
+    "address": "/t-3/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  },
+  {
+    "path": "mediornet.switchingMatrices.video.labels.targets.t-4",
+    "factor": "0",
+    "address": "/t-4/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  },
+  {
+    "path": "mediornet.switchingMatrices.video.labels.sources.s-1",
+    "factor": "0",
+    "address": "/s-1/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  },
+  {
+    "path": "mediornet.switchingMatrices.video.labels.sources.s-2",
+    "factor": "0",
+    "address": "/s-2/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  },
+  {
+    "path": "mediornet.switchingMatrices.video.labels.sources.s-3",
+    "factor": "0",
+    "address": "/s-3/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  },
+  {
+    "path": "mediornet.switchingMatrices.video.labels.sources.s-4",
+    "factor": "0",
+    "address": "/s-4/name",
+    "type": "String",
+    "math": "",
+    "min": "/0",
+    "max": "/1"
+  }
+]
