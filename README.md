@@ -21,7 +21,7 @@ Heavily based on <https://github.com/nrkno/tv-automation-emberplus-connection> \
 
 - Preferences are automatically stored  in a 'config.json'
 - Connections are stored in a separated '*.session' (it's a json file editable with texteditor.)
-- example:
+- [examples](/examples):
 
 ```
 [
