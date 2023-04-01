@@ -2,7 +2,8 @@
 
 An Electron App as Bridge between Ember+ and OSC \
 dedicated to [LAWO](https://lawo.com/) MC² consoles \
-(not already tested with other ember+ providers). \
+but works also with [Riedel](https://riedel.net) MediornetTDM devices \
+(Matrix switching and functions not implemented yet). \
 Heavily based on <https://github.com/nrkno/tv-automation-emberplus-connection> \
 "W-I-P!"
 
