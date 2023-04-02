@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.0...v2.1.1) (2023-04-02)
+
+
+### Bug Fixes
+
+* :recycle: delete old workflow ([ed7ddf5](https://github.com/dewiweb/MCxOSCnext/commit/ed7ddf5ea021e5288fb592feaf9e14557daabc8e))
+
 ## [2.1.0](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.0-beta.7...v2.1.0) (2023-04-02)
 
 
