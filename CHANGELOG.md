@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.2-alpha.3](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.2-alpha.2...v2.1.2-alpha.3) (2023-04-02)
+
+
+### Bug Fixes
+
+* delete release.yml ([1ae1286](https://github.com/dewiweb/MCxOSCnext/commit/1ae128671819d8229293838e0b08c1cb734e5c36))
+* rn from cl ([4744de2](https://github.com/dewiweb/MCxOSCnext/commit/4744de213b52f2cbb59190c3cb3048dcbed53b21))
+
 ### [2.1.2-alpha.2](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.2-alpha.1...v2.1.2-alpha.2) (2023-04-02)
 
 ### [2.1.2-alpha.1](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.2-alpha.0...v2.1.2-alpha.1) (2023-04-02)
