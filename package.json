@@ -1,7 +1,7 @@
 {
   "name": "mcxoscnext",
   "productName": "mcxoscnext",
-  "version": "2.1.2-alpha.3",
+  "version": "2.1.2-alpha.4",
   "description": "A bridge between emberplus and OSC protocols",
   "main": "src/main.js",
   "scripts": {
