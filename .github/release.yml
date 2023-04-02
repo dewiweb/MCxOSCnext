@@ -5,7 +5,7 @@ changelog:
         - '*'
       exclude:
         labels:
-          - bugfixes
+          - Fixes
     - title: Bugfixes
       labels:
-        - bugfixes
+        - Fixes
