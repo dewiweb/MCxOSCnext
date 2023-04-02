@@ -18,9 +18,6 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v3
 
-      - name: release notes from CHANGELOG.md
-        uses: CSchoel/release-notes-from-changelog@v1
-
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@master
 
