@@ -6,6 +6,6 @@ changelog:
       exclude:
         labels:
           - Fixes
-    - title: Bugfixes
+    - title: Fixes
       labels:
         - Fixes
