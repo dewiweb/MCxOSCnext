@@ -776,17 +776,17 @@ function createWindow() {
               enum_length = length(enumList);
             } else if (parameter_type == "INTEGER") {
               win.webContents.send("choosen_type", 2, myRow);
-              if (initialReq.maximum !== eMax) {
-                eMax = initialReq.maximum;
+              if (initialReq.contents.maximum !== eMax) {
+                eMax = initialReq.contents.maximum;
                 console.log("updated emax", eMax);
                 
               }
-              if (initialReq.minimum !== eMin) {
-                eMin = initialReq.minimum;
+              if (initialReq.contents.minimum !== eMin) {
+                eMin = initialReq.contents.minimum;
                 console.log("updated emin", eMin);
               }
-              if (Number(initialReq.factor) !== sFactor) {
-                sFactor = initialReq.factor;
+              if (Number(initialReq.contents.factor) !== sFactor) {
+                sFactor = initialReq.contents.factor;
                 console.log("updated sfactor", sFactor);
               }
             } else if (parameter_type == "BOOLEAN") {
@@ -1153,7 +1153,7 @@ function createWindow() {
                     "OSC -lin-> EMBER+ : " + value.toFixed(0)
                   );
                 } else if (eVarType == "Integer" && eVarCurve == "log") {
-                  console.log("956-->", value);
+                  
                   let value = mainFunctions.mapToScale(
                     Number(rOrArgs),
                     [Number(oMin), Number(oMax)],
