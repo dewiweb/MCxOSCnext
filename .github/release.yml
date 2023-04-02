@@ -1,0 +1,11 @@
+changelog:
+  categories:
+    - title: Features
+      labels:
+        - '*'
+      exclude:
+        labels:
+          - bugfixes
+    - title: Bugfixes
+      labels:
+        - bugfixes
