@@ -830,7 +830,9 @@ function createWindow() {
                 );
               }
             } else if (parameter_type == "BOOLEAN") {
+              let bool_description = initialReq.contents.description
               win.webContents.send("choosen_type", 1, myRow);
+              win.webContents.send('loginfo', 'parameter : '+bool_description )
             } else if (parameter_type == "STRING") {
               win.webContents.send("choosen_type", 0, myRow);
             }
@@ -869,7 +871,7 @@ function createWindow() {
             console.log("🚀 : file: main.js:851 : main : node_children:",nodeChildren)
             win.webContents.send(
               "loginfo",
-              "WARNING! : You're trying to connect to a NODE ( "+node_description +" ), not a PARAMETER"
+              "WARNING! : You're trying to connect to a NODE ( "+node_description +" with children numbered "+ nodeChildren + "), not a PARAMETER"
             );
             win.webContents.send("choosen_type", 6, myRow);
             win.webContents.send("errorOnEditedPath", myRow);

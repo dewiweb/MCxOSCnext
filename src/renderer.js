@@ -200,7 +200,7 @@ ipcRenderer.on("loginfo", (e, msg) => {
 ipcRenderer.on("choosen_type", (e, response, myRow) => {
   let types = [
     "String",
-    "Boolean",
+    "BOOLEAN",
     "Integer",
     "Float",
     "Enum",
@@ -227,14 +227,15 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         "1/" +
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     } else if (response == 1) {
+      console.log("🚀 : file: renderer.js:230 : ipcRenderer.on : response:", response)
       table.rows[x - 1].cells[7].innerHTML = `<select>
                                           <option value="" selected class="without_icon"></option>
                                           </select>`;
       table.rows[x - 1].cells[8].innerHTML =
-        "false/" +
+        `false/` +
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
       table.rows[x - 1].cells[10].innerHTML =
-        "true/" +
+        `true/` +
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     } else if (response == 0) {
       table.rows[x - 1].cells[7].innerHTML = `<select>
