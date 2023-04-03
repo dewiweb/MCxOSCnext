@@ -858,8 +858,15 @@ function createWindow() {
           } else if (contents_type == "NODE") {
             let node_description = initialReq.contents.description
             //console.log("🚀 : file: main.js:849 : main : node_children:", initialReq.children)
-            let iR_getDir = await await(eGet.getDirectory(initialReq)).response
-            console.log("🚀 : file: main.js:851 : main : node_children:", node_description,initialReq.children)
+            getDir = await (await eGet.getDirectory(initialReq)).response
+            //nodeDir = initialReq
+            nodeChildren = Object.keys(initialReq.children)
+            for(i = 0; i < nodeChildren.length; i++){
+              newreq = await eGet.getElementByPath(ePath+'.'+nodeChildren[i])
+              //newreq = [newreq.contents,newreq.number]
+              console.log("🚀 : file: main.js:867 : main : newreq:", newreq)
+            }
+            console.log("🚀 : file: main.js:851 : main : node_children:",nodeChildren)
             win.webContents.send(
               "loginfo",
               "WARNING! : You're trying to connect to a NODE ( "+node_description +" ), not a PARAMETER"

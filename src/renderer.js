@@ -87,6 +87,7 @@ ipcRenderer.on('embertree',(event, root) => {
   console.log("🚀 : file: renderer.js:86 : ipcRenderer.on : root:", root)
   for (i=0; i < root.length ; i++){
     let opt = document.createElement("option")
+    opt.id = "opt"+(i+1)
     opt.value = root[i].number
     opt.text = root[i].contents.description
     treeslct.add(opt)
