@@ -82,6 +82,22 @@ ipcRenderer.on("eServerOK", (event, eAddress) => {
   add1.classList.remove("blink");
 });
 
+ipcRenderer.on('embertree',(event, root) => {
+  let treeslct = document.getElementById('treeSlct')
+  console.log("🚀 : file: renderer.js:86 : ipcRenderer.on : root:", root)
+  for (i=0; i < root.length ; i++){
+    let opt = document.createElement("option")
+    opt.value = root[i].number
+    opt.text = root[i].contents.description
+    treeslct.add(opt)
+  }
+	
+  treeslct.addEventListener('change', (event) => {
+    console.log("branch chosen : ", event.target.value)
+  });
+}
+)
+
 ipcRenderer.on("oServerOK", (event, oAddress) => {
   let add3 = document.getElementById("add3");
   add3.removeChild(add3.firstChild);
@@ -129,7 +145,7 @@ ipcRenderer.on("eServDisconnected", function (event, eAddress) {
 
 ipcRenderer.on("resolveError", (e, msg) => {
   if (("error-msg: ", msg)) {
-    console.log(msg);
+    console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg)
     let date = new Date();
     date =
       date.getHours() +
@@ -140,7 +156,7 @@ ipcRenderer.on("resolveError", (e, msg) => {
       (date.getSeconds() < 10 ? "0" : "") +
       date.getSeconds() +
       "-->";
-    console.log(date);
+      console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date)
     document
       .getElementById("logging")
       .insertAdjacentHTML("beforeend", date + msg + "<br>");
@@ -189,11 +205,12 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
     "Enum",
     "MATRIX",
     "NODE",
+    "FUNCTION"
   ];
   let table = document.getElementById("tableOfConnection");
   let x = table.rows.length;
   if (!myRow) {
-    console.log("parameter type sended by dialog: ", types[response]);
+    console.log("🚀 : file: renderer.js:197 : ipcRenderer.on : types[response]:", types[response])
     table.rows[x - 1].cells[6].innerHTML = types[response];
     if (response > 1 && response < 5) {
       table.rows[
@@ -230,7 +247,7 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     }
   } else {
-    console.log("parameter type sended by contents: ", types[response]);
+    console.log("🚀 : file: renderer.js:234 : ipcRenderer.on : types[response]:", types[response])
     table.rows[myRow].cells[6].innerHTML = types[response];
     str = table.rows[myRow].cells[6].innerHTML;
     table.rows[myRow].cells[6].innerHTML =
@@ -350,9 +367,7 @@ ipcRenderer.on("oReceivedAddr", (event, oRaddr, oRargs) => {
         }
         eVarCurve2 = table.rows[myRow].cells[7].firstElementChild.value;
         direction = table.rows[myRow].cells[9].innerHTML;
-        console.log(
-          "reSendOrArgs",
-          oRargs,
+        let reSendOrArgs =(oRargs,
           rEaddr2,
           sFactor2,
           eVarType2,
@@ -363,8 +378,8 @@ ipcRenderer.on("oReceivedAddr", (event, oRaddr, oRargs) => {
           eVarCurve2,
           myRow,
           direction,
-          table.rows.length
-        );
+          table.rows.length)
+        console.log("🚀 : file: renderer.js:365 : ipcRenderer.on : reSendOrArgs:", reSendOrArgs)
         ipcRenderer.send(
           "reSendOrArgs",
           oRargs,
@@ -544,15 +559,15 @@ function changed(myRow) {
 }
 
 function changedPath(myRow) {
-  console.log("Ember+ Path was changed in row", myRow);
+  console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow)
   table = document.getElementById("tableOfConnection");
   line = table.rows[myRow];
   line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;", " ");
   let emberP = line.cells[0].innerHTML;
-  if (emberP.indexOf("/") > -1) {
-    console.log("emberp include slash", emberP);
-    if (emberP.charAt(0) == "/") {
-      console.log("charat emberp", emberP);
+  if (emberP.indexOf('/') > -1) {
+    console.log("🚀 : file: renderer.js:551 : changedPath : emberP.indexOf('/'):", emberP.indexOf('/'))
+    if (emberP.charAt(0) == '/') {
+      console.log("🚀 : file: renderer.js:553 : changedPath : emberP.charAt(0):", emberP.charAt(0))
       emberP = emberP.substring(1);
 
       emberP = emberP.replaceA(/\//g, ".");
@@ -1183,7 +1198,7 @@ function sendConnection(o) {
   //  logRenderer("myrow : "+myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
-  console.log("oAddr sended", oAddr);
+  console.log("🚀 : file: renderer.js:1184 : sendConnection : oAddr:", oAddr)
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
   let eVarType = table.rows[myRow].cells[6].innerHTML;
   let eMin = table.rows[myRow].cells[8].innerHTML
