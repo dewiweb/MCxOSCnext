@@ -83,21 +83,31 @@ ipcRenderer.on("eServerOK", (event, eAddress) => {
 });
 
 ipcRenderer.on('embertree',(event, root) => {
-  let treeslct = document.getElementById('treeSlct')
+  let treeslct_0 = document.getElementById('treeSlct0')
   console.log("🚀 : file: renderer.js:86 : ipcRenderer.on : root:", root)
   for (i=0; i < root.length ; i++){
     let opt = document.createElement("option")
     opt.id = "opt"+(i+1)
     opt.value = root[i].number
     opt.text = root[i].contents.description
-    treeslct.add(opt)
+    treeslct_0.add(opt)
   }
 	
-  treeslct.addEventListener('change', (event) => {
-    console.log("branch chosen : ", event.target.value)
+  treeslct_0.addEventListener('change', (event) => {
+    parentPath = event.target.value
+    selectID = 0
+    console.log("branch chosen : ", parentPath)
+    ipcRenderer.send('expandNode',
+    selectID,
+    parentPath)
   });
 }
 )
+ipcRenderer.on('expandedNode',(event,selectID,childrenArray) => {
+
+  console.log("🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:", childrenArray)
+  console.log("🚀 : file: renderer.js:106 : ipcRenderer.on : selectID:", selectID)
+})
 
 ipcRenderer.on("oServerOK", (event, oAddress) => {
   let add3 = document.getElementById("add3");
