@@ -69,7 +69,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-      win.webContents.openDevTools({ mode: "detach" });
+    win.webContents.openDevTools({ mode: "detach" });
     //    });
 
     //  win.webContents.on('did-finish-load', () => {
@@ -501,7 +501,6 @@ function createWindow() {
       );
     });
     eGet.on("connected", () => {
-      
       console.log(
         "🚀 : file: main.js:495 : eGet.on : eServerPort:",
         eServerPort
@@ -589,18 +588,16 @@ function createWindow() {
       win.webContents.on("did-finish-load", () => {
         win.webContents.send("eServerOK", eAddress);
       });
-      
-      root = await (await eGet.getDirectory(eGet.tree)).response; 
-      first_branch = eGet.tree.flat(0)
-      first_br_list = []
-      for (i=0; i < first_branch.length ; i++){
 
-        first_br_list.push(first_branch[i].number)
+      root = await (await eGet.getDirectory(eGet.tree)).response;
+      first_branch = eGet.tree.flat(0);
+      first_br_list = [];
+      for (i = 0; i < first_branch.length; i++) {
+        first_br_list.push(first_branch[i].number);
       }
-     // console.log("🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:", first_br_list)
-     // win.webContents.send("loginfo", "🚀 : file: main.js:595 : root.children:"+ first_branch);
-      win.webContents.send("embertree",first_branch)
-
+      // console.log("🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:", first_br_list)
+      // win.webContents.send("loginfo", "🚀 : file: main.js:595 : root.children:"+ first_branch);
+      win.webContents.send("embertree", first_branch);
 
       async function getUserLabels() {
         let inputsUserLabels = [];
@@ -830,9 +827,12 @@ function createWindow() {
                 );
               }
             } else if (parameter_type == "BOOLEAN") {
-              let bool_description = initialReq.contents.description
+              let bool_description = initialReq.contents.description;
               win.webContents.send("choosen_type", 1, myRow);
-              win.webContents.send('loginfo', 'parameter : '+bool_description )
+              win.webContents.send(
+                "loginfo",
+                "parameter : " + bool_description
+              );
             } else if (parameter_type == "STRING") {
               win.webContents.send("choosen_type", 0, myRow);
             }
@@ -858,28 +858,39 @@ function createWindow() {
             win.webContents.send("choosen_type", 5, myRow);
             win.webContents.send("errorOnEditedPath", myRow);
           } else if (contents_type == "NODE") {
-            let node_description = initialReq.contents.description
+            let node_description = initialReq.contents.description;
             //console.log("🚀 : file: main.js:849 : main : node_children:", initialReq.children)
-            getDir = await (await eGet.getDirectory(initialReq)).response
+            getDir = await (await eGet.getDirectory(initialReq)).response;
             //nodeDir = initialReq
-            nodeChildren = Object.keys(initialReq.children)
-            for(i = 0; i < nodeChildren.length; i++){
-              newreq = await eGet.getElementByPath(ePath+'.'+nodeChildren[i])
+            nodeChildren = Object.keys(initialReq.children);
+            for (i = 0; i < nodeChildren.length; i++) {
+              newreq = await eGet.getElementByPath(
+                ePath + "." + nodeChildren[i]
+              );
               //newreq = [newreq.contents,newreq.number]
-              console.log("🚀 : file: main.js:867 : main : newreq:", newreq)
+              console.log("🚀 : file: main.js:867 : main : newreq:", newreq);
             }
-            console.log("🚀 : file: main.js:851 : main : node_children:",nodeChildren)
+            console.log(
+              "🚀 : file: main.js:851 : main : node_children:",
+              nodeChildren
+            );
             win.webContents.send(
               "loginfo",
-              "WARNING! : You're trying to connect to a NODE ( "+node_description +" with children numbered "+ nodeChildren + "), not a PARAMETER"
+              "WARNING! : You're trying to connect to a NODE ( " +
+                node_description +
+                " with children numbered " +
+                nodeChildren +
+                "), not a PARAMETER"
             );
             win.webContents.send("choosen_type", 6, myRow);
             win.webContents.send("errorOnEditedPath", myRow);
-          } else if (contents_type == 'FUNCTION'){
-            let fct_description = initialReq.contents.description
+          } else if (contents_type == "FUNCTION") {
+            let fct_description = initialReq.contents.description;
             win.webContents.send(
               "loginfo",
-              "WARNING! : You're trying to connect to a FUNCTION ( " +fct_description + " ), not a PARAMETER"
+              "WARNING! : You're trying to connect to a FUNCTION ( " +
+                fct_description +
+                " ), not a PARAMETER"
             );
             win.webContents.send("choosen_type", 7, myRow);
             win.webContents.send("errorOnEditedPath", myRow);
@@ -1365,6 +1376,27 @@ function createWindow() {
           console.log("1017ro[myRow]", ro);
         }
       );
+      ipcMain.on("expandNode", async (event, selectID, parentPath) => {
+        let expandReq = await eGet.getElementByPath(parentPath);
+        let childrenArray = [];
+
+        getDir = await (await eGet.getDirectory(expandReq)).response;
+        nodeChildren = Object.keys(expandReq.children);
+        for (i = 0; i < nodeChildren.length; i++) {
+          newChild = await eGet.getElementByPath(
+            parentPath + "." + nodeChildren[i]
+          );
+          //  console.log("🚀 : file: main.js:1382 : main : newChild:", newChild)
+          delete newChild.parent;
+          delete newChild.children;
+          childrenArray.push(newChild);
+        }
+        console.log(
+          "🚀 : file: main.js:1386 : main : childrenArray:",
+          childrenArray
+        );
+        win.webContents.send("expandedNode", selectID, parentPath, childrenArray);
+      });
     } catch (error) {
       throw Error("1021", error);
     }
