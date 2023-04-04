@@ -103,7 +103,7 @@ ipcRenderer.on('embertree',(event, root) => {
   });
 }
 )
-ipcRenderer.on('expandedNode',(event,selectID,childrenArray) => {
+ipcRenderer.on('expandedNode',(event,selectID,parentPath,childrenArray) => {
 
   console.log("🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:", childrenArray)
   console.log("🚀 : file: renderer.js:106 : ipcRenderer.on : selectID:", selectID)
