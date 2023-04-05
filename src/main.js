@@ -1377,7 +1377,9 @@ function createWindow() {
         }
       );
       ipcMain.on("expandNode", async (event, selectID, parentPath) => {
+        console.log("🚀 : file: main.js:1380 : ipcMain.on : parentPath:", parentPath, (typeof parentPath))
         let expandReq = await eGet.getElementByPath(parentPath);
+        console.log("🚀 : file: main.js:1382 : ipcMain.on : expandReq:", expandReq)
         let childrenArray = [];
 
         getDir = await (await eGet.getDirectory(expandReq)).response;

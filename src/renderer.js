@@ -82,32 +82,79 @@ ipcRenderer.on("eServerOK", (event, eAddress) => {
   add1.classList.remove("blink");
 });
 
-ipcRenderer.on('embertree',(event, root) => {
-  let treeslct_0 = document.getElementById('treeSlct0')
-  console.log("🚀 : file: renderer.js:86 : ipcRenderer.on : root:", root)
-  for (i=0; i < root.length ; i++){
-    let opt = document.createElement("option")
-    opt.id = "opt"+(i+1)
-    opt.value = root[i].number
-    opt.text = root[i].contents.description
-    treeslct_0.add(opt)
+ipcRenderer.on("embertree", (event, root) => {
+  let treeslct_0 = document.getElementById("treeSlct0");
+  console.log("🚀 : file: renderer.js:86 : ipcRenderer.on : root:", root);
+  for (i = 0; i < root.length; i++) {
+    let opt = document.createElement("option");
+    opt.id = "opt" + (i + 1);
+    opt.value = root[i].number;
+    opt.text = root[i].contents.description;
+    opt.className = root[i].contents.type;
+    treeslct_0.add(opt);
   }
-	
-  treeslct_0.addEventListener('change', (event) => {
-    parentPath = event.target.value
-    selectID = 0
-    console.log("branch chosen : ", parentPath)
-    ipcRenderer.send('expandNode',
-    selectID,
-    parentPath)
-  });
-}
-)
-ipcRenderer.on('expandedNode',(event,selectID,parentPath,childrenArray) => {
 
-  console.log("🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:", childrenArray)
-  console.log("🚀 : file: renderer.js:106 : ipcRenderer.on : selectID:", selectID)
-})
+  treeslct_0.addEventListener("change", (event) => {
+    parentPath = event.target.value;
+    selectID = 0;
+    console.log("branch chosen : ", parentPath);
+    ipcRenderer.send("expandNode", selectID, parentPath);
+  });
+});
+
+ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
+  let current_slct = document.getElementById("treeSlct" + (selectID + 1));
+  while (current_slct.firstChild) {
+    current_slct.removeChild(current_slct.firstChild);
+  }
+  let opt0 = document.createElement("option");
+  opt0.text = "---";
+  current_slct.add(opt0);
+  console.log(
+    "🚀 : file: renderer.js:108 : ipcRenderer.on : 'treeSlct'+(selectID+1):",
+    "treeSlct" + (selectID + 1)
+  );
+  for (i = 0; i < childrenArray.length; i++) {
+    let opt = document.createElement("option");
+     opt.id = "opt" + (i + 1);
+     opt.value = childrenArray[i].number;
+
+    if(childrenArray[i].contents.description){
+    opt.text = childrenArray[i].contents.description;
+    } else{
+      opt.text = childrenArray[i].contents.identifier 
+    }
+    opt.className = childrenArray[i].contents.type;
+    current_slct.add(opt);
+  }
+  current_slct.style.visibility = "visible";
+  selectID = selectID + 1;
+  current_slct.addEventListener("change", (event) => {
+    let chosenPath = event.target.value;
+    console.log(
+      "🚀 : file: renderer.js:119 : current_slct.addEventListener : chosenPath:",
+      chosenPath
+    );
+
+    ipcRenderer.send(
+      "expandNode",
+      selectID,
+      (parentPath + "." + chosenPath).toString()
+    );
+  });
+  console.log(
+    "🚀 : file: renderer.js:125 : current_slct.addEventListener : selectID:",
+    selectID
+  );
+  console.log(
+    "🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:",
+    childrenArray
+  );
+  console.log(
+    "🚀 : file: renderer.js:106 : ipcRenderer.on : selectID:",
+    selectID
+  );
+});
 
 ipcRenderer.on("oServerOK", (event, oAddress) => {
   let add3 = document.getElementById("add3");
@@ -156,7 +203,7 @@ ipcRenderer.on("eServDisconnected", function (event, eAddress) {
 
 ipcRenderer.on("resolveError", (e, msg) => {
   if (("error-msg: ", msg)) {
-    console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg)
+    console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg);
     let date = new Date();
     date =
       date.getHours() +
@@ -167,7 +214,7 @@ ipcRenderer.on("resolveError", (e, msg) => {
       (date.getSeconds() < 10 ? "0" : "") +
       date.getSeconds() +
       "-->";
-      console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date)
+    console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date);
     document
       .getElementById("logging")
       .insertAdjacentHTML("beforeend", date + msg + "<br>");
@@ -216,12 +263,15 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
     "Enum",
     "MATRIX",
     "NODE",
-    "FUNCTION"
+    "FUNCTION",
   ];
   let table = document.getElementById("tableOfConnection");
   let x = table.rows.length;
   if (!myRow) {
-    console.log("🚀 : file: renderer.js:197 : ipcRenderer.on : types[response]:", types[response])
+    console.log(
+      "🚀 : file: renderer.js:197 : ipcRenderer.on : types[response]:",
+      types[response]
+    );
     table.rows[x - 1].cells[6].innerHTML = types[response];
     if (response > 1 && response < 5) {
       table.rows[
@@ -237,7 +287,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         "1/" +
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     } else if (response == 1) {
-      console.log("🚀 : file: renderer.js:230 : ipcRenderer.on : response:", response)
+      console.log(
+        "🚀 : file: renderer.js:230 : ipcRenderer.on : response:",
+        response
+      );
       table.rows[x - 1].cells[7].innerHTML = `<select>
                                           <option value="" selected class="without_icon"></option>
                                           </select>`;
@@ -259,7 +312,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     }
   } else {
-    console.log("🚀 : file: renderer.js:234 : ipcRenderer.on : types[response]:", types[response])
+    console.log(
+      "🚀 : file: renderer.js:234 : ipcRenderer.on : types[response]:",
+      types[response]
+    );
     table.rows[myRow].cells[6].innerHTML = types[response];
     str = table.rows[myRow].cells[6].innerHTML;
     table.rows[myRow].cells[6].innerHTML =
@@ -379,7 +435,8 @@ ipcRenderer.on("oReceivedAddr", (event, oRaddr, oRargs) => {
         }
         eVarCurve2 = table.rows[myRow].cells[7].firstElementChild.value;
         direction = table.rows[myRow].cells[9].innerHTML;
-        let reSendOrArgs =(oRargs,
+        let reSendOrArgs =
+          (oRargs,
           rEaddr2,
           sFactor2,
           eVarType2,
@@ -390,8 +447,11 @@ ipcRenderer.on("oReceivedAddr", (event, oRaddr, oRargs) => {
           eVarCurve2,
           myRow,
           direction,
-          table.rows.length)
-        console.log("🚀 : file: renderer.js:365 : ipcRenderer.on : reSendOrArgs:", reSendOrArgs)
+          table.rows.length);
+        console.log(
+          "🚀 : file: renderer.js:365 : ipcRenderer.on : reSendOrArgs:",
+          reSendOrArgs
+        );
         ipcRenderer.send(
           "reSendOrArgs",
           oRargs,
@@ -571,15 +631,21 @@ function changed(myRow) {
 }
 
 function changedPath(myRow) {
-  console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow)
+  console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow);
   table = document.getElementById("tableOfConnection");
   line = table.rows[myRow];
   line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;", " ");
   let emberP = line.cells[0].innerHTML;
-  if (emberP.indexOf('/') > -1) {
-    console.log("🚀 : file: renderer.js:551 : changedPath : emberP.indexOf('/'):", emberP.indexOf('/'))
-    if (emberP.charAt(0) == '/') {
-      console.log("🚀 : file: renderer.js:553 : changedPath : emberP.charAt(0):", emberP.charAt(0))
+  if (emberP.indexOf("/") > -1) {
+    console.log(
+      "🚀 : file: renderer.js:551 : changedPath : emberP.indexOf('/'):",
+      emberP.indexOf("/")
+    );
+    if (emberP.charAt(0) == "/") {
+      console.log(
+        "🚀 : file: renderer.js:553 : changedPath : emberP.charAt(0):",
+        emberP.charAt(0)
+      );
       emberP = emberP.substring(1);
 
       emberP = emberP.replaceA(/\//g, ".");
@@ -1210,7 +1276,7 @@ function sendConnection(o) {
   //  logRenderer("myrow : "+myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
-  console.log("🚀 : file: renderer.js:1184 : sendConnection : oAddr:", oAddr)
+  console.log("🚀 : file: renderer.js:1184 : sendConnection : oAddr:", oAddr);
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
   let eVarType = table.rows[myRow].cells[6].innerHTML;
   let eMin = table.rows[myRow].cells[8].innerHTML
