@@ -138,6 +138,7 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
     );
     let currOpt_class = current_slct.options[current_slct.selectedIndex].className
     if (current_slct.selectedIndex > 0){
+    console.log("🚀 : file: renderer.js:141 : current_slct.addEventListener : current_slct.selectedIndex:", current_slct.selectedIndex)
     ipcRenderer.send(
       "expandNode",
       selectID,
