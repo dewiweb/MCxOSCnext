@@ -146,14 +146,14 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
     "🚀 : file: renderer.js:125 : current_slct.addEventListener : selectID:",
     selectID
   );
-  console.log(
-    "🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:",
-    childrenArray
-  );
-  console.log(
-    "🚀 : file: renderer.js:106 : ipcRenderer.on : selectID:",
-    selectID
-  );
+  //console.log(
+  //  "🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:",
+  //  childrenArray
+  //);
+  //console.log(
+  //  "🚀 : file: renderer.js:106 : ipcRenderer.on : selectID:",
+  //  selectID
+  //);
 });
 
 ipcRenderer.on("oServerOK", (event, oAddress) => {
