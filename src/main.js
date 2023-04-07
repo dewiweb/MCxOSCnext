@@ -595,8 +595,8 @@ function createWindow() {
       for (i = 0; i < first_branch.length; i++) {
         first_br_list.push(first_branch[i].number);
       }
-      // console.log("🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:", first_br_list)
-      // win.webContents.send("loginfo", "🚀 : file: main.js:595 : root.children:"+ first_branch);
+       console.log("🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:", first_br_list)
+       win.webContents.send("loginfo", "🚀 : file: main.js:595 : root.children:"+ first_branch);
       win.webContents.send("embertree", first_branch);
 
       async function getUserLabels() {
@@ -780,6 +780,7 @@ function createWindow() {
           console.log("🚀 : file: main.js:757 : main : direction:", direction);
           sFactor = Number(sFactor);
           let initialReq = await eGet.getElementByPath(ePath);
+          console.log("🚀 : file: main.js:783 : main : initialReq:", initialReq)
           let parameter_type = initialReq.contents.parameterType;
           let contents_type = initialReq.contents.type;
           let contents = initialReq.contents;
@@ -859,8 +860,10 @@ function createWindow() {
             win.webContents.send("errorOnEditedPath", myRow);
           } else if (contents_type == "NODE") {
             let node_description = initialReq.contents.description;
-            //console.log("🚀 : file: main.js:849 : main : node_children:", initialReq.children)
-            getDir = await (await eGet.getDirectory(initialReq)).response;
+            console.log("🚀 : file: main.js:862 : main : initialReq:", initialReq)
+            console.log("🚀 : file: main.js:849 : main : node_children:", initialReq.children)
+            let getDir = await (await eGet.getDirectory(initialReq)).response;
+            console.log("🚀 : file: main.js:864 : main : getDir:", getDir)
             //nodeDir = initialReq
             nodeChildren = Object.keys(initialReq.children);
             for (i = 0; i < nodeChildren.length; i++) {
@@ -1377,12 +1380,13 @@ function createWindow() {
         }
       );
       ipcMain.on("expandNode", async (event, selectID, parentPath) => {
-        console.log("🚀 : file: main.js:1380 : ipcMain.on : parentPath:", parentPath, (typeof parentPath))
-        let expandReq = await eGet.getElementByPath(parentPath);
-        console.log("🚀 : file: main.js:1382 : ipcMain.on : expandReq:", expandReq)
         let childrenArray = [];
-
-        getDir = await (await eGet.getDirectory(expandReq)).response;
+        //console.log("🚀 : file: main.js:1380 : ipcMain.on : parentPath:", parentPath + typeof parentPath)
+        let expandReq = await eGet.getElementByPath(parentPath.toString());
+        //console.log("🚀 : file: main.js:1382 : ipcMain.on : expandReq:", expandReq,typeof expandReq)
+        
+        let getDir = await (await eGet.getDirectory(expandReq)).response;
+        //console.log("🚀 : file: main.js:1386 : ipcMain.on : getDir:", getDir)
         nodeChildren = Object.keys(expandReq.children);
         for (i = 0; i < nodeChildren.length; i++) {
           newChild = await eGet.getElementByPath(
@@ -1397,7 +1401,7 @@ function createWindow() {
           "🚀 : file: main.js:1386 : main : childrenArray:",
           childrenArray
         );
-        win.webContents.send("expandedNode", selectID, parentPath, childrenArray);
+        win.webContents.send("expandedNode", selectID, parentPath, childrenArray)
       });
     } catch (error) {
       throw Error("1021", error);
