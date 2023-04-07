@@ -1379,12 +1379,13 @@ function createWindow() {
           console.log("1017ro[myRow]", ro);
         }
       );
-      ipcMain.on("expandNode", async (event, selectID, parentPath) => {
+      ipcMain.on("expandNode", async (event, selectID, parentPath, currOpt_class) => {
+        console.log("🚀 : file: main.js:1383 : ipcMain.on : currOpt_class:", currOpt_class)
         let childrenArray = [];
-        //console.log("🚀 : file: main.js:1380 : ipcMain.on : parentPath:", parentPath + typeof parentPath)
+        console.log("🚀 : file: main.js:1380 : ipcMain.on : parentPath:", parentPath + typeof parentPath)
         let expandReq = await eGet.getElementByPath(parentPath.toString());
-        //console.log("🚀 : file: main.js:1382 : ipcMain.on : expandReq:", expandReq,typeof expandReq)
-        
+        console.log("🚀 : file: main.js:1382 : ipcMain.on : expandReq:", expandReq,typeof expandReq)
+        if (currOpt_class == 'NODE'){
         let getDir = await (await eGet.getDirectory(expandReq)).response;
         //console.log("🚀 : file: main.js:1386 : ipcMain.on : getDir:", getDir)
         nodeChildren = Object.keys(expandReq.children);
@@ -1402,6 +1403,9 @@ function createWindow() {
           childrenArray
         );
         win.webContents.send("expandedNode", selectID, parentPath, childrenArray)
+        }else{
+          win.webContents.send('expandedElement',expandReq)
+        }
       });
     } catch (error) {
       throw Error("1021", error);

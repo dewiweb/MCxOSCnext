@@ -3,6 +3,7 @@ const { ipcRenderer } = require("electron");
 const mainFunctions = require("./mainFunctions");
 const preferences = ipcRenderer.sendSync("getPreferences");
 const log = require("electron-log");
+const { prettyPrintJson } = require('pretty-print-json');
 function logDefinition() {
   console.log = log.log;
   Object.assign(console, log.functions);
@@ -93,12 +94,12 @@ ipcRenderer.on("embertree", (event, root) => {
     opt.className = root[i].contents.type;
     treeslct_0.add(opt);
   }
-
+let current_class = 'NODE'
   treeslct_0.addEventListener("change", (event) => {
     parentPath = event.target.value;
     selectID = 0;
     console.log("branch chosen : ", parentPath);
-    ipcRenderer.send("expandNode", selectID, parentPath);
+    ipcRenderer.send("expandNode", selectID, parentPath, current_class);
   });
 });
 
@@ -135,17 +136,22 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
       "🚀 : file: renderer.js:119 : current_slct.addEventListener : chosenPath:",
       chosenPath
     );
-
+    let currOpt_class = current_slct.options[current_slct.selectedIndex].className
+    if (current_slct.selectedIndex > 0){
     ipcRenderer.send(
       "expandNode",
       selectID,
-      (parentPath + "." + chosenPath).toString()
+      (parentPath + "." + chosenPath).toString(),
+      currOpt_class
     );
+    }
   });
   console.log(
     "🚀 : file: renderer.js:125 : current_slct.addEventListener : selectID:",
     selectID
   );
+
+
   //console.log(
   //  "🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:",
   //  childrenArray
@@ -155,6 +161,12 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
   //  selectID
   //);
 });
+
+ipcRenderer.on('expandedElement',(event,expandReq)=>{
+  let leaf = document.getElementById('expandedElement')
+  leaf.innerHTML = prettyPrintJson.toHtml(expandReq)
+  leaf.style.visibility = 'visible'
+})
 
 ipcRenderer.on("oServerOK", (event, oAddress) => {
   let add3 = document.getElementById("add3");
