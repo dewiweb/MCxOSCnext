@@ -104,7 +104,18 @@ let current_class = 'NODE'
 });
 
 ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
-  let current_slct = document.getElementById("treeSlct" + (selectID + 1));
+  selectID = selectID + 1;
+  for (i = selectID+1; i<7;i++){
+    let next_slcts = document.getElementById("treeSlct" + i);
+    while (next_slcts.firstChild) {
+      next_slcts.removeChild(next_slcts.firstChild);
+    }
+    let opt0 = document.createElement("option");
+    opt0.text = "---";
+    next_slcts.add(opt0);
+    next_slcts.style.visibility = 'hidden' 
+  }
+  let current_slct = document.getElementById("treeSlct" + (selectID));
   while (current_slct.firstChild) {
     current_slct.removeChild(current_slct.firstChild);
   }
@@ -129,13 +140,9 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
     current_slct.add(opt);
   }
   current_slct.style.visibility = "visible";
-  selectID = selectID + 1;
+  
   current_slct.addEventListener("change", (event) => {
     let chosenPath = event.target.value;
-    console.log(
-      "🚀 : file: renderer.js:119 : current_slct.addEventListener : chosenPath:",
-      chosenPath
-    );
     let currOpt_class = current_slct.options[current_slct.selectedIndex].className
     if (current_slct.selectedIndex > 0){
     console.log("🚀 : file: renderer.js:141 : current_slct.addEventListener : current_slct.selectedIndex:", current_slct.selectedIndex)
@@ -147,26 +154,17 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
     );
     }
   });
-  console.log(
-    "🚀 : file: renderer.js:125 : current_slct.addEventListener : selectID:",
-    selectID
-  );
-
-
-  //console.log(
-  //  "🚀 : file: renderer.js:106 : ipcRenderer.on : childrenArray:",
-  //  childrenArray
-  //);
-  //console.log(
-  //  "🚀 : file: renderer.js:106 : ipcRenderer.on : selectID:",
-  //  selectID
-  //);
 });
 
-ipcRenderer.on('expandedElement',(event,expandReq)=>{
+ipcRenderer.on('expandedElement',(event,expandReq,Boolean)=>{
   let leaf = document.getElementById('expandedElement')
+  if (Boolean == true){
   leaf.innerHTML = prettyPrintJson.toHtml(expandReq)
   leaf.style.visibility = 'visible'
+  }else{
+    leaf.innerHTML = null 
+    leaf.style.visibility = 'hidden'
+  }
 })
 
 ipcRenderer.on("oServerOK", (event, oAddress) => {

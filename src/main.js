@@ -571,6 +571,7 @@ function createWindow() {
   }
   oscToTable();
 
+  win.webContents.on('did-finish-load', () => {
   async function main() {
     try {
       const eAddress = preferences.value("network_settings.ember_provider");
@@ -1379,32 +1380,42 @@ function createWindow() {
           console.log("1017ro[myRow]", ro);
         }
       );
+
+
       ipcMain.on("expandNode", async (event, selectID, parentPath, currOpt_class) => {
-        console.log("🚀 : file: main.js:1383 : ipcMain.on : currOpt_class:", currOpt_class)
-        let childrenArray = [];
-        console.log("🚀 : file: main.js:1380 : ipcMain.on : parentPath:", parentPath + typeof parentPath)
-        let expandReq = await eGet.getElementByPath(parentPath.toString());
-        console.log("🚀 : file: main.js:1382 : ipcMain.on : expandReq:", expandReq,typeof expandReq)
         if (currOpt_class == 'NODE'){
-        let getDir = await (await eGet.getDirectory(expandReq)).response;
-        //console.log("🚀 : file: main.js:1386 : ipcMain.on : getDir:", getDir)
-        nodeChildren = Object.keys(expandReq.children);
-        for (i = 0; i < nodeChildren.length; i++) {
-          newChild = await eGet.getElementByPath(
-            parentPath + "." + nodeChildren[i]
-          );
-          //  console.log("🚀 : file: main.js:1382 : main : newChild:", newChild)
-          delete newChild.parent;
-          delete newChild.children;
-          childrenArray.push(newChild);
-        }
-        console.log(
-          "🚀 : file: main.js:1386 : main : childrenArray:",
-          childrenArray
-        );
-        win.webContents.send("expandedNode", selectID, parentPath, childrenArray)
+          let childrenArray = [];
+          let expandReq = await eGet.getElementByPath(parentPath.toString());
+          let expReqType = expandReq.contents.type
+          //await eGet.expand(expandReq)
+          console.log("🚀 : file: main.js:1390 : == : ipcMain.on : expReqType:", expReqType)
+          console.log("🚀 : file: main.js:1389 : == : ipcMain.on : expandReq:", expandReq)
+          let getDir = await(await eGet.getDirectory(expandReq)).response;
+          console.log("🚀 : file: main.js:1386 : ipcMain.on : getDir:", getDir)
+          let nodeChildren = Object.keys(expandReq.children);
+          for (i = 0; i < nodeChildren.length; i++) {
+            let newChild = await eGet.getElementByPath(
+              parentPath + "." + nodeChildren[i]
+            );
+            //  console.log("🚀 : file: main.js:1382 : main : newChild:", newChild)
+            //delete newChild.parent;
+            //delete newChild.children;
+            contents = newChild.contents
+            number = newChild.number
+            base_path = {contents,number}
+            childrenArray.push(base_path);           
+          }
+          console.log("🚀 : file: main.js:1401 : == : ipcMain.on : childrenArray:", childrenArray)
+          win.webContents.send("expandedNode", selectID, parentPath, childrenArray)
+          win.webContents.send('expandedElement',expandReq,false)
         }else{
-          win.webContents.send('expandedElement',expandReq)
+          let expandReq = await eGet.getElementByPath(parentPath.toString());
+            contents = expandReq.contents
+            number = expandReq.number
+            base_path = {contents,number}
+          console.log("🚀 : file: main.js:1413 : == : ipcMain.on : expandReq:", expandReq)
+
+          win.webContents.send('expandedElement',base_path,true)
         }
       });
     } catch (error) {
@@ -1418,6 +1429,7 @@ function createWindow() {
     //  })
     console.error("1029", msg);
   });
+})
 
   //  main().log.catchErrors({
   //    showDialog: false,
