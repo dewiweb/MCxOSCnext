@@ -69,7 +69,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-    win.webContents.openDevTools({ mode: "detach" });
+  //  win.webContents.openDevTools({ mode: "detach" });
     //    });
 
     //  win.webContents.on('did-finish-load', () => {
