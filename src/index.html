@@ -5,7 +5,11 @@
     <title>MCxOSCnext - *unsaved.session</title>
     <script script type="text/javascript" src="./renderer.js"></script>
     <link rel="stylesheet" type="text/css" href="./style.css" />
-    <link rel="stylesheet" type="text/css" href="./pretty-json-css/pretty-print-json.dark-mode.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./pretty-json-css/pretty-print-json.dark-mode.css"
+    />
     <meta
       http-equiv="Content-Security-Policy"
       content="script-src 'self' 'unsafe-inline';"
@@ -21,25 +25,50 @@
       />
     </div>
     <div id="menu" class="left" style="font-weight: bold; padding-left: 2%">
-      <button class="button menuBtn" id="menuBtn"  style="margin-left: -20px;" onclick="menu()">
+      <button
+        class="button menuBtn"
+        id="menuBtn"
+        style="margin-left: -20px"
+        onclick="menu()"
+      >
         &#9776;
       </button>
-      <button class="button loadBtn" id="loadBtn" style="display: none;" onclick="load(this.id) ">
+      <button
+        class="button loadBtn"
+        id="loadBtn"
+        style="display: none"
+        onclick="load(this.id) "
+      >
         Open File
       </button>
-      <button class="button saveAsBtn" id="saveAsBtn" style="display: none;" onclick="saveAs(this.id)">
+      <button
+        class="button saveAsBtn"
+        id="saveAsBtn"
+        style="display: none"
+        onclick="saveAs(this.id)"
+      >
         Save as...
       </button>
-      <button class="button saveBtn" id="saveBtn" style="display: none;" onclick="save(this.id)">
-        Save 
+      <button
+        class="button saveBtn"
+        id="saveBtn"
+        style="display: none"
+        onclick="save(this.id)"
+      >
+        Save
       </button>
-      <button class="button preferencesBtn" id="preferencesBtn" style="display: none;" onclick="prefs(this.id)">
+      <button
+        class="button preferencesBtn"
+        id="preferencesBtn"
+        style="display: none"
+        onclick="prefs(this.id)"
+      >
         Preferences
       </button>
-<!--      <button class="button logBtn" id="logBtn" style="display: none;visibility: hidden;" onclick="logview(this.id)">
+      <!--      <button class="button logBtn" id="logBtn" style="display: none;visibility: hidden;" onclick="logview(this.id)">
         Logs
       </button>
-    -->    </div>
+    --></div>
     <br />
     <div id="Network_Settings">
       <div class="form">
@@ -58,9 +87,7 @@
       </div>
       <div class="form">
         <form id="form2">
-          <label style="text-align: center" for="fname"
-            >Local OSC Port
-          </label>
+          <label style="text-align: center" for="fname">Local OSC Port </label>
           <p id="add2">Waiting</p>
           <span
             id="dot2"
@@ -86,64 +113,83 @@
       </div>
     </div>
     <div id="Connections_Settings">
-<!--      <class="form">
+      <!--      <class="form">
 -->
-        <label style="text-align: center; position: absolute;margin: auto;left: 0;right: 0;margin-top: 0;" for="fname"
-          >Ember+ to OSC connection creator</label
-        ><br />
-        <br />
-        <div id="test" >
-          <form id="test_form" style="padding-left: 2%;" onsubmit="return false">
-            <select id="treeSlct0">
-              <option>---</option>
-            </select>
-            <select id="treeSlct1" style="visibility: hidden;">
-              <option>---</option>
-            </select>
-              <select id="treeSlct2" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct3" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct4" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct5" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct6" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct7" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct8" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct9" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct10" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct11" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <select id="treeSlct12" style="visibility: hidden;">
-                <option>---</option>
-              </select>
-              <input style="position:absolute;right: 10px;top: 5px;visibility: hidden;"
-              class="button"
-              id="suscribe_2"
-              style="text-align: center; "
-              type="submit"
-              value="submit!"
-            />
-          </form>
-          <pre id="expandedElement" style="font-size: smaller;min-height: 150px;" class=json-container></pre>
-          </div>
-<!--
+      <label
+        style="
+          text-align: center;
+          position: absolute;
+          margin: auto;
+          left: 0;
+          right: 0;
+          margin-top: 0;
+        "
+        for="fname"
+        >Ember+ to OSC connection creator</label
+      ><br />
+      <br />
+      <div id="test">
+        <form id="test_form" style="padding-left: 2%" onsubmit="return false">
+          <select id="treeSlct0">
+            <option>---</option>
+          </select>
+          <select id="treeSlct1" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct2" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct3" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct4" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct5" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct6" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct7" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct8" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct9" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct10" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct11" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <select id="treeSlct12" style="visibility: hidden">
+            <option>---</option>
+          </select>
+          <input
+            style="
+              position: absolute;
+              right: 10px;
+              top: 5px;
+              visibility: hidden;
+            "
+            class="button"
+            id="suscribe_2"
+            style="text-align: center"
+            type="submit"
+            value="submit!"
+          />
+        </form>
+        <pre
+          id="expandedElement"
+          style="font-size: smaller; min-height: 150px"
+          class="json-container"
+        ></pre>
+      </div>
+      <!--
         <label for="fname">.Ember+ Path:</label>
         <br />
         <form id="form4" onsubmit="return false">
@@ -241,8 +287,7 @@
           </div>
           <br />
       </div>
-    -->
-    </div>
+    --></div>
     <div class="table">
       <table id="tableOfConnection" style="width: 100%; text-align: center">
         <caption>
@@ -269,29 +314,53 @@
         </tr>
       </table>
       <div>
-      <button  style="position:absolute; left: 50%;margin-left: -20px; " onclick="addemptyrow()">+</button>
-      <br/>
+        <button
+          style="position: absolute; left: 50%; margin-left: -20px"
+          onclick="addemptyrow()"
+        >
+          +
+        </button>
+        <br />
       </div>
     </div>
 
-    <div style="background-color: black; width: 100%; height: 20px; text-align: center;">
-    LOGS <button id="viewlogs" onclick="viewlogs()">►</button>
-  </div>
-    <div id="logging" style=" background-color: black; visibility: hidden;">
+    <div
+      style="
+        background-color: black;
+        width: 100%;
+        height: 20px;
+        text-align: center;
+      "
+    >
+      LOGS <button id="viewlogs" onclick="viewlogs()">►</button>
+    </div>
+    <div id="logging" style="background-color: black; visibility: hidden">
       <div id="anchor"></div>
     </div>
-    <div id="clearlogs" style="background-color: black; width: 100%; height: 1px;visibility: hidden;">
-    <button  style="position:absolute; left: 50%;margin-left: -20px; " onclick="clearLog()">Clear</button>
+    <div
+      id="clearlogs"
+      style="
+        background-color: black;
+        width: 100%;
+        height: 1px;
+        visibility: hidden;
+      "
+    >
+      <button
+        style="position: absolute; left: 50%; margin-left: -20px"
+        onclick="clearLog()"
+      >
+        Clear
+      </button>
     </div>
-    </br>
-    
+    <br />
 
     <script>
-//      form4.addEventListener("submit", fillOscAddr);
-//      form4.addEventListener("change", fillOscAddr);
-//      form4.addEventListener("submit", submitEmberPath);
-      test_form.addEventListener("submit",submitPath)
-//      form5.addEventListener("change", modifyOscAddr);
+      //      form4.addEventListener("submit", fillOscAddr);
+      //      form4.addEventListener("change", fillOscAddr);
+      //      form4.addEventListener("submit", submitEmberPath);
+      test_form.addEventListener("submit", submitPath);
+      //      form5.addEventListener("change", modifyOscAddr);
     </script>
   </body>
   <footer class="little" style="display: inline-block">

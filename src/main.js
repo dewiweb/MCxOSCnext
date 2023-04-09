@@ -69,7 +69,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-  //  win.webContents.openDevTools({ mode: "detach" });
+    //  win.webContents.openDevTools({ mode: "detach" });
     //    });
 
     //  win.webContents.on('did-finish-load', () => {
@@ -571,868 +571,965 @@ function createWindow() {
   }
   oscToTable();
 
-  win.webContents.on('did-finish-load', () => {
-  async function main() {
-    try {
-      const eAddress = preferences.value("network_settings.ember_provider");
-      const err = await eGet.connect();
-      if (err) {
-        // err = true when the first connection attempt fails (depending on timeout)
+  win.webContents.on("did-finish-load", () => {
+    async function main() {
+      try {
+        const eAddress = preferences.value("network_settings.ember_provider");
+        const err = await eGet.connect();
+        if (err) {
+          // err = true when the first connection attempt fails (depending on timeout)
+          win.webContents.send(
+            "loginfo",
+            " connection to emberGet unsuccessful->" + err
+          );
+          win.webContents.send("eServConnError", eAddress);
+          win.webContents.send("resolveError", err);
+          return;
+        }
+        win.webContents.on("did-finish-load", () => {
+          win.webContents.send("eServerOK", eAddress);
+        });
+
+        root = await (await eGet.getDirectory(eGet.tree)).response;
+        first_branch = eGet.tree.flat(0);
+        first_br_list = [];
+        for (i = 0; i < first_branch.length; i++) {
+          first_br_list.push(first_branch[i].number);
+        }
+        console.log(
+          "🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:",
+          first_br_list
+        );
         win.webContents.send(
           "loginfo",
-          " connection to emberGet unsuccessful->" + err
+          "🚀 : file: main.js:595 : root.children:" + first_branch
         );
-        win.webContents.send("eServConnError", eAddress);
-        win.webContents.send("resolveError", err);
-        return;
-      }
-      win.webContents.on("did-finish-load", () => {
-        win.webContents.send("eServerOK", eAddress);
-      });
+        win.webContents.send("embertree", first_branch);
 
-      root = await (await eGet.getDirectory(eGet.tree)).response;
-      first_branch = eGet.tree.flat(0);
-      first_br_list = [];
-      for (i = 0; i < first_branch.length; i++) {
-        first_br_list.push(first_branch[i].number);
-      }
-       console.log("🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:", first_br_list)
-       win.webContents.send("loginfo", "🚀 : file: main.js:595 : root.children:"+ first_branch);
-      win.webContents.send("embertree", first_branch);
+        async function getUserLabels() {
+          let inputsUserLabels = [];
+          let auxesUserLabels = [];
+          let mastersUserLabels = [];
+          let sumsUserLabels = [];
+          let gpcsUserLabels = [];
+          await mainFunctions.sleep(2000);
+          for (i = 0x01; i < 0x0c1; i++) {
+            try {
+              //          await mainFunctions.sleep(2000);
+              let req = await eGet.getElementByPath("_2._1._" + i.toString(16));
+              inputsUserLabels.push(req.contents.description);
+            } catch (e) {
+              // exit the loop
+              break;
+            }
+          }
+          win.webContents.send("inputsUserLabels", inputsUserLabels);
+          for (i = 0x01; i < 0x0c1; i++) {
+            try {
+              let req = await eGet.getElementByPath("_2._5._" + i.toString(16));
+              auxesUserLabels.push(req.contents.description);
+            } catch (e) {
+              // exit the loop
+              break;
+            }
+          }
+          win.webContents.send("auxesUserLabels", auxesUserLabels);
+          for (i = 0x01; i < 0x0c1; i++) {
+            try {
+              let req = await eGet.getElementByPath("_2._4._" + i.toString(16));
+              sumsUserLabels.push(req.contents.description);
+            } catch (e) {
+              // exit the loop
+              break;
+            }
+          }
+          win.webContents.send("sumsUserLabels", sumsUserLabels);
+          for (i = 0x01; i < 0x0c1; i++) {
+            try {
+              let req = await eGet.getElementByPath("_2._6._" + i.toString(16));
+              mastersUserLabels.push(req.contents.description);
+            } catch (e) {
+              // exit the loop
+              break;
+            }
+          }
+          win.webContents.send("mastersUserLabels", mastersUserLabels);
+          for (i = 0x01; i < 0x0c1; i++) {
+            try {
+              let req = await eGet.getElementByPath("_2._7._" + i.toString(16));
+              gpcsUserLabels.push(req.contents.description);
+            } catch (e) {
+              // exit the loop
+              break;
+            }
+          }
+          win.webContents.send("gpcsUserLabels", gpcsUserLabels);
+        }
+        getUserLabels();
 
-      async function getUserLabels() {
-        let inputsUserLabels = [];
-        let auxesUserLabels = [];
-        let mastersUserLabels = [];
-        let sumsUserLabels = [];
-        let gpcsUserLabels = [];
-        await mainFunctions.sleep(2000);
-        for (i = 0x01; i < 0x0c1; i++) {
-          try {
-            //          await mainFunctions.sleep(2000);
-            let req = await eGet.getElementByPath("_2._1._" + i.toString(16));
-            inputsUserLabels.push(req.contents.description);
-          } catch (e) {
-            // exit the loop
-            break;
-          }
-        }
-        win.webContents.send("inputsUserLabels", inputsUserLabels);
-        for (i = 0x01; i < 0x0c1; i++) {
-          try {
-            let req = await eGet.getElementByPath("_2._5._" + i.toString(16));
-            auxesUserLabels.push(req.contents.description);
-          } catch (e) {
-            // exit the loop
-            break;
-          }
-        }
-        win.webContents.send("auxesUserLabels", auxesUserLabels);
-        for (i = 0x01; i < 0x0c1; i++) {
-          try {
-            let req = await eGet.getElementByPath("_2._4._" + i.toString(16));
-            sumsUserLabels.push(req.contents.description);
-          } catch (e) {
-            // exit the loop
-            break;
-          }
-        }
-        win.webContents.send("sumsUserLabels", sumsUserLabels);
-        for (i = 0x01; i < 0x0c1; i++) {
-          try {
-            let req = await eGet.getElementByPath("_2._6._" + i.toString(16));
-            mastersUserLabels.push(req.contents.description);
-          } catch (e) {
-            // exit the loop
-            break;
-          }
-        }
-        win.webContents.send("mastersUserLabels", mastersUserLabels);
-        for (i = 0x01; i < 0x0c1; i++) {
-          try {
-            let req = await eGet.getElementByPath("_2._7._" + i.toString(16));
-            gpcsUserLabels.push(req.contents.description);
-          } catch (e) {
-            // exit the loop
-            break;
-          }
-        }
-        win.webContents.send("gpcsUserLabels", gpcsUserLabels);
-      }
-      getUserLabels();
-
-      async function channelAccess(OID_to_OSC) {
-        console.log(
-          "🚀 : file: main.js:646 : channelAccess : OID_to_OSC[0]:",
-          OID_to_OSC[0]
-        );
-        if (OID_to_OSC[0]) {
-          let oid2osc = preferences.value("other_settings.oid2osc");
-          let o2o_address = oid2osc.toString().split(":")[0];
-          let o2o_port = oid2osc.split(":")[1].split("/")[0];
-          let o2o_path = "/" + oid2osc.slice(oid2osc.indexOf("/") + 1);
-          let init_oid2osc = "";
-          try {
-            await mainFunctions.sleep(2000);
-            init_oid2osc = await eGet.getElementByPath(
-              "Console.AccessChannelOID"
-            );
-            let init_emberValue = init_oid2osc.contents.value;
-            let init_CA_OID = await eGet.getElementByPath(init_emberValue);
-            //            win.webContents.on('did-finish-load', () => {
-            win.webContents.send(
-              "loginfo",
-              "initial ChannelAccess name is: " +
-                init_CA_OID.contents.description
-            );
-            //            })
-            oscGet.send(
-              {
-                address: o2o_path,
-                args: [
-                  {
-                    type: "s",
-                    value: init_CA_OID.contents.description,
-                  },
-                ],
-              },
-              o2o_address,
-              Number(o2o_port)
-            );
-
-            eGet.subscribe(init_oid2osc, () => {
-              async function bip() {
-                let emberValue = init_oid2osc.contents.value;
-                let CA_OID = await eGet.getElementByPath(emberValue);
-                win.webContents.send(
-                  "loginfo",
-                  "CA_OID changed: " + CA_OID.contents.description
-                );
-                oscGet.send(
-                  {
-                    address: o2o_path,
-                    args: [
-                      {
-                        type: "s",
-                        value: CA_OID.contents.description,
-                      },
-                    ],
-                  },
-                  o2o_address,
-                  Number(o2o_port)
-                );
-              }
-              bip();
-            });
-          } catch (e) {
-            const message = await e.message;
-            //          win.webContents.on('did-finish-load', () => {
-            win.webContents.send(
-              "loginfo",
-              "oid2osc failed due to: " + message
-            );
-            //          })
-          }
-        }
-      }
-      channelAccess(OID_to_OSC);
-
-      preferences.on("click", (key) => {
-        if (key === "change_oid_dest") {
-          channelAccess(OID_to_OSC);
-        }
-      });
-      //      async function expandtree() {
-      //        let root = await (await eGet.getDirectory(eGet.tree)).response;
-      //        try{
-      //        //let first = await eGet.getElementByPath("_2._7._1._400016c0._400016c1")
-      //        let second = await (await eGet.expand(root)).response;
-      //        console.log("ENot:", second)
-      //        }catch(e){
-      //          throw Error(e)
-      //        }
-      //        //await (await this.getDirectory(node)).response;
-      //        //let root = Object.values(eGet.tree);
-      //        //let expanded_json = await(await eGet.expand(root)).response;
-      //        //console.log("EXPANDED:",JSON.stringify(first))
-      //      }
-      //      expandtree()
-
-      ipcMain.on(
-        "newConnection",
-        async (
-          event,
-          ePath,
-          oAddr,
-          myRow,
-          eVarType,
-          sFactor,
-          eMin,
-          eMax,
-          oMin,
-          oMax,
-          eVarCurve,
-          direction,
-          tableLength
-        ) => {
-          console.log("🚀 : file: main.js:755 : main : ePath:", ePath);
-          console.log("🚀 : file: main.js:756 : main : oAddr:", oAddr);
-          directions[myRow] = direction;
-          console.log("🚀 : file: main.js:757 : main : direction:", direction);
-          sFactor = Number(sFactor);
-          let initialReq = await eGet.getElementByPath(ePath);
-          console.log("🚀 : file: main.js:783 : main : initialReq:", initialReq)
-          let parameter_type = initialReq.contents.parameterType;
-          let contents_type = initialReq.contents.type;
-          let contents = initialReq.contents;
-          let emberValue = initialReq.contents.value;
+        async function channelAccess(OID_to_OSC) {
           console.log(
-            "🚀 : file: main.js:765 : main : initialReq.contents:",
-            initialReq.contents
+            "🚀 : file: main.js:646 : channelAccess : OID_to_OSC[0]:",
+            OID_to_OSC[0]
           );
-          console.log(
-            "🚀 : file: main.js:767 : main : initialReq.contents.value:",
-            initialReq.contents.value
-          );
-          console.log(
-            "🚀 : file: main.js:769 : main : initialReq.contents.type:",
-            initialReq.contents.type
-          );
-          if (contents_type == "PARAMETER") {
-            console.log(
-              "🚀 : file: main.js:769 : main : parameter_type:",
-              parameter_type
-            );
-            if (parameter_type == "ENUM") {
-              win.webContents.send("choosen_type", 4, myRow);
-              let enumList = initialReq.contents.enumeration.split("\n");
-              console.log(
-                "🚀 : file: main.js:773 : main : enumList:",
-                enumList
+          if (OID_to_OSC[0]) {
+            let oid2osc = preferences.value("other_settings.oid2osc");
+            let o2o_address = oid2osc.toString().split(":")[0];
+            let o2o_port = oid2osc.split(":")[1].split("/")[0];
+            let o2o_path = "/" + oid2osc.slice(oid2osc.indexOf("/") + 1);
+            let init_oid2osc = "";
+            try {
+              await mainFunctions.sleep(2000);
+              init_oid2osc = await eGet.getElementByPath(
+                "Console.AccessChannelOID"
               );
-              enum_length = length(enumList);
-            } else if (parameter_type == "INTEGER") {
-              win.webContents.send("choosen_type", 2, myRow);
-              if (initialReq.contents.maximum !== eMax) {
-                eMax = initialReq.contents.maximum;
-                console.log("🚀 : file: main.js:778 : main : eMax:", eMax);
-              }
-              if (initialReq.contents.minimum !== eMin) {
-                eMin = initialReq.contents.minimum;
-                console.log("🚀 : file: main.js:786 : main : eMin:", eMin);
-              }
-              if (Number(initialReq.contents.factor) !== sFactor) {
-                sFactor = initialReq.contents.factor;
-                console.log(
-                  "🚀 : file: main.js:790 : main : sFactor:",
-                  sFactor
-                );
-              }
-            } else if (parameter_type == "BOOLEAN") {
-              let bool_description = initialReq.contents.description;
-              win.webContents.send("choosen_type", 1, myRow);
+              let init_emberValue = init_oid2osc.contents.value;
+              let init_CA_OID = await eGet.getElementByPath(init_emberValue);
+              //            win.webContents.on('did-finish-load', () => {
               win.webContents.send(
                 "loginfo",
-                "parameter : " + bool_description
+                "initial ChannelAccess name is: " +
+                  init_CA_OID.contents.description
               );
-            } else if (parameter_type == "STRING") {
-              win.webContents.send("choosen_type", 0, myRow);
-            }
-          } else if (contents_type == "MATRIX") {
-            console.log(
-              "🚀 : file: main.js:796 : main : contents_type:",
-              contents_type
-            );
-
-            let mtx_t_count = initialReq.contents.targetCount;
-            let mtx_s_count = initialReq.contents.sourceCount;
-            let mtx_description = initialReq.contents.description;
-            win.webContents.send(
-              "loginfo",
-              "WARNING! : You're trying to connect to a Matrix object(" +
-                mtx_description +
-                " : " +
-                mtx_s_count +
-                " Ins X " +
-                mtx_t_count +
-                " Outs), but it's not yet implemented"
-            );
-            win.webContents.send("choosen_type", 5, myRow);
-            win.webContents.send("errorOnEditedPath", myRow);
-          } else if (contents_type == "NODE") {
-            let node_description = initialReq.contents.description;
-            console.log("🚀 : file: main.js:862 : main : initialReq:", initialReq)
-            console.log("🚀 : file: main.js:849 : main : node_children:", initialReq.children)
-            let getDir = await (await eGet.getDirectory(initialReq)).response;
-            console.log("🚀 : file: main.js:864 : main : getDir:", getDir)
-            //nodeDir = initialReq
-            nodeChildren = Object.keys(initialReq.children);
-            for (i = 0; i < nodeChildren.length; i++) {
-              newreq = await eGet.getElementByPath(
-                ePath + "." + nodeChildren[i]
+              //            })
+              oscGet.send(
+                {
+                  address: o2o_path,
+                  args: [
+                    {
+                      type: "s",
+                      value: init_CA_OID.contents.description,
+                    },
+                  ],
+                },
+                o2o_address,
+                Number(o2o_port)
               );
-              //newreq = [newreq.contents,newreq.number]
-              console.log("🚀 : file: main.js:867 : main : newreq:", newreq);
-            }
-            console.log(
-              "🚀 : file: main.js:851 : main : node_children:",
-              nodeChildren
-            );
-            win.webContents.send(
-              "loginfo",
-              "WARNING! : You're trying to connect to a NODE ( " +
-                node_description +
-                " with children numbered " +
-                nodeChildren +
-                "), not a PARAMETER"
-            );
-            win.webContents.send("choosen_type", 6, myRow);
-            win.webContents.send("errorOnEditedPath", myRow);
-          } else if (contents_type == "FUNCTION") {
-            let fct_description = initialReq.contents.description;
-            win.webContents.send(
-              "loginfo",
-              "WARNING! : You're trying to connect to a FUNCTION ( " +
-                fct_description +
-                " ), not a PARAMETER"
-            );
-            win.webContents.send("choosen_type", 7, myRow);
-            win.webContents.send("errorOnEditedPath", myRow);
-          }
 
-          event.sender.send(
-            "sendEmberValue",
-            emberValue,
-            myRow,
-            1,
-            directions[myRow],
-            eMax,
-            eMin,
-            sFactor,
-            oMax,
-            oMin
-          );
-          //        win.webContents.send('loginfo', "initialReq: " + initialReq);
-          let state = ["first", myRow];
-          console.log(
-            "🚀 : file: main.js:883 : main : JSON.stringify(state):",
-            JSON.stringify(state)
-          );
-          console.log("🚀 : file: main.js:886 : main : ePath:", ePath);
-          try {
-            eGet.subscribe(initialReq, () => {
-              if (JSON.stringify(state) === JSON.stringify(["first", myRow])) {
-                //            direction = "ET";
-                win.webContents.send("loginfo", "subscribed to " + ePath);
-                win.webContents.send("loginfo", contents);
-                emberValue = initialReq.contents.value;
-                console.log(
-                  "🚀 : file: main.js:895 : eGet.subscribe : emberValue:",
-                  emberValue
-                );
-                directions[myRow] = "-";
-                event.sender.send(
-                  "sendEmberValue",
-                  emberValue,
-                  myRow,
-                  1,
-                  directions[myRow],
-                  eMax,
-                  eMin,
-                  sFactor,
-                  oMax,
-                  oMin
-                );
-                state = ["nonFirst", myRow];
-                //            direction = ""
-              } else {
-                EmberIn[myRow] = Date.now();
-                if (EmberOut[myRow]) {
-                  let emb_io_delay = EmberIn[myRow] - EmberOut[myRow];
-                  console.log(
-                    "🚀 : file: main.js:861 : eGet.subscribe : emb_io_delay:",
-                    emb_io_delay
+              eGet.subscribe(init_oid2osc, () => {
+                async function bip() {
+                  let emberValue = init_oid2osc.contents.value;
+                  let CA_OID = await eGet.getElementByPath(emberValue);
+                  win.webContents.send(
+                    "loginfo",
+                    "CA_OID changed: " + CA_OID.contents.description
                   );
-                  console.log(
-                    "🚀 : file: main.js:863 : eGet.subscribe : directions[myRow]:",
-                    directions[myRow]
-                  );
-                  if (EmberIn[myRow] - EmberOut[myRow] > EmberRate) {
-                    if (directions[myRow] !== "◄") {
-                      //---Sending received values from Ember+ to OSC
-                      directions[myRow] = "►";
-                      //           console.log("direction set to E->O")
-
-                      emberValue = initialReq.contents.value;
-                      console.log(
-                        "🚀 : file: main.js:870 : eGet.subscribe : emberValue:",
-                        emberValue
-                      );
-                      event.sender.send(
-                        "sendEmberValue",
-                        emberValue,
-                        myRow,
-                        1,
-                        directions[myRow],
-                        eMax,
-                        eMin,
-                        sFactor,
-                        oMax,
-                        oMin
-                      );
-                      //emberInputListener(initialReq, emberValue, myRow);
-                      if (eVarType == "Integer" && eVarCurve == "lin") {
-                        let value = mainFunctions.mapToScale(
-                          Number(emberValue),
-                          [Number(eMin), Number(eMax)],
-                          [Number(oMin), Number(oMax)],
-                          2
-                        );
-                        oscGet.send(
-                          {
-                            address: oAddr,
-                            args: [
-                              {
-                                type: "f",
-                                value: Number(value),
-                              },
-                            ],
-                          },
-                          oServerIP,
-                          oServerPort
-                        );
-                        win.webContents.send(
-                          "loginfo",
-                          "EMBER+ -lin-> OSC : " + value
-                        );
-                      } else if (eVarType == "Integer" && eVarCurve == "log") {
-                        //              console.log("values sended to maptoscale: ", Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
-                        let value = mainFunctions.mapToScale(
-                          Number(emberValue),
-                          [Number(eMin), Number(eMax)],
-                          [Number(oMin), Number(oMax)],
-                          2,
-                          true
-                        );
-                        //              console.log("value mapped:", value)
-                        oscGet.send(
-                          {
-                            address: oAddr,
-                            args: [
-                              {
-                                type: "f",
-                                value: Number(value),
-                              },
-                            ],
-                          },
-                          oServerIP,
-                          oServerPort
-                        );
-                        win.webContents.send(
-                          "loginfo",
-                          "EMBER+ -log-> OSC : " + value
-                        );
-                      } else if (eVarType == "String") {
-                        win.webContents.send(
-                          "loginfo",
-                          "string reçu:" + emberValue
-                        );
-                        oscGet.send(
-                          {
-                            address: oAddr,
-                            args: [
-                              {
-                                type: "s",
-                                value: emberValue.toString(),
-                              },
-                            ],
-                          },
-                          oServerIP,
-                          oServerPort
-                        );
-                        win.webContents.send(
-                          "loginfo",
-                          "EMBER+ -string-> OSC : " + emberValue
-                        );
-                      } else if (eVarType == "Boolean" && emberValue == true) {
-                        oscGet.send(
-                          {
-                            address: oAddr,
-                            args: [
-                              {
-                                type: "T",
-                                value: 1,
-                              },
-                            ],
-                          },
-                          oServerIP,
-                          oServerPort
-                        );
-                        win.webContents.send(
-                          "loginfo",
-                          "EMBER+ -bool-> OSC : " + emberValue
-                        );
-                      } else if (eVarType == "Boolean" && emberValue == false) {
-                        oscGet.send(
-                          {
-                            address: oAddr,
-                            args: [
-                              {
-                                type: "F",
-                                value: 0,
-                              },
-                            ],
-                          },
-                          oServerIP,
-                          oServerPort
-                        );
-                        win.webContents.send(
-                          "loginfo",
-                          "EMBER+ -bool-> OSC : " + emberValue
-                        );
-                      }
-
-                      //            direction = "ET";
-                      if (gateDelayIN[myRow]) {
-                        if (Object.values(gateDelayIN[myRow])[5][0] == myRow) {
-                          clearTimeout(gateDelayIN[myRow]);
-                        }
-                      }
-
-                      gateDelayIN[myRow] = setTimeout(
-                        () => {
-                          directions[myRow] = "-";
-                          event.sender.send(
-                            "sendEmberValue",
-                            emberValue,
-                            myRow,
-                            1,
-                            directions[myRow],
-                            eMax,
-                            eMin,
-                            sFactor,
-                            oMax,
-                            oMin
-                          );
-                          win.webContents.send("loginfo", "waiting");
+                  oscGet.send(
+                    {
+                      address: o2o_path,
+                      args: [
+                        {
+                          type: "s",
+                          value: CA_OID.contents.description,
                         },
-                        500,
-                        myRow
-                      );
+                      ],
+                    },
+                    o2o_address,
+                    Number(o2o_port)
+                  );
+                }
+                bip();
+              });
+            } catch (e) {
+              const message = await e.message;
+              //          win.webContents.on('did-finish-load', () => {
+              win.webContents.send(
+                "loginfo",
+                "oid2osc failed due to: " + message
+              );
+              //          })
+            }
+          }
+        }
+        channelAccess(OID_to_OSC);
+
+        preferences.on("click", (key) => {
+          if (key === "change_oid_dest") {
+            channelAccess(OID_to_OSC);
+          }
+        });
+        //      async function expandtree() {
+        //        let root = await (await eGet.getDirectory(eGet.tree)).response;
+        //        try{
+        //        //let first = await eGet.getElementByPath("_2._7._1._400016c0._400016c1")
+        //        let second = await (await eGet.expand(root)).response;
+        //        console.log("ENot:", second)
+        //        }catch(e){
+        //          throw Error(e)
+        //        }
+        //        //await (await this.getDirectory(node)).response;
+        //        //let root = Object.values(eGet.tree);
+        //        //let expanded_json = await(await eGet.expand(root)).response;
+        //        //console.log("EXPANDED:",JSON.stringify(first))
+        //      }
+        //      expandtree()
+
+        ipcMain.on(
+          "newConnection",
+          async (
+            event,
+            ePath,
+            oAddr,
+            myRow,
+            eVarType,
+            sFactor,
+            eMin,
+            eMax,
+            oMin,
+            oMax,
+            eVarCurve,
+            direction,
+            tableLength
+          ) => {
+            console.log("🚀 : file: main.js:755 : main : ePath:", ePath);
+            console.log("🚀 : file: main.js:756 : main : oAddr:", oAddr);
+            directions[myRow] = direction;
+            console.log(
+              "🚀 : file: main.js:757 : main : direction:",
+              direction
+            );
+            sFactor = Number(sFactor);
+            let initialReq = await eGet.getElementByPath(ePath);
+            console.log(
+              "🚀 : file: main.js:783 : main : initialReq:",
+              initialReq
+            );
+            let parameter_type = initialReq.contents.parameterType;
+            let contents_type = initialReq.contents.type;
+            let contents = initialReq.contents;
+            let emberValue = initialReq.contents.value;
+            console.log(
+              "🚀 : file: main.js:765 : main : initialReq.contents:",
+              initialReq.contents
+            );
+            console.log(
+              "🚀 : file: main.js:767 : main : initialReq.contents.value:",
+              initialReq.contents.value
+            );
+            console.log(
+              "🚀 : file: main.js:769 : main : initialReq.contents.type:",
+              initialReq.contents.type
+            );
+            if (contents_type == "PARAMETER") {
+              console.log(
+                "🚀 : file: main.js:769 : main : parameter_type:",
+                parameter_type
+              );
+              if (parameter_type == "ENUM") {
+                win.webContents.send("choosen_type", 4, myRow);
+                let enumList = initialReq.contents.enumeration.split("\n");
+                console.log(
+                  "🚀 : file: main.js:773 : main : enumList:",
+                  enumList
+                );
+                enum_length = enumList.length;
+              } else if (parameter_type == "INTEGER") {
+                win.webContents.send("choosen_type", 2, myRow);
+                if (initialReq.contents.maximum !== eMax) {
+                  eMax = initialReq.contents.maximum;
+                  console.log("🚀 : file: main.js:778 : main : eMax:", eMax);
+                }
+                if (initialReq.contents.minimum !== eMin) {
+                  eMin = initialReq.contents.minimum;
+                  console.log("🚀 : file: main.js:786 : main : eMin:", eMin);
+                }
+                if (Number(initialReq.contents.factor) !== sFactor) {
+                  sFactor = initialReq.contents.factor;
+                  console.log(
+                    "🚀 : file: main.js:790 : main : sFactor:",
+                    sFactor
+                  );
+                }
+              } else if (parameter_type == "BOOLEAN") {
+                let bool_description = initialReq.contents.description;
+                win.webContents.send("choosen_type", 1, myRow);
+                win.webContents.send(
+                  "loginfo",
+                  "parameter : " + bool_description
+                );
+              } else if (parameter_type == "STRING") {
+                win.webContents.send("choosen_type", 0, myRow);
+              }
+            } else if (contents_type == "MATRIX") {
+              console.log(
+                "🚀 : file: main.js:796 : main : contents_type:",
+                contents_type
+              );
+
+              let mtx_t_count = initialReq.contents.targetCount;
+              let mtx_s_count = initialReq.contents.sourceCount;
+              let mtx_description = initialReq.contents.description;
+              win.webContents.send(
+                "loginfo",
+                "WARNING! : You're trying to connect to a Matrix object(" +
+                  mtx_description +
+                  " : " +
+                  mtx_s_count +
+                  " Ins X " +
+                  mtx_t_count +
+                  " Outs), but it's not yet implemented"
+              );
+              win.webContents.send("choosen_type", 5, myRow);
+              win.webContents.send("errorOnEditedPath", myRow);
+            } else if (contents_type == "NODE") {
+              let node_description = initialReq.contents.description;
+              console.log(
+                "🚀 : file: main.js:862 : main : initialReq:",
+                initialReq
+              );
+              console.log(
+                "🚀 : file: main.js:849 : main : node_children:",
+                initialReq.children
+              );
+              let getDir = await (await eGet.getDirectory(initialReq)).response;
+              console.log("🚀 : file: main.js:864 : main : getDir:", getDir);
+              //nodeDir = initialReq
+              nodeChildren = Object.keys(initialReq.children);
+              for (i = 0; i < nodeChildren.length; i++) {
+                newreq = await eGet.getElementByPath(
+                  ePath + "." + nodeChildren[i]
+                );
+                //newreq = [newreq.contents,newreq.number]
+                console.log("🚀 : file: main.js:867 : main : newreq:", newreq);
+              }
+              console.log(
+                "🚀 : file: main.js:851 : main : node_children:",
+                nodeChildren
+              );
+              win.webContents.send(
+                "loginfo",
+                "WARNING! : You're trying to connect to a NODE ( " +
+                  node_description +
+                  " with children numbered " +
+                  nodeChildren +
+                  "), not a PARAMETER"
+              );
+              win.webContents.send("choosen_type", 6, myRow);
+              win.webContents.send("errorOnEditedPath", myRow);
+            } else if (contents_type == "FUNCTION") {
+              let fct_description = initialReq.contents.description;
+              win.webContents.send(
+                "loginfo",
+                "WARNING! : You're trying to connect to a FUNCTION ( " +
+                  fct_description +
+                  " ), not a PARAMETER"
+              );
+              win.webContents.send("choosen_type", 7, myRow);
+              win.webContents.send("errorOnEditedPath", myRow);
+            }
+
+            event.sender.send(
+              "sendEmberValue",
+              emberValue,
+              myRow,
+              1,
+              directions[myRow],
+              eMax,
+              eMin,
+              sFactor,
+              oMax,
+              oMin
+            );
+            //        win.webContents.send('loginfo', "initialReq: " + initialReq);
+            let state = ["first", myRow];
+            console.log(
+              "🚀 : file: main.js:883 : main : JSON.stringify(state):",
+              JSON.stringify(state)
+            );
+            console.log("🚀 : file: main.js:886 : main : ePath:", ePath);
+            try {
+              eGet.subscribe(initialReq, () => {
+                if (
+                  JSON.stringify(state) === JSON.stringify(["first", myRow])
+                ) {
+                  //            direction = "ET";
+                  win.webContents.send("loginfo", "subscribed to " + ePath);
+                  win.webContents.send("loginfo", contents);
+                  emberValue = initialReq.contents.value;
+                  console.log(
+                    "🚀 : file: main.js:895 : eGet.subscribe : emberValue:",
+                    emberValue
+                  );
+                  directions[myRow] = "-";
+                  event.sender.send(
+                    "sendEmberValue",
+                    emberValue,
+                    myRow,
+                    1,
+                    directions[myRow],
+                    eMax,
+                    eMin,
+                    sFactor,
+                    oMax,
+                    oMin
+                  );
+                  state = ["nonFirst", myRow];
+                  //            direction = ""
+                } else {
+                  EmberIn[myRow] = Date.now();
+                  if (EmberOut[myRow]) {
+                    let emb_io_delay = EmberIn[myRow] - EmberOut[myRow];
+                    console.log(
+                      "🚀 : file: main.js:861 : eGet.subscribe : emb_io_delay:",
+                      emb_io_delay
+                    );
+                    console.log(
+                      "🚀 : file: main.js:863 : eGet.subscribe : directions[myRow]:",
+                      directions[myRow]
+                    );
+                    if (EmberIn[myRow] - EmberOut[myRow] > EmberRate) {
+                      if (directions[myRow] !== "◄") {
+                        //---Sending received values from Ember+ to OSC
+                        directions[myRow] = "►";
+                        //           console.log("direction set to E->O")
+
+                        emberValue = initialReq.contents.value;
+                        console.log(
+                          "🚀 : file: main.js:870 : eGet.subscribe : emberValue:",
+                          emberValue
+                        );
+                        event.sender.send(
+                          "sendEmberValue",
+                          emberValue,
+                          myRow,
+                          1,
+                          directions[myRow],
+                          eMax,
+                          eMin,
+                          sFactor,
+                          oMax,
+                          oMin
+                        );
+                        //emberInputListener(initialReq, emberValue, myRow);
+                        if (eVarType == "Integer" && eVarCurve == "lin") {
+                          let value = mainFunctions.mapToScale(
+                            Number(emberValue),
+                            [Number(eMin), Number(eMax)],
+                            [Number(oMin), Number(oMax)],
+                            2
+                          );
+                          oscGet.send(
+                            {
+                              address: oAddr,
+                              args: [
+                                {
+                                  type: "f",
+                                  value: Number(value),
+                                },
+                              ],
+                            },
+                            oServerIP,
+                            oServerPort
+                          );
+                          win.webContents.send(
+                            "loginfo",
+                            "EMBER+ -lin-> OSC : " + value
+                          );
+                        } else if (
+                          eVarType == "Integer" &&
+                          eVarCurve == "log"
+                        ) {
+                          //              console.log("values sended to maptoscale: ", Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
+                          let value = mainFunctions.mapToScale(
+                            Number(emberValue),
+                            [Number(eMin), Number(eMax)],
+                            [Number(oMin), Number(oMax)],
+                            2,
+                            true
+                          );
+                          //              console.log("value mapped:", value)
+                          oscGet.send(
+                            {
+                              address: oAddr,
+                              args: [
+                                {
+                                  type: "f",
+                                  value: Number(value),
+                                },
+                              ],
+                            },
+                            oServerIP,
+                            oServerPort
+                          );
+                          win.webContents.send(
+                            "loginfo",
+                            "EMBER+ -log-> OSC : " + value
+                          );
+                        } else if (eVarType == "Real" || eVarType == "Enum") {
+                          oscGet.send(
+                            {
+                              address: oAddr,
+                              args: [
+                                {
+                                  type: "f",
+                                  value: Number(emberValue),
+                                },
+                              ],
+                            },
+                            oServerIP,
+                            oServerPort
+                          );
+                          win.webContents.send(
+                            "loginfo",
+                            "EMBER+ -Real-> OSC : " + emberValue
+                          );
+                        } else if (eVarType == "String") {
+                          win.webContents.send(
+                            "loginfo",
+                            "string reçu:" + emberValue
+                          );
+                          oscGet.send(
+                            {
+                              address: oAddr,
+                              args: [
+                                {
+                                  type: "s",
+                                  value: emberValue.toString(),
+                                },
+                              ],
+                            },
+                            oServerIP,
+                            oServerPort
+                          );
+                          win.webContents.send(
+                            "loginfo",
+                            "EMBER+ -string-> OSC : " + emberValue
+                          );
+                        } else if (
+                          eVarType == "Boolean" &&
+                          emberValue == true
+                        ) {
+                          oscGet.send(
+                            {
+                              address: oAddr,
+                              args: [
+                                {
+                                  type: "T",
+                                  value: 1,
+                                },
+                              ],
+                            },
+                            oServerIP,
+                            oServerPort
+                          );
+                          win.webContents.send(
+                            "loginfo",
+                            "EMBER+ -bool-> OSC : " + emberValue
+                          );
+                        } else if (
+                          eVarType == "Boolean" &&
+                          emberValue == false
+                        ) {
+                          oscGet.send(
+                            {
+                              address: oAddr,
+                              args: [
+                                {
+                                  type: "F",
+                                  value: 0,
+                                },
+                              ],
+                            },
+                            oServerIP,
+                            oServerPort
+                          );
+                          win.webContents.send(
+                            "loginfo",
+                            "EMBER+ -bool-> OSC : " + emberValue
+                          );
+                        }
+
+                        //            direction = "ET";
+                        if (gateDelayIN[myRow]) {
+                          if (
+                            Object.values(gateDelayIN[myRow])[5][0] == myRow
+                          ) {
+                            clearTimeout(gateDelayIN[myRow]);
+                          }
+                        }
+
+                        gateDelayIN[myRow] = setTimeout(
+                          () => {
+                            directions[myRow] = "-";
+                            event.sender.send(
+                              "sendEmberValue",
+                              emberValue,
+                              myRow,
+                              1,
+                              directions[myRow],
+                              eMax,
+                              eMin,
+                              sFactor,
+                              oMax,
+                              oMin
+                            );
+                            win.webContents.send("loginfo", "waiting");
+                          },
+                          500,
+                          myRow
+                        );
+                        EmberOut[myRow] = Date.now();
+                      }
+                      //else {
+                      //  // let emberValue = initialReq.contents.value;
+                      //  if (gateDelayIN) {
+                      //    if (Object.values(gateDelayIN)[5][0] == myRow) {
+                      //      //console.log(Object.values(gateDelayIN)[5][0])
+                      //      console.log("gateDelayIn aborted")
+                      //      clearTimeout(gateDelayIN)
+                      //    }
+                      //  };
+                      //
+                      //  gateDelayIN =
+                      //    (setTimeout(() => {
+                      //      console.log("gateDelayIn launched")
+                      //      directions[myRow] = "-";
+                      //      //   event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
+                      //      win.webContents.send('loginfo', "waiting")
+                      //    }, 100, myRow));
+                      //  EmberOut[myRow] = Date.now()
+                      //  console.log("default case1", myRow)
+                      //}
+                    } else {
                       EmberOut[myRow] = Date.now();
+                      //  directions[myRow] = "-";
                     }
-                    //else {
-                    //  // let emberValue = initialReq.contents.value;
-                    //  if (gateDelayIN) {
-                    //    if (Object.values(gateDelayIN)[5][0] == myRow) {
-                    //      //console.log(Object.values(gateDelayIN)[5][0])
-                    //      console.log("gateDelayIn aborted")
-                    //      clearTimeout(gateDelayIN)
-                    //    }
-                    //  };
-                    //
-                    //  gateDelayIN =
-                    //    (setTimeout(() => {
-                    //      console.log("gateDelayIn launched")
-                    //      directions[myRow] = "-";
-                    //      //   event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
-                    //      win.webContents.send('loginfo', "waiting")
-                    //    }, 100, myRow));
-                    //  EmberOut[myRow] = Date.now()
-                    //  console.log("default case1", myRow)
-                    //}
                   } else {
                     EmberOut[myRow] = Date.now();
                     //  directions[myRow] = "-";
                   }
-                } else {
-                  EmberOut[myRow] = Date.now();
-                  //  directions[myRow] = "-";
-                }
-                console.log(
-                  "🚀 : file: main.js:1062 : eGet.subscribe : EmberIn[myRow] - EmberOut[myRow]:",
-                  EmberIn[myRow] - EmberOut[myRow]
-                );
-              } //let stringEpath = JSON.stringify(ePath);
-            });
-            win.webContents.send("noError", myRow);
-          } catch (error) {
-            msg = error.message;
-            console.log("🚀 : file: main.js:1058 : main : msg:", msg);
-            win.webContents.send("loginfo", msg);
-            //  win.webContents.send('errorOnEditedPath', myRow)
-            //  //  throw Error(error);
-            //
-          }
-        }
-      );
-
-      ipcMain.on(
-        "deleteConnection",
-        async (event, ePath, oAddr, myRow, eVarType, sFactor) => {
-          let req = await eGet.getElementByPath(ePath);
-          eGet.unsubscribe(req);
-          win.webContents.send("loginfo", "unsuscribe to " + ePath);
-        }
-      );
-
-      ipcMain.on(
-        "reSendOrArgs",
-        async (
-          event,
-          rOrArgs,
-          rEaddr,
-          sFactor,
-          eVarType,
-          eMin,
-          eMax,
-          oMin,
-          oMax,
-          eVarCurve,
-          myRow,
-          direction,
-          tableLength
-        ) => {
-          if (!ro[myRow]) {
-            ro[myRow] = 1;
-          }
-          OSCin[myRow] = Date.now();
-          directions[myRow] = direction;
-          if (OSCout[myRow]) {
-            let osc_io_delay = OSCin[myRow] - OSCout[myRow];
-            console.log(
-              "🚀 : file: main.js:1100 : main : osc_io_delay:",
-              osc_io_delay
-            );
-            if (osc_io_delay > OSCrate) {
-              if (directions[myRow] !== "►") {
-                directions[myRow] = "◄";
-                win.webContents.send(
-                  "updateDirection",
-                  myRow,
-                  directions[myRow]
-                );
-                console.log("direction set to O->E");
-                if (gateDelayOUT[myRow]) {
-                  if (Object.values(gateDelayOUT[myRow])[5][0] == myRow) {
-                    console.log(
-                      "🚀 : file: main.js:1112 : main : Object.values(gateDelayOUT:",
-                      Object.values(gateDelayOUT)
-                    );
-                    clearTimeout(gateDelayOUT[myRow]);
-                  }
-                }
-                let rereq = await eGet.getElementByPath(rEaddr);
-                if (ro[myRow] == 1) {
-                  eGet.unsubscribe(rereq);
-                  state = ["first", myRow];
-                  win.webContents.send(
-                    "loginfo",
-                    "eGet unsuscribe to " + rereq
-                  );
-                }
-                if (eVarType == "Integer" && eVarCurve == "lin") {
-                  let value = mainFunctions.mapToScale(
-                    Number(rOrArgs),
-                    [Number(oMin), Number(oMax)],
-                    [Number(eMin), Number(eMax)],
-                    2
-                  );
                   console.log(
-                    "🚀 : file: main.js:1133 : main : value.toFixed(0):",
-                    value.toFixed(0)
+                    "🚀 : file: main.js:1062 : eGet.subscribe : EmberIn[myRow] - EmberOut[myRow]:",
+                    EmberIn[myRow] - EmberOut[myRow]
                   );
-                  eGet.setValue(rereq, Number(value.toFixed(0)));
-                  win.webContents.send(
-                    "loginfo",
-                    "OSC -lin-> EMBER+ : " + value.toFixed(0)
-                  );
-                } else if (eVarType == "Integer" && eVarCurve == "log") {
-                  let value = mainFunctions.mapToScale(
-                    Number(rOrArgs),
-                    [Number(oMin), Number(oMax)],
-                    [Number(eMin), Number(eMax)],
-                    2,
-                    true,
-                    -1
-                  );
-                  console.log(
-                    "values submitted to maptoscale: ",
-                    Number(rOrArgs),
-                    [Number(eMin), Number(eMax)],
-                    [Number(oMin), Number(oMax)]
-                  );
-                  console.log("🚀 : file: main.js:1155 : main : value:", value);
-                  eGet.setValue(rereq, Number(value.toFixed(0)));
-                  win.webContents.send(
-                    "loginfo",
-                    "OSC -log-> EMBER+ : " + value.toFixed(0)
-                  );
-                } else if (eVarType == "Boolean" && rOrArgs == "1") {
-                  console.log(
-                    "🚀 : file: main.js:1161 : main : rOrArgs:",
-                    rOrArgs
-                  );
-                  console.log(
-                    "🚀 : file: main.js:1161 : main : eVarType:",
-                    eVarType
-                  );
-                  eGet.setValue(rereq, true);
-                  win.webContents.send(
-                    "loginfo",
-                    ("OSC -bool-> EMBER+", rOrArgs)
-                  );
-                } else if (eVarType == "Boolean" && rOrArgs == "0") {
-                  console.log(
-                    "🚀 : file: main.js:1169 : main : rOrArgs:",
-                    rOrArgs
-                  );
-                  console.log(
-                    "🚀 : file: main.js:1169 : main : eVarType :",
-                    eVarType
-                  );
-                  eGet.setValue(rereq, false);
-                  win.webContents.send(
-                    "loginfo",
-                    ("OSC -bool-> EMBER+", rOrArgs)
-                  );
-                } else if (eVarType == "String") {
-                  console.log(
-                    "🚀 : file: main.js:1177 : main : eVarType:",
-                    eVarType
-                  );
-                  eGet.setValue(rereq, rOrArgs.toString());
-                  win.webContents.send(
-                    "loginfo",
-                    ("OSC -string-> EMBER+", rOrArgs)
-                  );
-                } else {
-                  console.log(
-                    "🚀 : file: main.js:1185 : main : rOrArgs:",
-                    rOrArgs
-                  );
-                  eGet.setValue(rereq, rOrArgs);
-                  win.webContents.send(
-                    "loginfo",
-                    ("OSC -string-> EMBER+", rOrArgs)
-                  );
-                }
-                console.log(
-                  "🚀 : file: main.js:1189 : main : Number(rOrArgs):",
-                  Number(rOrArgs)
-                );
-                console.log(
-                  "🚀 : file: main.js:1189 : main : rOrArgs:",
-                  rOrArgs
-                );
-                console.log(
-                  "🚀 : file: main.js:1189 : main : rOrArgs:",
-                  rOrArgs
-                );
-
-                //win.webContents.send('loginfo',"eGet resubscribe to"+ rereq)
-                gateDelayOUT[myRow] = setTimeout(
-                  () => {
-                    win.webContents.send("loginfo", "waiting");
-                    win.webContents.send("resubscribe", myRow);
-                    //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
-                    directions[myRow] = "-";
-                    win.webContents.send(
-                      "updateDirection",
-                      myRow,
-                      directions[myRow]
-                    );
-                    console.log("direction set to none");
-                    ro[myRow] = null;
-                  },
-                  500,
-                  myRow
-                );
-                console.log("directionzzzz", myRow, directions[myRow]);
-              }
-              //  else {
-              //    gateDelayOUT =
-              //      (setTimeout(() => {
-              //        win.webContents.send('loginfo', "waiting")
-              //        //  win.webContents.send("resubscribe", myRow)
-              //        //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
-              //        directions[myRow] = "-";
-              //        win.webContents.send("updateDirection", myRow, directions[myRow])
-              //        //              console.log("direction set to none")
-              //        ro[myRow] = null
-              //        console.log("ro[myRow]", ro)
-              //      }, 200, myRow));
-              //    console.log("directionzzzz2", myRow, directions[myRow])
-              //    win.webContents.send('loginfo', "can't use O->E actual direction is set to E->O")
-              //  }
-              //  console.log("direction3", myRow, directions[myRow])
-              OSCout[myRow] = Date.now();
-            } else {
-              console.log("direction4", myRow, directions[myRow]);
-              OSCout[myRow] = Date.now();
-              //    directions[myRow] = "-";
-              console.log("OSC dropped");
+                } //let stringEpath = JSON.stringify(ePath);
+              });
+              win.webContents.send("noError", myRow);
+            } catch (error) {
+              msg = error.message;
+              console.log("🚀 : file: main.js:1058 : main : msg:", msg);
+              win.webContents.send("loginfo", msg);
+              //  win.webContents.send('errorOnEditedPath', myRow)
+              //  //  throw Error(error);
+              //
             }
-          } else {
-            OSCout[myRow] = Date.now();
-            console.log("direction5", myRow, directions[myRow]);
           }
-          console.log("1017ro[myRow]", ro);
-        }
-      );
+        );
 
-
-      ipcMain.on("expandNode", async (event, selectID, parentPath, currOpt_class) => {
-        if (currOpt_class == 'NODE'){
-          let childrenArray = [];
-          let expandReq = await eGet.getElementByPath(parentPath.toString());
-          let expReqType = expandReq.contents.type
-          //await eGet.expand(expandReq)
-          console.log("🚀 : file: main.js:1390 : == : ipcMain.on : expReqType:", expReqType)
-          console.log("🚀 : file: main.js:1389 : == : ipcMain.on : expandReq:", expandReq)
-          let getDir = await(await eGet.getDirectory(expandReq)).response;
-          console.log("🚀 : file: main.js:1386 : ipcMain.on : getDir:", getDir)
-          let nodeChildren = Object.keys(expandReq.children);
-          for (i = 0; i < nodeChildren.length; i++) {
-            let newChild = await eGet.getElementByPath(
-              parentPath + "." + nodeChildren[i]
-            );
-            //  console.log("🚀 : file: main.js:1382 : main : newChild:", newChild)
-            //delete newChild.parent;
-            //delete newChild.children;
-            contents = newChild.contents
-            number = newChild.number
-            base_path = {contents,number}
-            childrenArray.push(base_path);           
+        ipcMain.on(
+          "deleteConnection",
+          async (event, ePath, oAddr, myRow, eVarType, sFactor) => {
+            let req = await eGet.getElementByPath(ePath);
+            eGet.unsubscribe(req);
+            win.webContents.send("loginfo", "unsuscribe to " + ePath);
           }
-          console.log("🚀 : file: main.js:1401 : == : ipcMain.on : childrenArray:", childrenArray)
-          win.webContents.send("expandedNode", selectID, parentPath, childrenArray)
-          win.webContents.send('expandedElement',expandReq,false)
-        }else{
-          let expandReq = await eGet.getElementByPath(parentPath.toString());
-            contents = expandReq.contents
-            number = expandReq.number
-            base_path = {contents,number}
-          console.log("🚀 : file: main.js:1413 : == : ipcMain.on : expandReq:", expandReq)
+        );
 
-          win.webContents.send('expandedElement',base_path,true)
-        }
-      });
-    } catch (error) {
-      msg = error.message
-      console.log("🚀 : file: main.js:1423 : main : msg:", msg)
-      throw Error(error);
-      
+        ipcMain.on(
+          "reSendOrArgs",
+          async (
+            event,
+            rOrArgs,
+            rEaddr,
+            sFactor,
+            eVarType,
+            eMin,
+            eMax,
+            oMin,
+            oMax,
+            eVarCurve,
+            myRow,
+            direction,
+            tableLength
+          ) => {
+            if (!ro[myRow]) {
+              ro[myRow] = 1;
+            }
+            OSCin[myRow] = Date.now();
+            directions[myRow] = direction;
+            if (OSCout[myRow]) {
+              let osc_io_delay = OSCin[myRow] - OSCout[myRow];
+              console.log(
+                "🚀 : file: main.js:1100 : main : osc_io_delay:",
+                osc_io_delay
+              );
+              if (osc_io_delay > OSCrate) {
+                if (directions[myRow] !== "►") {
+                  directions[myRow] = "◄";
+                  win.webContents.send(
+                    "updateDirection",
+                    myRow,
+                    directions[myRow]
+                  );
+                  console.log("direction set to O->E");
+                  if (gateDelayOUT[myRow]) {
+                    if (Object.values(gateDelayOUT[myRow])[5][0] == myRow) {
+                      console.log(
+                        "🚀 : file: main.js:1112 : main : Object.values(gateDelayOUT:",
+                        Object.values(gateDelayOUT)
+                      );
+                      clearTimeout(gateDelayOUT[myRow]);
+                    }
+                  }
+                  let rereq = await eGet.getElementByPath(rEaddr);
+                  if (ro[myRow] == 1) {
+                    eGet.unsubscribe(rereq);
+                    state = ["first", myRow];
+                    win.webContents.send(
+                      "loginfo",
+                      "eGet unsuscribe to " + rereq
+                    );
+                  }
+                  if (eVarType == "Integer" && eVarCurve == "lin") {
+                    let value = mainFunctions.mapToScale(
+                      Number(rOrArgs),
+                      [Number(oMin), Number(oMax)],
+                      [Number(eMin), Number(eMax)],
+                      2
+                    );
+                    console.log(
+                      "🚀 : file: main.js:1133 : main : value.toFixed(0):",
+                      value.toFixed(0)
+                    );
+                    eGet.setValue(rereq, Number(value.toFixed(0)));
+                    win.webContents.send(
+                      "loginfo",
+                      "OSC -lin-> EMBER+ : " + value.toFixed(0)
+                    );
+                  } else if (eVarType == "Integer" && eVarCurve == "log") {
+                    let value = mainFunctions.mapToScale(
+                      Number(rOrArgs),
+                      [Number(oMin), Number(oMax)],
+                      [Number(eMin), Number(eMax)],
+                      2,
+                      true,
+                      -1
+                    );
+                    console.log(
+                      "values submitted to maptoscale: ",
+                      Number(rOrArgs),
+                      [Number(eMin), Number(eMax)],
+                      [Number(oMin), Number(oMax)]
+                    );
+                    console.log(
+                      "🚀 : file: main.js:1155 : main : value:",
+                      value
+                    );
+                    eGet.setValue(rereq, Number(value.toFixed(0)));
+                    win.webContents.send(
+                      "loginfo",
+                      "OSC -log-> EMBER+ : " + value.toFixed(0)
+                    );
+                  } else if (eVarType == "Boolean" && rOrArgs == "1") {
+                    console.log(
+                      "🚀 : file: main.js:1161 : main : rOrArgs:",
+                      rOrArgs
+                    );
+                    console.log(
+                      "🚀 : file: main.js:1161 : main : eVarType:",
+                      eVarType
+                    );
+                    eGet.setValue(rereq, true);
+                    win.webContents.send(
+                      "loginfo",
+                      ("OSC -bool-> EMBER+", rOrArgs)
+                    );
+                  } else if (eVarType == "Boolean" && rOrArgs == "0") {
+                    console.log(
+                      "🚀 : file: main.js:1169 : main : rOrArgs:",
+                      rOrArgs
+                    );
+                    console.log(
+                      "🚀 : file: main.js:1169 : main : eVarType :",
+                      eVarType
+                    );
+                    eGet.setValue(rereq, false);
+                    win.webContents.send(
+                      "loginfo",
+                      ("OSC -bool-> EMBER+", rOrArgs)
+                    );
+                  } else if (eVarType == "String") {
+                    console.log(
+                      "🚀 : file: main.js:1177 : main : eVarType:",
+                      eVarType
+                    );
+                    eGet.setValue(rereq, rOrArgs.toString());
+                    win.webContents.send(
+                      "loginfo",
+                      ("OSC -string-> EMBER+", rOrArgs)
+                    );
+                  } else {
+                    console.log(
+                      "🚀 : file: main.js:1185 : main : rOrArgs:",
+                      rOrArgs
+                    );
+                    eGet.setValue(rereq, rOrArgs);
+                    win.webContents.send(
+                      "loginfo",
+                      ("OSC -string-> EMBER+", rOrArgs)
+                    );
+                  }
+                  console.log(
+                    "🚀 : file: main.js:1189 : main : Number(rOrArgs):",
+                    Number(rOrArgs)
+                  );
+                  console.log(
+                    "🚀 : file: main.js:1189 : main : rOrArgs:",
+                    rOrArgs
+                  );
+                  console.log(
+                    "🚀 : file: main.js:1189 : main : rOrArgs:",
+                    rOrArgs
+                  );
+
+                  //win.webContents.send('loginfo',"eGet resubscribe to"+ rereq)
+                  gateDelayOUT[myRow] = setTimeout(
+                    () => {
+                      win.webContents.send("loginfo", "waiting");
+                      win.webContents.send("resubscribe", myRow);
+                      //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
+                      directions[myRow] = "-";
+                      win.webContents.send(
+                        "updateDirection",
+                        myRow,
+                        directions[myRow]
+                      );
+                      console.log("direction set to none");
+                      ro[myRow] = null;
+                    },
+                    500,
+                    myRow
+                  );
+                  console.log("directionzzzz", myRow, directions[myRow]);
+                }
+                //  else {
+                //    gateDelayOUT =
+                //      (setTimeout(() => {
+                //        win.webContents.send('loginfo', "waiting")
+                //        //  win.webContents.send("resubscribe", myRow)
+                //        //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
+                //        directions[myRow] = "-";
+                //        win.webContents.send("updateDirection", myRow, directions[myRow])
+                //        //              console.log("direction set to none")
+                //        ro[myRow] = null
+                //        console.log("ro[myRow]", ro)
+                //      }, 200, myRow));
+                //    console.log("directionzzzz2", myRow, directions[myRow])
+                //    win.webContents.send('loginfo', "can't use O->E actual direction is set to E->O")
+                //  }
+                //  console.log("direction3", myRow, directions[myRow])
+                OSCout[myRow] = Date.now();
+              } else {
+                console.log("direction4", myRow, directions[myRow]);
+                OSCout[myRow] = Date.now();
+                //    directions[myRow] = "-";
+                console.log("OSC dropped");
+              }
+            } else {
+              OSCout[myRow] = Date.now();
+              console.log("direction5", myRow, directions[myRow]);
+            }
+            console.log("1017ro[myRow]", ro);
+          }
+        );
+
+        ipcMain.on(
+          "expandNode",
+          async (event, selectID, parentPath, currOpt_class) => {
+            if (currOpt_class == "NODE") {
+              let childrenArray = [];
+              let expandReq = await eGet.getElementByPath(
+                parentPath.toString()
+              );
+              let expReqType = expandReq.contents.type;
+              //await eGet.expand(expandReq)
+              console.log(
+                "🚀 : file: main.js:1390 : == : ipcMain.on : expReqType:",
+                expReqType
+              );
+              console.log(
+                "🚀 : file: main.js:1389 : == : ipcMain.on : expandReq:",
+                expandReq
+              );
+              let getDir = await (await eGet.getDirectory(expandReq)).response;
+              console.log(
+                "🚀 : file: main.js:1386 : ipcMain.on : getDir:",
+                getDir
+              );
+              let nodeChildren = Object.keys(expandReq.children);
+              for (i = 0; i < nodeChildren.length; i++) {
+                let newChild = await eGet.getElementByPath(
+                  parentPath + "." + nodeChildren[i]
+                );
+                //  console.log("🚀 : file: main.js:1382 : main : newChild:", newChild)
+                //delete newChild.parent;
+                //delete newChild.children;
+                contents = newChild.contents;
+                number = newChild.number;
+                base_path = { contents, number };
+                childrenArray.push(base_path);
+              }
+              console.log(
+                "🚀 : file: main.js:1401 : == : ipcMain.on : childrenArray:",
+                childrenArray
+              );
+              win.webContents.send(
+                "expandedNode",
+                selectID,
+                parentPath,
+                childrenArray
+              );
+              win.webContents.send("expandedElement", expandReq, false);
+            } else if (currOpt_class == "MATRIX") {
+              let mtx_Array = [];
+              let expandReq = await eGet.getElementByPath(
+                parentPath.toString()
+              );
+              let getDir = await (await eGet.getDirectory(expandReq)).response;
+              let mtx_conn_content = Object.values(getDir.contents.connections);
+              let mtx_conn_id = Object.keys(getDir.contents.connections);
+
+              for (i = 0; i < mtx_conn_id.length; i++) {
+                console.log(
+                  "🚀 : file: main.js:1416 : == : ipcMain.on : mtx_connections:",
+                  mtx_conn_id[i] + " : " + mtx_conn_content[i]
+                );
+                //TODO:do something to create a matrix table
+              }
+              contents = getDir.contents;
+              number = getDir.number;
+              base_path = { contents, number };
+              win.webContents.send("expandedElement", base_path, true);
+            } else {
+              let expandReq = await eGet.getElementByPath(
+                parentPath.toString()
+              );
+              contents = expandReq.contents;
+              number = expandReq.number;
+              base_path = { contents, number };
+              console.log(
+                "🚀 : file: main.js:1413 : == : ipcMain.on : expandReq:",
+                expandReq.contents
+              );
+
+              win.webContents.send("expandedElement", base_path, true);
+            }
+          }
+        );
+      } catch (error) {
+        msg = error.message;
+        console.log("🚀 : file: main.js:1423 : main : msg:", msg);
+        throw Error(error);
+      }
     }
-  }
-  main().catch((err) => {
-    msg = err.message;
-    //  win.webContents.on('did-finish-load', () => {
-    win.webContents.send("resolveError", msg);
-    //  })
-    console.error("1029", msg);
+    main().catch((err) => {
+      msg = err.message;
+      //  win.webContents.on('did-finish-load', () => {
+      win.webContents.send("resolveError", msg);
+      //  })
+      console.error("1029", msg);
+    });
   });
-})
 
   //  main().log.catchErrors({
   //    showDialog: false,
