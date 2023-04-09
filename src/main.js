@@ -36,6 +36,7 @@ let EmberOut = [];
 let EmberRate = 8;
 
 let ro = [];
+let root;
 
 //#Time Section#//
 let date_ob = new Date();
@@ -342,8 +343,8 @@ function createWindow() {
     //      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
     //    })
     if (autoLoad !== undefined) {
+      console.log("🚀 : file: main.js:345 : loadPrefs : autoLoad:", autoLoad);
       //      win.webContents.on('did-finish-load', () => {
-      console.log("la fenetre est prete et peut recevoir les options");
       //        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
       let content = fs.readFileSync(default_file, "utf-8");
       let sendedContent = JSON.stringify(content);
@@ -361,7 +362,7 @@ function createWindow() {
     console.log = log.log;
     Object.assign(console, log.functions);
     log.transports.console.format = "{h}:{i}:{s} / {text}";
-    log.catchErrors({
+    log.errorHandler.startCatching({
       showDialog: false,
       onError(error) {
         msg = error.message;
@@ -409,7 +410,10 @@ function createWindow() {
     filename = dialog.showSaveDialog(null, recOptions, {}).then((result) => {
       filename = result.filePath;
       if (filename === undefined) {
-        console.log("the user clicked the btn but didn't created a file");
+        console.log(
+          "🚀 : file: main.js:412 : filename=dialog.showSaveDialog : filename:",
+          filename
+        );
       }
       fs.writeFile(filename, content, (err) => {
         if (err) {
@@ -425,7 +429,10 @@ function createWindow() {
     //console.log("sendsave filepath", rSfilename);
     //console.log("sendsave content", content);
     if (rSfilename === undefined) {
-      console.log("the user clicked the btn but didn't created a file");
+      console.log(
+        "🚀 : file: main.js:428 : ipcMain.on : rSfilename:",
+        rSfilename
+      );
     }
     fs.writeFile(rSfilename, content, (err) => {
       if (err) {
@@ -465,7 +472,10 @@ function createWindow() {
       detail: "It does really matter",
     };
     dialog.showMessageBox(win, dial_options).then((response) => {
-      console.log("type choosen: ", Object.values(response)[0]);
+      console.log(
+        "🚀 : file: main.js:469 : dialog.showMessageBox : Object.values(response)[0]:",
+        Object.values(response)[0]
+      );
       win.webContents.send("choosen_type", Object.values(response)[0]);
     });
   });
@@ -491,7 +501,11 @@ function createWindow() {
       );
     });
     eGet.on("connected", () => {
-      console.log("emberGet ", eServerIP, ":", eServerPort, " connection ok");
+      console.log(
+        "🚀 : file: main.js:495 : eGet.on : eServerPort:",
+        eServerPort
+      );
+      console.log("🚀 : file: main.js:495 : eGet.on : eServerIP:", eServerIP);
       //      win.webContents.on('did-finish-load', () => {
       win.webContents.send("eServerOK", eAddress);
       win.webContents.send(
@@ -519,7 +533,7 @@ function createWindow() {
 
   function oscListening() {
     oUDPport = preferences.value("network_settings.osc_receiver_port");
-    console.log("Port de reception OSC:", oUDPport);
+    console.log("🚀 : file: main.js:523 : oscListening : oUDPport:", oUDPport);
     //  win.webContents.on('did-finish-load', () => {
     win.webContents.send("loginfo", "Port de reception OSC:" + oUDPport);
     //  })
@@ -557,6 +571,7 @@ function createWindow() {
   }
   oscToTable();
 
+  win.webContents.on('did-finish-load', () => {
   async function main() {
     try {
       const eAddress = preferences.value("network_settings.ember_provider");
@@ -575,10 +590,17 @@ function createWindow() {
         win.webContents.send("eServerOK", eAddress);
       });
 
-      async function getUserLabels() {
-        root = await (await eGet.getDirectory(eGet.tree)).response;
-        win.webContents.send("loginfo", "ROOT:" + root);
+      root = await (await eGet.getDirectory(eGet.tree)).response;
+      first_branch = eGet.tree.flat(0);
+      first_br_list = [];
+      for (i = 0; i < first_branch.length; i++) {
+        first_br_list.push(first_branch[i].number);
+      }
+       console.log("🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:", first_br_list)
+       win.webContents.send("loginfo", "🚀 : file: main.js:595 : root.children:"+ first_branch);
+      win.webContents.send("embertree", first_branch);
 
+      async function getUserLabels() {
         let inputsUserLabels = [];
         let auxesUserLabels = [];
         let mastersUserLabels = [];
@@ -640,10 +662,11 @@ function createWindow() {
       getUserLabels();
 
       async function channelAccess(OID_to_OSC) {
-        //  root = await (await eGet.getDirectory(eGet.tree)).response;
-
-        console.log("oid to osc enabled?: ", OID_to_OSC);
-        if (OID_to_OSC !== []) {
+        console.log(
+          "🚀 : file: main.js:646 : channelAccess : OID_to_OSC[0]:",
+          OID_to_OSC[0]
+        );
+        if (OID_to_OSC[0]) {
           let oid2osc = preferences.value("other_settings.oid2osc");
           let o2o_address = oid2osc.toString().split(":")[0];
           let o2o_port = oid2osc.split(":")[1].split("/")[0];
@@ -752,70 +775,128 @@ function createWindow() {
           direction,
           tableLength
         ) => {
-          console.log("loginfo", "epath in newconnectionM " + ePath);
-          console.log("direction1", myRow, directions[myRow]);
-          console.log("oAddr received", oAddr);
+          console.log("🚀 : file: main.js:755 : main : ePath:", ePath);
+          console.log("🚀 : file: main.js:756 : main : oAddr:", oAddr);
           directions[myRow] = direction;
-
+          console.log("🚀 : file: main.js:757 : main : direction:", direction);
           sFactor = Number(sFactor);
-
           let initialReq = await eGet.getElementByPath(ePath);
+          console.log("🚀 : file: main.js:783 : main : initialReq:", initialReq)
           let parameter_type = initialReq.contents.parameterType;
           let contents_type = initialReq.contents.type;
           let contents = initialReq.contents;
           let emberValue = initialReq.contents.value;
-          console.log("contents", initialReq.contents);
-          console.log("705 initial value : ", initialReq.contents.value);
-          console.log("705 initial value type : ", initialReq.contents.type);
+          console.log(
+            "🚀 : file: main.js:765 : main : initialReq.contents:",
+            initialReq.contents
+          );
+          console.log(
+            "🚀 : file: main.js:767 : main : initialReq.contents.value:",
+            initialReq.contents.value
+          );
+          console.log(
+            "🚀 : file: main.js:769 : main : initialReq.contents.type:",
+            initialReq.contents.type
+          );
           if (contents_type == "PARAMETER") {
-            console.log("Well! this is a PARAMETER of "+parameter_type+" type.")
+            console.log(
+              "🚀 : file: main.js:769 : main : parameter_type:",
+              parameter_type
+            );
             if (parameter_type == "ENUM") {
               win.webContents.send("choosen_type", 4, myRow);
               let enumList = initialReq.contents.enumeration.split("\n");
-              console.log("enumList:", enumList);
+              console.log(
+                "🚀 : file: main.js:773 : main : enumList:",
+                enumList
+              );
               enum_length = length(enumList);
             } else if (parameter_type == "INTEGER") {
               win.webContents.send("choosen_type", 2, myRow);
               if (initialReq.contents.maximum !== eMax) {
                 eMax = initialReq.contents.maximum;
-                console.log("updated emax", eMax);
-                
+                console.log("🚀 : file: main.js:778 : main : eMax:", eMax);
               }
               if (initialReq.contents.minimum !== eMin) {
                 eMin = initialReq.contents.minimum;
-                console.log("updated emin", eMin);
+                console.log("🚀 : file: main.js:786 : main : eMin:", eMin);
               }
               if (Number(initialReq.contents.factor) !== sFactor) {
                 sFactor = initialReq.contents.factor;
-                console.log("updated sfactor", sFactor);
+                console.log(
+                  "🚀 : file: main.js:790 : main : sFactor:",
+                  sFactor
+                );
               }
             } else if (parameter_type == "BOOLEAN") {
+              let bool_description = initialReq.contents.description;
               win.webContents.send("choosen_type", 1, myRow);
+              win.webContents.send(
+                "loginfo",
+                "parameter : " + bool_description
+              );
             } else if (parameter_type == "STRING") {
               win.webContents.send("choosen_type", 0, myRow);
             }
-
           } else if (contents_type == "MATRIX") {
-            console.log("This is a matrix");
+            console.log(
+              "🚀 : file: main.js:796 : main : contents_type:",
+              contents_type
+            );
 
-            mtx_t_count = initialReq.contents.targetCount;
-            mtx_s_count = initialReq.contents.sourceCount;
+            let mtx_t_count = initialReq.contents.targetCount;
+            let mtx_s_count = initialReq.contents.sourceCount;
+            let mtx_description = initialReq.contents.description;
             win.webContents.send(
               "loginfo",
-              "WARNING! : You're trying to connect to a " +
+              "WARNING! : You're trying to connect to a Matrix object(" +
+                mtx_description +
+                " : " +
                 mtx_s_count +
-                "X" +
+                " Ins X " +
                 mtx_t_count +
-                " Matrix object, but it's not already implemented"
+                " Outs), but it's not yet implemented"
             );
             win.webContents.send("choosen_type", 5, myRow);
             win.webContents.send("errorOnEditedPath", myRow);
           } else if (contents_type == "NODE") {
+            let node_description = initialReq.contents.description;
+            console.log("🚀 : file: main.js:862 : main : initialReq:", initialReq)
+            console.log("🚀 : file: main.js:849 : main : node_children:", initialReq.children)
+            let getDir = await (await eGet.getDirectory(initialReq)).response;
+            console.log("🚀 : file: main.js:864 : main : getDir:", getDir)
+            //nodeDir = initialReq
+            nodeChildren = Object.keys(initialReq.children);
+            for (i = 0; i < nodeChildren.length; i++) {
+              newreq = await eGet.getElementByPath(
+                ePath + "." + nodeChildren[i]
+              );
+              //newreq = [newreq.contents,newreq.number]
+              console.log("🚀 : file: main.js:867 : main : newreq:", newreq);
+            }
+            console.log(
+              "🚀 : file: main.js:851 : main : node_children:",
+              nodeChildren
+            );
             win.webContents.send(
               "loginfo",
-              "WARNING! : You're trying to connect to a NODE, not a PARAMETER"
+              "WARNING! : You're trying to connect to a NODE ( " +
+                node_description +
+                " with children numbered " +
+                nodeChildren +
+                "), not a PARAMETER"
             );
             win.webContents.send("choosen_type", 6, myRow);
+            win.webContents.send("errorOnEditedPath", myRow);
+          } else if (contents_type == "FUNCTION") {
+            let fct_description = initialReq.contents.description;
+            win.webContents.send(
+              "loginfo",
+              "WARNING! : You're trying to connect to a FUNCTION ( " +
+                fct_description +
+                " ), not a PARAMETER"
+            );
+            win.webContents.send("choosen_type", 7, myRow);
             win.webContents.send("errorOnEditedPath", myRow);
           }
 
@@ -833,17 +914,22 @@ function createWindow() {
           );
           //        win.webContents.send('loginfo', "initialReq: " + initialReq);
           let state = ["first", myRow];
-          console.log("state: ", JSON.stringify(state));
-          console.log("epath", ePath);
+          console.log(
+            "🚀 : file: main.js:883 : main : JSON.stringify(state):",
+            JSON.stringify(state)
+          );
+          console.log("🚀 : file: main.js:886 : main : ePath:", ePath);
           try {
             eGet.subscribe(initialReq, () => {
               if (JSON.stringify(state) === JSON.stringify(["first", myRow])) {
                 //            direction = "ET";
-                console.log("direction2", myRow, directions[myRow]);
                 win.webContents.send("loginfo", "subscribed to " + ePath);
                 win.webContents.send("loginfo", contents);
                 emberValue = initialReq.contents.value;
-                console.log("702 emberValue : ", emberValue);
+                console.log(
+                  "🚀 : file: main.js:895 : eGet.subscribe : emberValue:",
+                  emberValue
+                );
                 directions[myRow] = "-";
                 event.sender.send(
                   "sendEmberValue",
@@ -860,15 +946,17 @@ function createWindow() {
                 state = ["nonFirst", myRow];
                 //            direction = ""
               } else {
-                console.log("766", EmberIn[myRow]);
                 EmberIn[myRow] = Date.now();
                 if (EmberOut[myRow]) {
+                  let emb_io_delay = EmberIn[myRow] - EmberOut[myRow];
                   console.log(
-                    "Ember in/out:",
-                    myRow,
-                    EmberIn[myRow] - EmberOut[myRow]
+                    "🚀 : file: main.js:861 : eGet.subscribe : emb_io_delay:",
+                    emb_io_delay
                   );
-                  console.log("directionsss", myRow, directions[myRow]);
+                  console.log(
+                    "🚀 : file: main.js:863 : eGet.subscribe : directions[myRow]:",
+                    directions[myRow]
+                  );
                   if (EmberIn[myRow] - EmberOut[myRow] > EmberRate) {
                     if (directions[myRow] !== "◄") {
                       //---Sending received values from Ember+ to OSC
@@ -876,7 +964,10 @@ function createWindow() {
                       //           console.log("direction set to E->O")
 
                       emberValue = initialReq.contents.value;
-                      console.log("722 emberValue : ", emberValue);
+                      console.log(
+                        "🚀 : file: main.js:870 : eGet.subscribe : emberValue:",
+                        emberValue
+                      );
                       event.sender.send(
                         "sendEmberValue",
                         emberValue,
@@ -1004,15 +1095,12 @@ function createWindow() {
                       //            direction = "ET";
                       if (gateDelayIN[myRow]) {
                         if (Object.values(gateDelayIN[myRow])[5][0] == myRow) {
-                          //console.log(Object.values(gateDelayIN)[5][0])
-                          console.log("gateDelayIn aborted");
                           clearTimeout(gateDelayIN[myRow]);
                         }
                       }
 
                       gateDelayIN[myRow] = setTimeout(
                         () => {
-                          console.log("gateDelayIn launched");
                           directions[myRow] = "-";
                           event.sender.send(
                             "sendEmberValue",
@@ -1032,7 +1120,6 @@ function createWindow() {
                         myRow
                       );
                       EmberOut[myRow] = Date.now();
-                      console.log("default case0", myRow);
                     }
                     //else {
                     //  // let emberValue = initialReq.contents.value;
@@ -1055,22 +1142,23 @@ function createWindow() {
                     //  console.log("default case1", myRow)
                     //}
                   } else {
-                    console.log("else1", myRow);
                     EmberOut[myRow] = Date.now();
                     //  directions[myRow] = "-";
-                    console.log("Ember dropped");
                   }
                 } else {
-                  console.log("else2", myRow);
                   EmberOut[myRow] = Date.now();
                   //  directions[myRow] = "-";
                 }
+                console.log(
+                  "🚀 : file: main.js:1062 : eGet.subscribe : EmberIn[myRow] - EmberOut[myRow]:",
+                  EmberIn[myRow] - EmberOut[myRow]
+                );
               } //let stringEpath = JSON.stringify(ePath);
             });
             win.webContents.send("noError", myRow);
           } catch (error) {
             msg = error.message;
-            console.log("926error msg", msg);
+            console.log("🚀 : file: main.js:1058 : main : msg:", msg);
             win.webContents.send("loginfo", msg);
             //  win.webContents.send('errorOnEditedPath', myRow)
             //  //  throw Error(error);
@@ -1108,13 +1196,15 @@ function createWindow() {
           if (!ro[myRow]) {
             ro[myRow] = 1;
           }
-          console.log("ro[myRow]", ro);
           OSCin[myRow] = Date.now();
           directions[myRow] = direction;
           if (OSCout[myRow]) {
-            console.log("OSC in/out:", myRow, OSCin[myRow] - OSCout[myRow]);
-            if (OSCin[myRow] - OSCout[myRow] > OSCrate) {
-              console.log("ro = ", ro);
+            let osc_io_delay = OSCin[myRow] - OSCout[myRow];
+            console.log(
+              "🚀 : file: main.js:1100 : main : osc_io_delay:",
+              osc_io_delay
+            );
+            if (osc_io_delay > OSCrate) {
               if (directions[myRow] !== "►") {
                 directions[myRow] = "◄";
                 win.webContents.send(
@@ -1125,7 +1215,10 @@ function createWindow() {
                 console.log("direction set to O->E");
                 if (gateDelayOUT[myRow]) {
                   if (Object.values(gateDelayOUT[myRow])[5][0] == myRow) {
-                    console.log("gateDelayOUT: ", Object.values(gateDelayOUT));
+                    console.log(
+                      "🚀 : file: main.js:1112 : main : Object.values(gateDelayOUT:",
+                      Object.values(gateDelayOUT)
+                    );
                     clearTimeout(gateDelayOUT[myRow]);
                   }
                 }
@@ -1139,21 +1232,22 @@ function createWindow() {
                   );
                 }
                 if (eVarType == "Integer" && eVarCurve == "lin") {
-                  console.log("952-->", rOrArgs);
                   let value = mainFunctions.mapToScale(
                     Number(rOrArgs),
                     [Number(oMin), Number(oMax)],
                     [Number(eMin), Number(eMax)],
                     2
                   );
-                  console.log("954-->", value.toFixed(0));
+                  console.log(
+                    "🚀 : file: main.js:1133 : main : value.toFixed(0):",
+                    value.toFixed(0)
+                  );
                   eGet.setValue(rereq, Number(value.toFixed(0)));
                   win.webContents.send(
                     "loginfo",
                     "OSC -lin-> EMBER+ : " + value.toFixed(0)
                   );
                 } else if (eVarType == "Integer" && eVarCurve == "log") {
-                  
                   let value = mainFunctions.mapToScale(
                     Number(rOrArgs),
                     [Number(oMin), Number(oMax)],
@@ -1168,41 +1262,73 @@ function createWindow() {
                     [Number(eMin), Number(eMax)],
                     [Number(oMin), Number(oMax)]
                   );
-                  console.log("remapped value: ", value);
+                  console.log("🚀 : file: main.js:1155 : main : value:", value);
                   eGet.setValue(rereq, Number(value.toFixed(0)));
                   win.webContents.send(
                     "loginfo",
                     "OSC -log-> EMBER+ : " + value.toFixed(0)
                   );
                 } else if (eVarType == "Boolean" && rOrArgs == "1") {
-                  console.log("965-->true");
+                  console.log(
+                    "🚀 : file: main.js:1161 : main : rOrArgs:",
+                    rOrArgs
+                  );
+                  console.log(
+                    "🚀 : file: main.js:1161 : main : eVarType:",
+                    eVarType
+                  );
                   eGet.setValue(rereq, true);
                   win.webContents.send(
                     "loginfo",
                     ("OSC -bool-> EMBER+", rOrArgs)
                   );
                 } else if (eVarType == "Boolean" && rOrArgs == "0") {
-                  console.log("969-->false");
+                  console.log(
+                    "🚀 : file: main.js:1169 : main : rOrArgs:",
+                    rOrArgs
+                  );
+                  console.log(
+                    "🚀 : file: main.js:1169 : main : eVarType :",
+                    eVarType
+                  );
                   eGet.setValue(rereq, false);
                   win.webContents.send(
                     "loginfo",
                     ("OSC -bool-> EMBER+", rOrArgs)
                   );
                 } else if (eVarType == "String") {
-                  console.log("973-->string");
+                  console.log(
+                    "🚀 : file: main.js:1177 : main : eVarType:",
+                    eVarType
+                  );
                   eGet.setValue(rereq, rOrArgs.toString());
                   win.webContents.send(
                     "loginfo",
                     ("OSC -string-> EMBER+", rOrArgs)
                   );
                 } else {
-                  console.log("974-->", rOrArgs);
+                  console.log(
+                    "🚀 : file: main.js:1185 : main : rOrArgs:",
+                    rOrArgs
+                  );
                   eGet.setValue(rereq, rOrArgs);
                   win.webContents.send(
                     "loginfo",
                     ("OSC -string-> EMBER+", rOrArgs)
                   );
                 }
+                console.log(
+                  "🚀 : file: main.js:1189 : main : Number(rOrArgs):",
+                  Number(rOrArgs)
+                );
+                console.log(
+                  "🚀 : file: main.js:1189 : main : rOrArgs:",
+                  rOrArgs
+                );
+                console.log(
+                  "🚀 : file: main.js:1189 : main : rOrArgs:",
+                  rOrArgs
+                );
 
                 //win.webContents.send('loginfo',"eGet resubscribe to"+ rereq)
                 gateDelayOUT[myRow] = setTimeout(
@@ -1218,7 +1344,6 @@ function createWindow() {
                     );
                     console.log("direction set to none");
                     ro[myRow] = null;
-                    console.log("986ro[myRow]", ro);
                   },
                   500,
                   myRow
@@ -1255,8 +1380,49 @@ function createWindow() {
           console.log("1017ro[myRow]", ro);
         }
       );
+
+
+      ipcMain.on("expandNode", async (event, selectID, parentPath, currOpt_class) => {
+        if (currOpt_class == 'NODE'){
+          let childrenArray = [];
+          let expandReq = await eGet.getElementByPath(parentPath.toString());
+          let expReqType = expandReq.contents.type
+          //await eGet.expand(expandReq)
+          console.log("🚀 : file: main.js:1390 : == : ipcMain.on : expReqType:", expReqType)
+          console.log("🚀 : file: main.js:1389 : == : ipcMain.on : expandReq:", expandReq)
+          let getDir = await(await eGet.getDirectory(expandReq)).response;
+          console.log("🚀 : file: main.js:1386 : ipcMain.on : getDir:", getDir)
+          let nodeChildren = Object.keys(expandReq.children);
+          for (i = 0; i < nodeChildren.length; i++) {
+            let newChild = await eGet.getElementByPath(
+              parentPath + "." + nodeChildren[i]
+            );
+            //  console.log("🚀 : file: main.js:1382 : main : newChild:", newChild)
+            //delete newChild.parent;
+            //delete newChild.children;
+            contents = newChild.contents
+            number = newChild.number
+            base_path = {contents,number}
+            childrenArray.push(base_path);           
+          }
+          console.log("🚀 : file: main.js:1401 : == : ipcMain.on : childrenArray:", childrenArray)
+          win.webContents.send("expandedNode", selectID, parentPath, childrenArray)
+          win.webContents.send('expandedElement',expandReq,false)
+        }else{
+          let expandReq = await eGet.getElementByPath(parentPath.toString());
+            contents = expandReq.contents
+            number = expandReq.number
+            base_path = {contents,number}
+          console.log("🚀 : file: main.js:1413 : == : ipcMain.on : expandReq:", expandReq)
+
+          win.webContents.send('expandedElement',base_path,true)
+        }
+      });
     } catch (error) {
-      throw Error("1021", error);
+      msg = error.message
+      console.log("🚀 : file: main.js:1423 : main : msg:", msg)
+      throw Error(error);
+      
     }
   }
   main().catch((err) => {
@@ -1266,6 +1432,7 @@ function createWindow() {
     //  })
     console.error("1029", msg);
   });
+})
 
   //  main().log.catchErrors({
   //    showDialog: false,
@@ -1306,10 +1473,7 @@ function createWindow() {
       oscListening();
       oscGet.on("error", function (error) {
         msg = error.message;
-        console.log(
-          "1033 An error occurred with OSC listening: ",
-          error.message
-        );
+        console.log("🚀 : file: main.js:1301 : msg:", msg);
         win.webContents.send("udpportKO", msg);
 
         win.webContents.send("resolveError", msg);
@@ -1321,8 +1485,8 @@ function createWindow() {
 
   oscGet.on("error", (error) => {
     msg = error.message;
+    console.log("🚀 : file: main.js:1313 : oscGet.on : msg:", msg);
     //    win.webContents.on('did-finish-load', () => {
-    console.log("1015 An error occurred with OSC listening: ", error.message);
 
     win.webContents.send("udpportKO", msg);
     //      win.webContents.on('did-finish-load', () => {
@@ -1335,7 +1499,10 @@ function createWindow() {
   win.autoHideMenuBar = "true";
   win.menuBarVisible = "false";
   //  win.webContents.on('did-finish-load', () => {
-  console.log("appVersion :", appVersion);
+  console.log(
+    "🚀 : file: main.js:1328 : //win.webContents.on : appVersion:",
+    appVersion
+  );
   win.webContents.send("appVersion", app.getVersion());
 
   win.on("close", (e) => {

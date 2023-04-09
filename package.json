@@ -1,7 +1,7 @@
 {
   "name": "mcxoscnext",
   "productName": "mcxoscnext",
-  "version": "2.1.2-alpha.4",
+  "version": "2.2.0-alpha.0",
   "description": "A bridge between emberplus and OSC protocols",
   "main": "src/main.js",
   "scripts": {
@@ -62,7 +62,8 @@
     "electron-log": "^5.0.0-beta.16",
     "electron-preferences": "^2.7.0",
     "emberplus-connection": "^0.1.2",
-    "osc": "^2.4.2"
+    "osc": "^2.4.2",
+    "pretty-print-json": "^1.5.0"
   },
   "devDependencies": {
     "electron": "^23.1.0",

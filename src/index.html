@@ -5,6 +5,7 @@
     <title>MCxOSCnext - *unsaved.session</title>
     <script script type="text/javascript" src="./renderer.js"></script>
     <link rel="stylesheet" type="text/css" href="./style.css" />
+    <link rel="stylesheet" type="text/css" href="./pretty-json-css/pretty-print-json.dark-mode.css" />
     <meta
       http-equiv="Content-Security-Policy"
       content="script-src 'self' 'unsafe-inline';"
@@ -91,7 +92,58 @@
           >Ember+ to OSC connection creator</label
         ><br />
         <br />
-
+        <div id="test" >
+          <form id="test_form" style="padding-left: 2%;" onsubmit="return false">
+            <select id="treeSlct0">
+              <option>---</option>
+            </select>
+            <select id="treeSlct1" style="visibility: hidden;">
+              <option>---</option>
+            </select>
+              <select id="treeSlct2" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct3" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct4" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct5" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct6" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct7" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct8" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct9" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct10" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct11" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <select id="treeSlct12" style="visibility: hidden;">
+                <option>---</option>
+              </select>
+              <input style="position:absolute;right: 10px;top: 5px;visibility: hidden;"
+              class="button"
+              id="suscribe_2"
+              style="text-align: center; "
+              type="submit"
+              value="submit!"
+            />
+          </form>
+          <pre id="expandedElement" style="font-size: smaller;min-height: 150px;" class=json-container></pre>
+          </div>
+<!--
         <label for="fname">.Ember+ Path:</label>
         <br />
         <form id="form4" onsubmit="return false">
@@ -169,7 +221,7 @@
             type="submit"
             value="Add!"
           />
-<!--          <div
+         <div
             style="
               display: block;
               padding-left: 7%;
@@ -177,7 +229,7 @@
               font-size: smaller;
             "
           >
--->
+
     </form>
         <div id="form5" >
           <label for="fname" title="keep it or put your own! Works on last added
@@ -189,6 +241,7 @@
           </div>
           <br />
       </div>
+    -->
     </div>
     <div class="table">
       <table id="tableOfConnection" style="width: 100%; text-align: center">
@@ -231,10 +284,13 @@
     <button  style="position:absolute; left: 50%;margin-left: -20px; " onclick="clearLog()">Clear</button>
     </div>
     </br>
+    
+
     <script>
 //      form4.addEventListener("submit", fillOscAddr);
-      form4.addEventListener("change", fillOscAddr);
-      form4.addEventListener("submit", submitEmberPath);
+//      form4.addEventListener("change", fillOscAddr);
+//      form4.addEventListener("submit", submitEmberPath);
+      test_form.addEventListener("submit",submitPath)
 //      form5.addEventListener("change", modifyOscAddr);
     </script>
   </body>
