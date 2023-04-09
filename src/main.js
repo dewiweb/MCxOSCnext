@@ -1419,7 +1419,10 @@ function createWindow() {
         }
       });
     } catch (error) {
-      throw Error("1021", error);
+      msg = error.message
+      console.log("🚀 : file: main.js:1423 : main : msg:", msg)
+      throw Error(error);
+      
     }
   }
   main().catch((err) => {

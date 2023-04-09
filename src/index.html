@@ -233,7 +233,7 @@
     </div>
     </br>
     <div id="test">
-    <form id="test_form">
+    <form id="test_form" onsubmit="return false">
       <select id="treeSlct0">
         <option>---</option>
       </select>
@@ -261,6 +261,25 @@
         <select id="treeSlct8" style="visibility: hidden;">
           <option>---</option>
         </select>
+        <select id="treeSlct9" style="visibility: hidden;">
+          <option>---</option>
+        </select>
+        <select id="treeSlct10" style="visibility: hidden;">
+          <option>---</option>
+        </select>
+        <select id="treeSlct11" style="visibility: hidden;">
+          <option>---</option>
+        </select>
+        <select id="treeSlct12" style="visibility: hidden;">
+          <option>---</option>
+        </select>
+        <input style="position:absolute;right: 10px;top: 5px;"
+        class="button"
+        id="suscribe_2"
+        style="text-align: center"
+        type="submit"
+        value="submit!"
+      />
     </form>
     <pre id="expandedElement" style="visibility: hidden;" class=json-container></pre>
     </div>
@@ -268,6 +287,7 @@
 //      form4.addEventListener("submit", fillOscAddr);
       form4.addEventListener("change", fillOscAddr);
       form4.addEventListener("submit", submitEmberPath);
+      test_form.addEventListener("submit",submitPath)
 //      form5.addEventListener("change", modifyOscAddr);
     </script>
   </body>

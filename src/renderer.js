@@ -4,6 +4,7 @@ const mainFunctions = require("./mainFunctions");
 const preferences = ipcRenderer.sendSync("getPreferences");
 const log = require("electron-log");
 const { prettyPrintJson } = require('pretty-print-json');
+const osc = require("osc/src/osc-transports");
 function logDefinition() {
   console.log = log.log;
   Object.assign(console, log.functions);
@@ -26,6 +27,7 @@ let rMastersUserLabels = [];
 let rSumsUserLabels = [];
 let rGpcsUserLabels = [];
 const autoSave = null;
+let innerPath = undefined;
 
 // Display the preferences window
 //ipcRenderer.send('showPreferences');
@@ -105,7 +107,7 @@ let current_class = 'NODE'
 
 ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
   selectID = selectID + 1;
-  for (i = selectID+1; i<7;i++){
+  for (i = selectID+1; i<13;i++){
     let next_slcts = document.getElementById("treeSlct" + i);
     while (next_slcts.firstChild) {
       next_slcts.removeChild(next_slcts.firstChild);
@@ -130,8 +132,7 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
     let opt = document.createElement("option");
      opt.id = "opt" + (i + 1);
      opt.value = childrenArray[i].number;
-
-    if(childrenArray[i].contents.description){
+    if(childrenArray[i].contents.description !== undefined){
     opt.text = childrenArray[i].contents.description;
     } else{
       opt.text = childrenArray[i].contents.identifier 
@@ -159,6 +160,7 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
 ipcRenderer.on('expandedElement',(event,expandReq,Boolean)=>{
   let leaf = document.getElementById('expandedElement')
   if (Boolean == true){
+  innerPath = expandReq
   leaf.innerHTML = prettyPrintJson.toHtml(expandReq)
   leaf.style.visibility = 'visible'
   }else{
@@ -995,6 +997,157 @@ function submitEmberPath(event) {
       addGenBtns();
     }
   }
+  event.preventDefault();
+}
+
+function submitPath(event) {
+  console.log("🚀 : file: renderer.js:1005 : submitPath : innerPath.contents:", innerPath.contents)
+  pathType = innerPath.contents.parameterType
+  console.log("🚀 : file: renderer.js:1006 : submitPath : pathType:", pathType)
+  eVarType = pathType[0].toUpperCase() + pathType.substring(1).toLowerCase();
+  console.log("🚀 : file: renderer.js:1008 : submitPath : eVarType:", eVarType)
+  let eVarMin =""
+  let eVarMax =""
+  if (pathType == 'INTEGER'){
+    eVarCurve = "lin"
+    eVarMin =innerPath.contents.minimum
+    eVarMax = innerPath.contents.maximum
+  if (innerPath.contents.format){
+    if(innerPath.contents.format.includes('dB') == true){
+      eVarCurve = "log"
+  }
+}
+  }else if(pathType == 'BOOLEAN'){
+    eVarCurve = ""
+    eVarMin = false
+    eVarMax = true
+  }else{
+    eVarCurve = ""
+    eVarMin = 0
+    eVarMax = 1
+  }
+  let btnDel = document.createElement("BUTTON");
+  let btnGo = document.createElement("BUTTON");
+  let valueslct =[]
+  for(i=0;i<13;i++){
+  valueslct[i] = document.getElementById("treeSlct"+i).value;
+  }
+  valueslct = valueslct.filter(x=>x !=='---')
+  let emBerPath = valueslct.join('.');
+  let innerslct = []
+  for(i=0;i<13;i++){
+    innerslct[i] = document.getElementById("treeSlct"+i).value;
+    }
+    innerslct = innerslct.filter(x=>x !=='---')
+    innerslct = innerslct.join('/')
+    innerslct = '/'+innerslct
+  
+  console.log("🚀 : file: renderer.js:1010 : submitPath : emBerPath:", emBerPath)
+  btnDel.innerHTML = "X";
+  btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
+  btnGo.innerHTML = "Go!";
+  btnGo.setAttribute("onClick", "sendConnection(this)");
+  let table = document.getElementById("tableOfConnection");
+  let row = table.insertRow(-1);
+  row.style.fontSize = "smaller";
+  let cell1 = row.insertCell(0);
+  let cell2 = row.insertCell(1);
+  let cell3 = row.insertCell(2);
+  let cell4 = row.insertCell(3);
+  let cell5 = row.insertCell(4);
+  let cell6 = row.insertCell(5);
+  let cell7 = row.insertCell(6);
+  let cell8 = row.insertCell(7);
+  let cell9 = row.insertCell(8);
+  let cell10 = row.insertCell(9);
+  let cell11 = row.insertCell(10);
+  
+  cell1.innerHTML = emBerPath;
+  cell1.contentEditable = true;
+  cell1.onblur = function () {
+    changedPath(this.parentNode.rowIndex);
+  };
+  if(innerPath.contents.description !== undefined){
+  cell1.title = innerPath.contents.description;
+  }else{
+    cell1.title = innerPath.contents.identifier 
+  }
+  console.log("🚀 : file: renderer.js:1061 : submitPath : cell1.title:", cell1.title)
+  cell2.innerHTML = innerPath.contents.value;
+  let eVarFactor = ""
+  if(innerPath.contents.factor !== undefined){
+    eVarFactor = innerPath.contents.factor
+  }
+  cell3.innerHTML = eVarFactor;
+  cell4.innerHTML = "----";
+  cell5.innerHTML = innerslct;
+  cell5.contentEditable = true;
+  cell5.onblur = function () {
+    changed(this.parentNode.rowIndex);
+  };
+  cell6.appendChild(btnGo);
+  cell6.appendChild(btnDel);
+
+  cell7.innerHTML = eVarType;
+  if (eVarCurve == "lin") {
+    cell8.innerHTML =
+      `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
+      <option value="` +
+      eVarCurve +
+      `" selected >` +
+      eVarCurve +
+      `</option>
+      <option value="log">log</option>
+      </select>`;
+  } else if (eVarCurve == "log") {
+    cell8.innerHTML =
+      `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
+      <option value="` +
+      eVarCurve +
+      `" selected >` +
+      eVarCurve +
+      `</option>
+      <option value="lin">lin</option>
+      </select>`;
+  } else if (eVarCurve == "") {
+    cell8.innerHTML = `<select>
+  <option value="" selected class="without-icon"></option>
+  </select>`;
+  }
+  if (eVarFactor !== "") {
+    cell9.innerHTML =
+      eVarMin +
+      "/" +
+      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+      (Number(eVarMin) / Number(eVarFactor)).toFixed(0) +
+      `>`;
+    cell11.innerHTML =
+      eVarMax +
+      "/" +
+      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+      (Number(eVarMax) / Number(eVarFactor)).toFixed(0) +
+      `>`;
+  } else {
+    cell9.innerHTML =
+      eVarMin +
+      "/" +
+      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+    cell11.innerHTML =
+      eVarMax +
+      "/" +
+      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
+  }
+  cell10.innerHTML = "-";
+  cell3.style.fontSize = "x-small";
+  cell7.style.fontSize = "x-small";
+  cell8.style.fontSize = "x-small";
+  cell9.style.fontSize = "x-small";
+  cell11.style.fontSize = "x-small";
+  if (table.rows.length == 3) {
+    if (table.rows[1].cells[5].innerHTML == "") {
+      addGenBtns();
+    }
+}
   event.preventDefault();
 }
 
