@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.1](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.0...v2.2.0-alpha.1) (2023-04-09)
+
+
+### Bug Fixes
+
+* :zap: parameter type  'REAL' ([ad33f4b](https://github.com/dewiweb/MCxOSCnext/commit/ad33f4bbf19e94dc07c30aa050c9170d825ee323))
+* format document ([964f32e](https://github.com/dewiweb/MCxOSCnext/commit/964f32e8342dc83cea908dc9be7207e0c0006ac6))
+* remove dev tools ([c72214d](https://github.com/dewiweb/MCxOSCnext/commit/c72214d080d79c13b747a5bd0ac5e666327014c8))
+
 ## [2.2.0-alpha.0](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.2-alpha.4...v2.2.0-alpha.0) (2023-04-09)
 
 
