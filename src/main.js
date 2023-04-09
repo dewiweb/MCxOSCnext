@@ -1032,7 +1032,26 @@ function createWindow() {
                           "loginfo",
                           "EMBER+ -log-> OSC : " + value
                         );
-                      } else if (eVarType == "String") {
+                      } 
+                      else if (eVarType == "Real"){
+                        oscGet.send(
+                          {
+                            address: oAddr,
+                            args: [
+                              {
+                                type: "f",
+                                value: Number(emberValue),
+                              },
+                            ],
+                          },
+                          oServerIP,
+                          oServerPort
+                        );
+                        win.webContents.send(
+                          "loginfo",
+                          "EMBER+ -Real-> OSC : " + emberValue)
+                      }
+                      else if (eVarType == "String") {
                         win.webContents.send(
                           "loginfo",
                           "string reçu:" + emberValue
@@ -1408,12 +1427,30 @@ function createWindow() {
           console.log("🚀 : file: main.js:1401 : == : ipcMain.on : childrenArray:", childrenArray)
           win.webContents.send("expandedNode", selectID, parentPath, childrenArray)
           win.webContents.send('expandedElement',expandReq,false)
-        }else{
+        }else if(currOpt_class == 'MATRIX'){
+          let mtx_Array = [];
+          let expandReq = await eGet.getElementByPath(parentPath.toString());
+          let getDir = await(await eGet.getDirectory(expandReq)).response;
+          let mtx_conn_content = Object.values(getDir.contents.connections)
+          let mtx_conn_id = Object.keys(getDir.contents.connections)
+          
+          
+          for (i = 0; i < mtx_conn_id.length; i++) {
+            console.log("🚀 : file: main.js:1416 : == : ipcMain.on : mtx_connections:", mtx_conn_id[i] + ' : ' + mtx_conn_content[i])
+            //TODO:do something to create a matrix table
+          }
+          contents = getDir.contents
+          number = getDir.number
+          base_path = {contents,number}
+          win.webContents.send('expandedElement',base_path,true)
+          
+        }
+        else{
           let expandReq = await eGet.getElementByPath(parentPath.toString());
             contents = expandReq.contents
             number = expandReq.number
             base_path = {contents,number}
-          console.log("🚀 : file: main.js:1413 : == : ipcMain.on : expandReq:", expandReq)
+          console.log("🚀 : file: main.js:1413 : == : ipcMain.on : expandReq:", expandReq.contents)
 
           win.webContents.send('expandedElement',base_path,true)
         }
