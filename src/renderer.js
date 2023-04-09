@@ -159,13 +159,16 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
 
 ipcRenderer.on('expandedElement',(event,expandReq,Boolean)=>{
   let leaf = document.getElementById('expandedElement')
+  let sub_2_button = document.getElementById('suscribe_2')
   if (Boolean == true){
   innerPath = expandReq
   leaf.innerHTML = prettyPrintJson.toHtml(expandReq)
-  leaf.style.visibility = 'visible'
+  //leaf.style.visibility = 'visible'
+  sub_2_button.style.visibility = 'visible'
   }else{
     leaf.innerHTML = null 
-    leaf.style.visibility = 'hidden'
+    //leaf.style.visibility = 'hidden'
+    sub_2_button.style.visibility = 'hidden'
   }
 })
 
@@ -1008,6 +1011,7 @@ function submitPath(event) {
   console.log("🚀 : file: renderer.js:1008 : submitPath : eVarType:", eVarType)
   let eVarMin =""
   let eVarMax =""
+  let eVarFactor = ""
   if (pathType == 'INTEGER'){
     eVarCurve = "lin"
     eVarMin =innerPath.contents.minimum
@@ -1017,10 +1021,20 @@ function submitPath(event) {
       eVarCurve = "log"
   }
 }
+if(innerPath.contents.factor !== undefined){
+  eVarFactor = innerPath.contents.factor
+}else{
+  eVarFactor = 1
+}
   }else if(pathType == 'BOOLEAN'){
     eVarCurve = ""
     eVarMin = false
     eVarMax = true
+  }else if (pathType == 'ENUM'){
+    eVarCurve = "lin"
+    eVarMin =innerPath.contents.minimum
+    eVarMax = innerPath.contents.maximum
+    eVarFactor = 1
   }else{
     eVarCurve = ""
     eVarMin = 0
@@ -1036,7 +1050,9 @@ function submitPath(event) {
   let emBerPath = valueslct.join('.');
   let innerslct = []
   for(i=0;i<13;i++){
-    innerslct[i] = document.getElementById("treeSlct"+i).value;
+     let selection = document.getElementById("treeSlct"+i)
+    innerslct[i] = selection.options[selection.selectedIndex].text.replaceAll(/ /g, "_");
+
     }
     innerslct = innerslct.filter(x=>x !=='---')
     innerslct = innerslct.join('/')
@@ -1074,10 +1090,8 @@ function submitPath(event) {
   }
   console.log("🚀 : file: renderer.js:1061 : submitPath : cell1.title:", cell1.title)
   cell2.innerHTML = innerPath.contents.value;
-  let eVarFactor = ""
-  if(innerPath.contents.factor !== undefined){
-    eVarFactor = innerPath.contents.factor
-  }
+  
+  
   cell3.innerHTML = eVarFactor;
   cell4.innerHTML = "----";
   cell5.innerHTML = innerslct;
@@ -1632,11 +1646,11 @@ function saveAs(saveAsBtn) {
     }
     let emin = tableRow.cells[8].innerHTML.split(`<`)[0].replace("/", "");
     let omin = tableRow.cells[8].firstElementChild.value;
-    let mins = (emin + omin).replace(/\s/g, "");
+    let mins = (emin +'/'+ omin).replace(/\s/g, "");
     rowData[headers[8]] = mins;
     let emax = tableRow.cells[10].innerHTML.split(`<`)[0].replace("/", "");
     let omax = tableRow.cells[10].firstElementChild.value;
-    let maxs = (emax + omax).replace(/\s/g, "");
+    let maxs = (emax +'/'+ omax).replace(/\s/g, "");
     rowData[headers[10]] = maxs;
     data.push(rowData);
   }
@@ -1680,7 +1694,11 @@ function save(saveBtn) {
   }
   let content = JSON.stringify(data, null, 2);
   let filename = document.getElementById("filepath").innerHTML;
+  if (filename !== ""){
   ipcRenderer.send("sendSave", content, filename);
+  }else{
+    saveAs()
+  }
 }
 
 function load(loadBtn) {

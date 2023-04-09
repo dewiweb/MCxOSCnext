@@ -1,7 +1,7 @@
 /*! pretty-print-json v1.5.0 ~~ https://pretty-print-json.js.org ~~ MIT License */
 
 /* Layout */
-.json-container           { font-family: menlo, consolas, monospace; font-style: normal; font-weight: bold; line-height: 1.4em; font-size: 0.9rem; transition: background-color 400ms; }
+.json-container           { font-family: menlo, consolas, monospace; font-style: normal; font-weight: bold; line-height: 1.4em; font-size: smaller; transition: background-color 400ms; }
 a.json-link               { text-decoration: none; border-bottom: 1px solid; outline: none; }
 a.json-link:hover         { background-color: transparent; outline: none; }
 ol.json-lines             { white-space: normal; padding-inline-start: 3em; margin: 0px; }
