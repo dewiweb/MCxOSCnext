@@ -134,6 +134,7 @@ function createWindow() {
       },
       other_settings: {
         autoGo: [],
+      //  emberpath_format: ['numbers']
       },
     },
     sections: [
@@ -287,6 +288,16 @@ function createWindow() {
                   help: "example: 127.0.0.1:12001/_9/AccessChannelOID",
                   hideLabel: true,
                 },
+                {
+                  label: 'emberpath format',
+                  key: 'emberpath_format',
+                  type: 'dropdown',
+                  options: [
+                    { label: 'Numbers', value: 'numbers' },
+                    { label: 'Properties', value: 'properties' },
+                  ],
+                  help: 'Choose a format for ember+ path',
+                },
               ],
             },
           ],
@@ -315,6 +326,7 @@ function createWindow() {
     let autoLoad = preferences.value("save_settings.autoLoad")[0];
     let default_file = preferences.value("save_settings.default_file");
     let autoGo = preferences.value("other_settings.autoGo")[0];
+    let embPathFormat = preferences.value("other_settings.emberpath_format")
     if (autoLoad !== undefined) {
       let content = fs.readFileSync(default_file, "utf-8");
       let sendedContent = JSON.stringify(content);
@@ -324,6 +336,7 @@ function createWindow() {
         win.webContents.send("autoGo");
       }
     }
+    win.webContents.send("emberpathFormat",embPathFormat)
   }
   loadPrefs();
 
@@ -344,7 +357,7 @@ function createWindow() {
   contextMenu({
     window: win,
     labels: {
-      copy: "📄 | Copy",
+      copy: "📷 | Copy",
       paste: "📋 | Paste",
       cut: "✂ | Cut",
     },

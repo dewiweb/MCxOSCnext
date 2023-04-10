@@ -18,39 +18,45 @@ function scrollToBottom() {
     document.getElementById("logging").scrollHeight;
 }
 //---VARIABLES declaration--//
-const oscAddr = new Array("/Channels");
-let rInputsUserLabels = [];
-let rAuxesUserLabels = [];
-let rMastersUserLabels = [];
-let rSumsUserLabels = [];
-let rGpcsUserLabels = [];
+//const oscAddr = new Array("/Channels");
+//let rInputsUserLabels = [];
+//let rAuxesUserLabels = [];
+//let rMastersUserLabels = [];
+//let rSumsUserLabels = [];
+//let rGpcsUserLabels = [];
 const autoSave = null;
+const embPathFormat = null;
 let innerPath = undefined;
 let stream_direction;
 //---Listen to the `preferencesUpdated` event to be notified when preferences are changed.---//
 ipcRenderer.on("preferencesUpdated", (e, preferences) => {
   logRenderer("Preferences were updated" + preferences);
 });
+ipcRenderer.on("emberpathFormat",(e,embPathFormat) => {
+  console.log("🚀 : file: renderer.js:36 : ipcRenderer.on : embPathFormat:", embPathFormat)
+});
 //---Interactions with Back-End---//
-ipcRenderer.on("inputsUserLabels", (event, inputsUserLabels) => {
-  rInputsUserLabels = inputsUserLabels;
-});
-ipcRenderer.on("auxesUserLabels", (event, auxesUserLabels) => {
-  rAuxesUserLabels = auxesUserLabels;
-});
-ipcRenderer.on("mastersUserLabels", (event, mastersUserLabels) => {
-  rMastersUserLabels = mastersUserLabels;
-});
-ipcRenderer.on("sumsUserLabels", (event, sumsUserLabels) => {
-  rSumsUserLabels = sumsUserLabels;
-});
-ipcRenderer.on("gpcsUserLabels", (event, gpcsUserLabels) => {
-  rGpcsUserLabels = gpcsUserLabels;
-});
+
+//ipcRenderer.on("inputsUserLabels", (event, inputsUserLabels) => {
+//  rInputsUserLabels = inputsUserLabels;
+//});
+//ipcRenderer.on("auxesUserLabels", (event, auxesUserLabels) => {
+//  rAuxesUserLabels = auxesUserLabels;
+//});
+//ipcRenderer.on("mastersUserLabels", (event, mastersUserLabels) => {
+//  rMastersUserLabels = mastersUserLabels;
+//});
+//ipcRenderer.on("sumsUserLabels", (event, sumsUserLabels) => {
+//  rSumsUserLabels = sumsUserLabels;
+//});
+//ipcRenderer.on("gpcsUserLabels", (event, gpcsUserLabels) => {
+//  rGpcsUserLabels = gpcsUserLabels;
+//});
 ipcRenderer.on("resubscribe", (event, myRow) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[myRow].cells[5].firstElementChild.click();
 });
+
 ipcRenderer.on("udpportOK", (event, uPort) => {
   let add2 = document.getElementById("add2");
   add2.removeChild(add2.firstChild);
@@ -61,6 +67,7 @@ ipcRenderer.on("udpportOK", (event, uPort) => {
   add2.style.color = "green";
   add2.classList.remove("blink");
 });
+
 ipcRenderer.on("eServerOK", (event, eAddress) => {
   let add1 = document.getElementById("add1");
   if (add1.firstChild) {
@@ -73,6 +80,7 @@ ipcRenderer.on("eServerOK", (event, eAddress) => {
   add1.style.color = "green";
   add1.classList.remove("blink");
 });
+
 ipcRenderer.on("embertree", (event, root) => {
   let treeslct_0 = document.getElementById("treeSlct0");
   for (i = 0; i < root.length; i++) {
@@ -91,6 +99,7 @@ ipcRenderer.on("embertree", (event, root) => {
     ipcRenderer.send("expandNode", selectID, parentPath, current_class);
   });
 });
+
 ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
   selectID = selectID + 1;
   for (i = selectID + 1; i < 13; i++) {
@@ -137,6 +146,7 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
     }
   });
 });
+
 ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
   let leaf = document.getElementById("expandedElement");
   let sub_2_button = document.getElementById("suscribe_2");
@@ -151,6 +161,7 @@ ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
     sub_2_button.style.visibility = "hidden";
   }
 });
+
 ipcRenderer.on("oServerOK", (event, oAddress) => {
   let add3 = document.getElementById("add3");
   add3.removeChild(add3.firstChild);
@@ -161,6 +172,7 @@ ipcRenderer.on("oServerOK", (event, oAddress) => {
   add3.style.color = "green";
   add3.classList.remove("blink");
 });
+
 ipcRenderer.on("udpportKO", (event, msg) => {
   let add2 = document.getElementById("add2");
   add2.removeChild(add2.firstChild);
@@ -171,6 +183,7 @@ ipcRenderer.on("udpportKO", (event, msg) => {
   add2.style.color = "red";
   add2.classList.add("blink");
 });
+
 ipcRenderer.on("eServConnError", function (event, msg) {
   logRenderer(msg);
   let add1Error = document.getElementById("add1");
@@ -181,6 +194,7 @@ ipcRenderer.on("eServConnError", function (event, msg) {
   add1Error.style.color = "red";
   add1Error.classList.add("blink");
 });
+
 ipcRenderer.on("eServDisconnected", function (event, eAddress) {
   logRenderer("erreur de connection ember+");
   let add1Error = document.getElementById("add1");
@@ -192,6 +206,7 @@ ipcRenderer.on("eServDisconnected", function (event, eAddress) {
   add1Error.style.color = "red";
   add1Error.classList.add("blink");
 });
+
 ipcRenderer.on("resolveError", (e, msg) => {
   if (("error-msg: ", msg)) {
     console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg);
@@ -213,16 +228,19 @@ ipcRenderer.on("resolveError", (e, msg) => {
     ipcRenderer.send("showPreferences");
   }
 });
+
 ipcRenderer.on("errorOnEditedPath", (e, myRow) => {
   let table = document.getElementById("tableOfConnection");
   let epath = table.rows[myRow].cells[0];
   epath.style.color = "red";
 });
+
 ipcRenderer.on("noError", (e, myRow) => {
   let table = document.getElementById("tableOfConnection");
   let epath = table.rows[myRow].cells[0];
   epath.style.color = "";
 });
+
 ipcRenderer.on("loginfo", (e, msg) => {
   let date = new Date();
   date =
@@ -241,6 +259,7 @@ ipcRenderer.on("loginfo", (e, msg) => {
     scrollToBottom();
   }
 });
+
 ipcRenderer.on("choosen_type", (e, response, myRow) => {
   let types = [
     "String",
@@ -313,9 +332,11 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
     }
   }
 });
+
 ipcRenderer.on("streamDirection", (e, direction) => {
   stream_direction = direction;
 });
+
 ipcRenderer.on(
   "sendEmberValue",
   (
@@ -348,6 +369,7 @@ ipcRenderer.on(
       `">`;
   }
 );
+
 ipcRenderer.on("oReceivedAddr", (e, oRaddr, oRargs) => {
   let osc_address;
   let blink2;
@@ -431,10 +453,12 @@ ipcRenderer.on("oReceivedAddr", (e, oRaddr, oRargs) => {
   }, 2000);
   osc_address = oRaddr;
 });
+
 ipcRenderer.on("updateDirection", (e, myRow, direction) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[myRow].cells[9].innerHTML = direction;
 });
+
 ipcRenderer.on("sendFilename", (e, filename) => {
   let filePath = filename.toString();
   document.getElementById("filepath").innerHTML = filePath;
@@ -443,6 +467,7 @@ ipcRenderer.on("sendFilename", (e, filename) => {
   filenameSlice = filenameSplit.slice(-1)[0];
   document.title = "MCxOSC - " + filenameSlice;
 });
+
 ipcRenderer.on("sendFileContent", (e, content) => {
   let table = document.getElementById("tableOfConnection");
   deleteAllRows();
@@ -550,6 +575,7 @@ ipcRenderer.on("sendFileContent", (e, content) => {
     }
   });
 });
+
 ipcRenderer.on("autoSave", (e) => {
   table = document.getElementById("tableOfConnection");
   data = [];
@@ -586,14 +612,17 @@ ipcRenderer.on("autoSave", (e) => {
   let content = JSON.stringify(data, null, 2);
   ipcRenderer.send("sendAutoSave", content, autoSave);
 });
+
 ipcRenderer.on("appVersion", (e, appVersion) => {
   document.getElementById("appVersion").innerHTML =
     document.getElementById("appVersion").innerHTML + appVersion;
   logRenderer("appVersion:" + appVersion);
 });
+
 ipcRenderer.on("autoGo", (e) => {
   sendAllConnections();
 });
+
 //-----------------------------------------//
 function changed(myRow) {
   table = document.getElementById("tableOfConnection");
@@ -616,6 +645,7 @@ function changed(myRow) {
     table.rows.length
   );
 }
+
 function changedPath(myRow) {
   console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow);
   table = document.getElementById("tableOfConnection");
@@ -647,6 +677,7 @@ function changedPath(myRow) {
     table.rows.length
   );
 }
+
 function logRenderer(msg) {
   let date = new Date();
   date =
@@ -663,6 +694,7 @@ function logRenderer(msg) {
     .insertAdjacentHTML("beforeend", date + msg + "<br>");
   scrollToBottom();
 }
+
 function addGenBtns() {
   let table = document.getElementById("tableOfConnection");
   let btnSuscribeAll = document.createElement("BUTTON");
@@ -674,9 +706,11 @@ function addGenBtns() {
   table.rows[1].cells[5].appendChild(btnSuscribeAll);
   table.rows[1].cells[5].appendChild(btnDeleteAll);
 }
+
 function makeVisible(op) {
   document.getElementById(op).style.visibility = "visible";
 }
+
 function addemptyrow(event) {
   let btnDel = document.createElement("BUTTON");
   let btnGo = document.createElement("BUTTON");
@@ -737,6 +771,7 @@ function addemptyrow(event) {
   }
   event.preventDefault();
 }
+
 function submitPath(event) {
   pathType = innerPath.contents.parameterType;
   eVarType = pathType[0].toUpperCase() + pathType.substring(1).toLowerCase();
@@ -891,6 +926,7 @@ function submitPath(event) {
   }
   event.preventDefault();
 }
+
 function SomeDeleteRowFunction(o) {
   let table = document.getElementById("tableOfConnection");
   if (typeof o == "number") {
@@ -929,6 +965,7 @@ function SomeDeleteRowFunction(o) {
     logRenderer("delete row number: " + myRow);
   }
 }
+
 function deleteAllRows(o) {
   const table = document.getElementById("tableOfConnection");
   let numOfConn = table.rows.length;
@@ -938,6 +975,7 @@ function deleteAllRows(o) {
     }, x * 25);
   }
 }
+
 function sendConnection(o) {
   //  logRenderer("ooooo : "+ o)
   var table = document.getElementById("tableOfConnection");
@@ -988,6 +1026,7 @@ function sendConnection(o) {
     table.rows.length
   );
 }
+
 function sendAllConnections() {
   var table = document.getElementById("tableOfConnection");
   for (i = 2; i < table.rows.length; i++) {
@@ -998,6 +1037,7 @@ function sendAllConnections() {
     })(i);
   }
 }
+
 //function selectedOption(slct) {
 //  slct = document.getElementById(slct);
 //  if (slct.options[slct.selectedIndex].title !== "") {
@@ -1021,7 +1061,9 @@ function sendAllConnections() {
 //    }
 //  }
 //}
+
 //---Menu Section---//
+
 function saveAs(saveAsBtn) {
   table = document.getElementById("tableOfConnection");
   let data = [];
@@ -1059,6 +1101,7 @@ function saveAs(saveAsBtn) {
   logRenderer("contentsended:" + content);
   ipcRenderer.send("sendSaveAs", content);
 }
+
 function save(saveBtn) {
   table = document.getElementById("tableOfConnection");
   let data = [];
@@ -1100,6 +1143,7 @@ function save(saveBtn) {
     saveAs();
   }
 }
+
 function load(loadBtn) {
   ipcRenderer.send("openFile");
   let table = document.getElementById("tableOfConnection");
@@ -1108,9 +1152,11 @@ function load(loadBtn) {
     addGenBtns();
   }
 }
+
 function prefs(preferencesBtn) {
   ipcRenderer.send("showPreferences");
 }
+
 function menu() {
   let menu = document.getElementById("menu").querySelectorAll(".button");
   let menuDiv = document.getElementById("menu");
@@ -1128,6 +1174,7 @@ function menu() {
     }
   }
 }
+
 function viewlogs() {
   let logs = document.getElementById("logging");
   if (logs.style.visibility === "hidden") {
@@ -1152,6 +1199,7 @@ function viewlogs() {
     deploy.innerHTML = "►";
   }
 }
+
 function tableToJson(table) {
   let data = [];
   let headers = [];
@@ -1171,6 +1219,7 @@ function tableToJson(table) {
   }
   tableData = JSON.stringify(data, null, 2);
 }
+
 function clearLog() {
   document.getElementById("logging").innerHTML = '<div id="anchor"></div>';
 }
