@@ -1,0 +1,119 @@
+[
+  {
+    "path": "11043.11044.24603.24606.24607",
+    "factor": "",
+    "address": "/Channels/Inputs/INP_1/Mute/Mute",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "11043.11044.24603.24611.24615",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Pan_Slope",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-20/-20",
+    "max": "20/20"
+  },
+  {
+    "path": "11043.11044.24603.24611.24612",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Left-Right_Panning",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-20/-20",
+    "max": "20/20"
+  },
+  {
+    "path": "11043.11044.24603.24611.24613",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Front-Back_Panning",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-20/-20",
+    "max": "20/20"
+  },
+  {
+    "path": "11043.11044.24603.24611.24614",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Up-Down_Panning",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-20/-20",
+    "max": "20/20"
+  },
+  {
+    "path": "11043.11044.24603.24611.24616",
+    "factor": "32",
+    "address": "/Channels/Inputs/INP_1/Pan/LFE_Level",
+    "type": "Integer",
+    "math": "log",
+    "min": "-4096/-128",
+    "max": "480/15"
+  },
+  {
+    "path": "11043.11044.24603.24611.24617",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Hyperpan_Front_Width",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-100/-100",
+    "max": "100/100"
+  },
+  {
+    "path": "11043.11044.24603.24611.24618",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Hyperpan_Back_Width",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-100/-100",
+    "max": "100/100"
+  },
+  {
+    "path": "11043.11044.24603.24611.24619",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Hyperpan_Depth",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-100/-100",
+    "max": "100/100"
+  },
+  {
+    "path": "11043.11044.24603.24611.24620",
+    "factor": "1",
+    "address": "/Channels/Inputs/INP_1/Pan/Hyperpan_Turn",
+    "type": "Integer",
+    "math": "lin",
+    "min": "-180/-180",
+    "max": "180/180"
+  },
+  {
+    "path": "11043.11044.24603.24611.24621",
+    "factor": "",
+    "address": "/Channels/Inputs/INP_1/Pan/Pan_On",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "11043.11044.24603.24611.24622",
+    "factor": "",
+    "address": "/Channels/Inputs/INP_1/Pan/Pan_Mode_Center-Flat",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "11043.11044.24603.24611.24623",
+    "factor": "",
+    "address": "/Channels/Inputs/INP_1/Pan/Surround",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  }
+]
