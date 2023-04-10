@@ -65,10 +65,7 @@
       >
         Preferences
       </button>
-      <!--      <button class="button logBtn" id="logBtn" style="display: none;visibility: hidden;" onclick="logview(this.id)">
-        Logs
-      </button>
-    --></div>
+    </div>
     <br />
     <div id="Network_Settings">
       <div class="form">
@@ -113,8 +110,6 @@
       </div>
     </div>
     <div id="Connections_Settings">
-      <!--      <class="form">
--->
       <label
         style="
           text-align: center;
@@ -189,105 +184,7 @@
           class="json-container"
         ></pre>
       </div>
-      <!--
-        <label for="fname">.Ember+ Path:</label>
-        <br />
-        <form id="form4" onsubmit="return false">
-          <div style="height: 50px;">
-          <b
-            class="hideOnAdvanced"
-            style="font-weight: normal; font-size: smaller; padding-left: 10%"
-            >Channels.</b
-          >
-          <select
-            class="hideOnAdvanced"
-            id="slct0"
-            name="slct0"
-            required
-            onchange="setEuserLabel(this.value)"
-          >
-            <option value="">----</option>
-            <option value="Inputs">Inputs</option>
-            <option value="GP Channels">GP Channels</option>
-            <option value="Sums">Sums</option>
-            <option value="Auxes">Auxes</option>
-            <option value="Masters">Masters</option>
-          </select
-          ><b class="hideOnAdvanced">.</b>
-          <select
-            class="hideOnAdvanced"
-            id="eUserLabel"
-            name="eUserLabel"
-          ></select>
-          <b class="hideOnAdvanced">.</b>
-          <select
-            class="hideOnAdvanced"
-            id="slct1"
-            name="slct1"
-            onchange=" populate(this.id,'slct2','invisibleA', this.selectedIndex)"
-            required
-          >
-            <option value="">----</option>
-            <option value="Channel States">Channel States</option>
-            <option value="Mute">Mute</option>
-            <option value="Fader">Fader</option>
-            <option value="Pan">Pan</option>
-            <option value="Signal Processing">Signal Processing</option>
-            <option value="Assignements">Assignements</option>
-            <option value="Slider">Slider</option>
-          </select>
-          <b id="invisibleA" style="visibility: hidden"> .</b>
-          <select
-            class="hideOnAdvanced"
-            id="slct2"
-            name="slct2"
-            style="visibility: hidden"
-            onchange="populate(this.id,'slct3','invisibleB', this.selectedIndex), selectedOption(this.id)"
-          ></select>
-          <b id="invisibleB" style="visibility: hidden">.</b>
-          <select
-            class="hideOnAdvanced"
-            id="slct3"
-            name="slct3"
-            style="visibility: hidden"
-            onchange="selectedOption(this.id)"
-          ></select>
-          <input
-            class="visibleOnAdvanced"
-            type="text"
-            style="visibility: hidden; display: flex;margin: auto; margin-left: 0; margin-right: 0;"
-            id="manualEmberPath"
-            value=""
-          />
-        </div>
-          <input style="position:absolute;right: 10px;top: 30px;"
-            class="button"
-            id="suscribe"
-            style="text-align: center"
-            type="submit"
-            value="Add!"
-          />
-         <div
-            style="
-              display: block;
-              padding-left: 7%;
-              font-weight: normal;
-              font-size: smaller;
-            "
-          >
-
-    </form>
-        <div id="form5" >
-          <label for="fname" title="keep it or put your own! Works on last added
-          connection"
-            >/OSC Address (autofill but you can modify it!)</label
-          ><br /><br />
-          <div style="padding-left: 10%">
-            <input type="text" id="oscAddr" name="oscAddr" value="/Channels" onchange="return false"/>
-          </div>
-          <br />
-      </div>
-    --></div>
+    </div>
     <div class="table">
       <table id="tableOfConnection" style="width: 100%; text-align: center">
         <caption>
@@ -356,11 +253,7 @@
     <br />
 
     <script>
-      //      form4.addEventListener("submit", fillOscAddr);
-      //      form4.addEventListener("change", fillOscAddr);
-      //      form4.addEventListener("submit", submitEmberPath);
       test_form.addEventListener("submit", submitPath);
-      //      form5.addEventListener("change", modifyOscAddr);
     </script>
   </body>
   <footer class="little" style="display: inline-block">
