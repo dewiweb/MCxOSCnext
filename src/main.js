@@ -38,7 +38,7 @@ let EmberRate = 8;
 let ro = [];
 let root;
 
-//#Time Section#//
+//---Time Section---//
 let date_ob = new Date();
 let date = lib.IntTwoChars(date_ob.getDate());
 let month = lib.IntTwoChars(date_ob.getMonth() + 1);
@@ -48,13 +48,10 @@ let minutes = lib.IntTwoChars(date_ob.getMinutes());
 let seconds = lib.IntTwoChars(date_ob.getSeconds());
 const datePath = `autosave_${hours}-${minutes}-${seconds}_${date}-${month}-${year}`;
 log.info("datePath : ", datePath);
-//#End of Time Section#//
-
-//#Options Section//
+//---Options Section---//
 let recOptions;
 let openOptions;
-
-//#End of Options Section//
+//---------------------//
 function createWindow() {
   let win = new BrowserWindow({
     width: 1200,
@@ -70,30 +67,20 @@ function createWindow() {
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
     //  win.webContents.openDevTools({ mode: "detach" });
-    //    });
-
-    //  win.webContents.on('did-finish-load', () => {
     win.webContents.send("ready");
   });
-
   ipcMain.on("sendAutoSave", function (event, content) {
     let autoSave = preferences.value("save_settings.autoSave")[0];
-    //    win.webContents.on('did-finish-load', () => {
     win.webContents.send("loginfo", "autoSave :" + autoSave);
-    //    })
     if (autoSave !== undefined) {
       fs.writeFile(autoSaveFilepath, content, (err) => {
         if (err) {
-          //          win.webContents.on('did-finish-load', () => {
           win.webContents.send(
             "loginfo",
             "an error occurred with file creation " + err.message
           );
-          //          })
+          win.webContents.send("loginfo", "YOUR FILE WAS CREATED SUCCESFULLY");
         }
-        //        win.webContents.on('did-finish-load', () => {
-        win.webContents.send("loginfo", "WE CREATED YOUR FILE SUCCESFULLY");
-        //        })
       });
     }
     win = null;
@@ -101,7 +88,6 @@ function createWindow() {
       app.quit();
     }
   });
-
   function optionsDef() {
     recOptions = {
       filters: [
@@ -121,9 +107,7 @@ function createWindow() {
       defaultPath: defaultDir,
     };
     autoSaveFilepath = defaultDir + "/" + datePath + ".session";
-    //  win.webContents.on('did-finish-load', () => {
     win.webContents.send("loginfo", "autoSaveFilepath: " + autoSaveFilepath);
-    //  })
   }
   optionsDef();
 
@@ -311,7 +295,6 @@ function createWindow() {
     ],
     //debug:true
   });
-
   const oServerIP = preferences
     .value("network_settings.osc_server")
     .split(":")[0];
@@ -319,33 +302,20 @@ function createWindow() {
     preferences.value("network_settings.osc_server").split(":")[1]
   );
   const OID_to_OSC = preferences.value("other_settings.OID_to_OSC");
-
   preferences.on("save", (preferences) => {
-    //  win.webContents.on('did-finish-load', () => {
     win.webContents.send("loginfo", "preferences:" + preferences);
-    //      console.log(`Preferences were saved.`, JSON.stringify(preferences, null, 4));
     win.webContents.send(
       "loginfo",
       `Preferences were saved.` + JSON.stringify(preferences, null, 4)
     );
-    //  })
   });
 
   // load auto-options on startup
   function loadPrefs() {
     let autoLoad = preferences.value("save_settings.autoLoad")[0];
-    //  win.webContents.on('did-finish-load', () => {
-    //      win.webContents.send('loginfo', "valeur autoload lue: " + autoLoad)
-    //  })
     let default_file = preferences.value("save_settings.default_file");
     let autoGo = preferences.value("other_settings.autoGo")[0];
-    //    win.webContents.on('did-finish-load', () => {
-    //      win.webContents.send('loginfo', "valeur autoGo lue: " + autoGo)
-    //    })
     if (autoLoad !== undefined) {
-      console.log("🚀 : file: main.js:345 : loadPrefs : autoLoad:", autoLoad);
-      //      win.webContents.on('did-finish-load', () => {
-      //        win.webContents.send('loginfo', "la fenetre est prete et peut recevoir les options")
       let content = fs.readFileSync(default_file, "utf-8");
       let sendedContent = JSON.stringify(content);
       win.webContents.send("sendFileContent", sendedContent);
@@ -353,7 +323,6 @@ function createWindow() {
       if (autoGo !== undefined) {
         win.webContents.send("autoGo");
       }
-      //      });
     }
   }
   loadPrefs();
@@ -366,25 +335,7 @@ function createWindow() {
       showDialog: false,
       onError(error) {
         msg = error.message;
-        //      win.webContents.on('did-finish-load', () => {
         win.webContents.send("resolveError", msg);
-        //      })
-        //      electron.dialog.showMessageBox({
-        //        title: 'An error occurred',
-        //        message: error.message,
-        //        detail: error.stack,
-        //        type: 'error',
-        //        buttons: ['Ignore', 'Preferences', 'Exit'],
-        //      })
-        //        .then((result) => {
-        //          if (result.response === 1) {
-        //            win.webContents.send('resolveError')
-        //          }
-        //
-        //          if (result.response === 2) {
-        //            electron.app.quit();
-        //          }
-        //        });
       },
     });
   }
@@ -405,54 +356,45 @@ function createWindow() {
       actions.paste(),
     ],
   });
-
+  //---MENU OPERATIONS---//
   ipcMain.on("sendSaveAs", (event, content) => {
     filename = dialog.showSaveDialog(null, recOptions, {}).then((result) => {
       filename = result.filePath;
-      if (filename === undefined) {
-        console.log(
-          "🚀 : file: main.js:412 : filename=dialog.showSaveDialog : filename:",
-          filename
-        );
-      }
       fs.writeFile(filename, content, (err) => {
         if (err) {
-          console.log("an error ocurred with file creation " + err.message);
+          win.webContents.send(
+            "loginfo",
+            "an error ocurred with file creation " + err.message
+          );
         }
-        console.log("WE CREATED YOUR FILE SUCCESFULLY");
+        win.webContents.send(
+          "loginfo",
+          "Your file was created successfully : " + filename
+        );
         win.webContents.send("sendFilename", filename);
       });
     });
   });
-
   ipcMain.on("sendSave", (event, content, rSfilename) => {
-    //console.log("sendsave filepath", rSfilename);
-    //console.log("sendsave content", content);
-    if (rSfilename === undefined) {
-      console.log(
-        "🚀 : file: main.js:428 : ipcMain.on : rSfilename:",
-        rSfilename
-      );
-    }
     fs.writeFile(rSfilename, content, (err) => {
       if (err) {
-        console.log("an error ocurred with file creation " + err.message);
+        win.webContents.send(
+          "loginfo",
+          "an error ocurred with file creation " + err.message
+        );
       }
-      console.log("WE CREATED YOUR FILE SUCCESFULLY");
-      //win.webContents.send('sendFilename', filename);
+      win.webContents.send(
+        "loginfo",
+        "Your file was saved successfully : " + rSfilename
+      );
     });
   });
-
   ipcMain.on("openFile", () => {
     filename = dialog.showOpenDialog(null, openOptions, {}).then((result) => {
       filename = result.filePaths;
-      //console.log(filename);
       let file = filename[0];
-      //console.log(file);
       let content = fs.readFileSync(file, "utf-8");
-      //console.log(content);
       let sendedContent = JSON.stringify(content);
-      //console.log('sendedContent:', sendedContent);
       win.webContents.send("sendFileContent", sendedContent);
       win.webContents.send("sendFilename", file);
       let autoGo = preferences.value("other_settings.autoGo")[0];
@@ -462,23 +404,23 @@ function createWindow() {
     });
   });
 
-  ipcMain.on("choose_type", () => {
-    const dial_options = {
-      type: "question",
-      buttons: ["String", "Boolean", "Integer", "Float"],
-      defaultId: 0,
-      title: "",
-      message: "Which type of data?",
-      detail: "It does really matter",
-    };
-    dialog.showMessageBox(win, dial_options).then((response) => {
-      console.log(
-        "🚀 : file: main.js:469 : dialog.showMessageBox : Object.values(response)[0]:",
-        Object.values(response)[0]
-      );
-      win.webContents.send("choosen_type", Object.values(response)[0]);
-    });
-  });
+  //ipcMain.on("choose_type", () => {
+  //  const dial_options = {
+  //    type: "question",
+  //    buttons: ["String", "Boolean", "Integer", "Float"],
+  //    defaultId: 0,
+  //    title: "",
+  //    message: "Which type of data?",
+  //    detail: "It does really matter",
+  //  };
+  //  dialog.showMessageBox(win, dial_options).then((response) => {
+  //    console.log(
+  //      "🚀 : file: main.js:469 : dialog.showMessageBox : Object.values(response)[0]:",
+  //      Object.values(response)[0]
+  //    );
+  //    win.webContents.send("choosen_type", Object.values(response)[0]);
+  //  });
+  //});
 
   //---Network Settings Section---//
   //---Initiating Ember and OSC---//
@@ -589,89 +531,76 @@ function createWindow() {
         win.webContents.on("did-finish-load", () => {
           win.webContents.send("eServerOK", eAddress);
         });
-
         root = await (await eGet.getDirectory(eGet.tree)).response;
         first_branch = eGet.tree.flat(0);
         first_br_list = [];
         for (i = 0; i < first_branch.length; i++) {
           first_br_list.push(first_branch[i].number);
         }
-        console.log(
-          "🚀 : file: main.js:593 : getUserLabels : eGet.tree.children:",
-          first_br_list
-        );
-        win.webContents.send(
-          "loginfo",
-          "🚀 : file: main.js:595 : root.children:" + first_branch
-        );
         win.webContents.send("embertree", first_branch);
 
-        async function getUserLabels() {
-          let inputsUserLabels = [];
-          let auxesUserLabels = [];
-          let mastersUserLabels = [];
-          let sumsUserLabels = [];
-          let gpcsUserLabels = [];
-          await mainFunctions.sleep(2000);
-          for (i = 0x01; i < 0x0c1; i++) {
-            try {
-              //          await mainFunctions.sleep(2000);
-              let req = await eGet.getElementByPath("_2._1._" + i.toString(16));
-              inputsUserLabels.push(req.contents.description);
-            } catch (e) {
-              // exit the loop
-              break;
-            }
-          }
-          win.webContents.send("inputsUserLabels", inputsUserLabels);
-          for (i = 0x01; i < 0x0c1; i++) {
-            try {
-              let req = await eGet.getElementByPath("_2._5._" + i.toString(16));
-              auxesUserLabels.push(req.contents.description);
-            } catch (e) {
-              // exit the loop
-              break;
-            }
-          }
-          win.webContents.send("auxesUserLabels", auxesUserLabels);
-          for (i = 0x01; i < 0x0c1; i++) {
-            try {
-              let req = await eGet.getElementByPath("_2._4._" + i.toString(16));
-              sumsUserLabels.push(req.contents.description);
-            } catch (e) {
-              // exit the loop
-              break;
-            }
-          }
-          win.webContents.send("sumsUserLabels", sumsUserLabels);
-          for (i = 0x01; i < 0x0c1; i++) {
-            try {
-              let req = await eGet.getElementByPath("_2._6._" + i.toString(16));
-              mastersUserLabels.push(req.contents.description);
-            } catch (e) {
-              // exit the loop
-              break;
-            }
-          }
-          win.webContents.send("mastersUserLabels", mastersUserLabels);
-          for (i = 0x01; i < 0x0c1; i++) {
-            try {
-              let req = await eGet.getElementByPath("_2._7._" + i.toString(16));
-              gpcsUserLabels.push(req.contents.description);
-            } catch (e) {
-              // exit the loop
-              break;
-            }
-          }
-          win.webContents.send("gpcsUserLabels", gpcsUserLabels);
-        }
-        getUserLabels();
+        //        async function getUserLabels() {
+        //          let inputsUserLabels = [];
+        //          let auxesUserLabels = [];
+        //          let mastersUserLabels = [];
+        //          let sumsUserLabels = [];
+        //          let gpcsUserLabels = [];
+        //          await mainFunctions.sleep(2000);
+        //          for (i = 0x01; i < 0x0c1; i++) {
+        //            try {
+        //              //          await mainFunctions.sleep(2000);
+        //              let req = await eGet.getElementByPath("_2._1._" + i.toString(16));
+        //              inputsUserLabels.push(req.contents.description);
+        //            } catch (e) {
+        //              // exit the loop
+        //              break;
+        //            }
+        //          }
+        //          win.webContents.send("inputsUserLabels", inputsUserLabels);
+        //          for (i = 0x01; i < 0x0c1; i++) {
+        //            try {
+        //              let req = await eGet.getElementByPath("_2._5._" + i.toString(16));
+        //              auxesUserLabels.push(req.contents.description);
+        //            } catch (e) {
+        //              // exit the loop
+        //              break;
+        //            }
+        //          }
+        //          win.webContents.send("auxesUserLabels", auxesUserLabels);
+        //          for (i = 0x01; i < 0x0c1; i++) {
+        //            try {
+        //              let req = await eGet.getElementByPath("_2._4._" + i.toString(16));
+        //              sumsUserLabels.push(req.contents.description);
+        //            } catch (e) {
+        //              // exit the loop
+        //              break;
+        //            }
+        //          }
+        //          win.webContents.send("sumsUserLabels", sumsUserLabels);
+        //          for (i = 0x01; i < 0x0c1; i++) {
+        //            try {
+        //              let req = await eGet.getElementByPath("_2._6._" + i.toString(16));
+        //              mastersUserLabels.push(req.contents.description);
+        //            } catch (e) {
+        //              // exit the loop
+        //              break;
+        //            }
+        //          }
+        //          win.webContents.send("mastersUserLabels", mastersUserLabels);
+        //          for (i = 0x01; i < 0x0c1; i++) {
+        //            try {
+        //              let req = await eGet.getElementByPath("_2._7._" + i.toString(16));
+        //              gpcsUserLabels.push(req.contents.description);
+        //            } catch (e) {
+        //              // exit the loop
+        //              break;
+        //            }
+        //          }
+        //          win.webContents.send("gpcsUserLabels", gpcsUserLabels);
+        //        }
+        //        getUserLabels();
 
         async function channelAccess(OID_to_OSC) {
-          console.log(
-            "🚀 : file: main.js:646 : channelAccess : OID_to_OSC[0]:",
-            OID_to_OSC[0]
-          );
           if (OID_to_OSC[0]) {
             let oid2osc = preferences.value("other_settings.oid2osc");
             let o2o_address = oid2osc.toString().split(":")[0];
@@ -705,7 +634,6 @@ function createWindow() {
                 o2o_address,
                 Number(o2o_port)
               );
-
               eGet.subscribe(init_oid2osc, () => {
                 async function bip() {
                   let emberValue = init_oid2osc.contents.value;
@@ -748,21 +676,6 @@ function createWindow() {
             channelAccess(OID_to_OSC);
           }
         });
-        //      async function expandtree() {
-        //        let root = await (await eGet.getDirectory(eGet.tree)).response;
-        //        try{
-        //        //let first = await eGet.getElementByPath("_2._7._1._400016c0._400016c1")
-        //        let second = await (await eGet.expand(root)).response;
-        //        console.log("ENot:", second)
-        //        }catch(e){
-        //          throw Error(e)
-        //        }
-        //        //await (await this.getDirectory(node)).response;
-        //        //let root = Object.values(eGet.tree);
-        //        //let expanded_json = await(await eGet.expand(root)).response;
-        //        //console.log("EXPANDED:",JSON.stringify(first))
-        //      }
-        //      expandtree()
 
         ipcMain.on(
           "newConnection",
@@ -781,13 +694,8 @@ function createWindow() {
             direction,
             tableLength
           ) => {
-            console.log("🚀 : file: main.js:755 : main : ePath:", ePath);
-            console.log("🚀 : file: main.js:756 : main : oAddr:", oAddr);
             directions[myRow] = direction;
-            console.log(
-              "🚀 : file: main.js:757 : main : direction:",
-              direction
-            );
+
             sFactor = Number(sFactor);
             let initialReq = await eGet.getElementByPath(ePath);
             console.log(
@@ -798,47 +706,21 @@ function createWindow() {
             let contents_type = initialReq.contents.type;
             let contents = initialReq.contents;
             let emberValue = initialReq.contents.value;
-            console.log(
-              "🚀 : file: main.js:765 : main : initialReq.contents:",
-              initialReq.contents
-            );
-            console.log(
-              "🚀 : file: main.js:767 : main : initialReq.contents.value:",
-              initialReq.contents.value
-            );
-            console.log(
-              "🚀 : file: main.js:769 : main : initialReq.contents.type:",
-              initialReq.contents.type
-            );
             if (contents_type == "PARAMETER") {
-              console.log(
-                "🚀 : file: main.js:769 : main : parameter_type:",
-                parameter_type
-              );
               if (parameter_type == "ENUM") {
                 win.webContents.send("choosen_type", 4, myRow);
                 let enumList = initialReq.contents.enumeration.split("\n");
-                console.log(
-                  "🚀 : file: main.js:773 : main : enumList:",
-                  enumList
-                );
                 enum_length = enumList.length;
               } else if (parameter_type == "INTEGER") {
                 win.webContents.send("choosen_type", 2, myRow);
                 if (initialReq.contents.maximum !== eMax) {
                   eMax = initialReq.contents.maximum;
-                  console.log("🚀 : file: main.js:778 : main : eMax:", eMax);
                 }
                 if (initialReq.contents.minimum !== eMin) {
                   eMin = initialReq.contents.minimum;
-                  console.log("🚀 : file: main.js:786 : main : eMin:", eMin);
                 }
                 if (Number(initialReq.contents.factor) !== sFactor) {
                   sFactor = initialReq.contents.factor;
-                  console.log(
-                    "🚀 : file: main.js:790 : main : sFactor:",
-                    sFactor
-                  );
                 }
               } else if (parameter_type == "BOOLEAN") {
                 let bool_description = initialReq.contents.description;
@@ -851,11 +733,6 @@ function createWindow() {
                 win.webContents.send("choosen_type", 0, myRow);
               }
             } else if (contents_type == "MATRIX") {
-              console.log(
-                "🚀 : file: main.js:796 : main : contents_type:",
-                contents_type
-              );
-
               let mtx_t_count = initialReq.contents.targetCount;
               let mtx_s_count = initialReq.contents.sourceCount;
               let mtx_description = initialReq.contents.description;
@@ -873,29 +750,14 @@ function createWindow() {
               win.webContents.send("errorOnEditedPath", myRow);
             } else if (contents_type == "NODE") {
               let node_description = initialReq.contents.description;
-              console.log(
-                "🚀 : file: main.js:862 : main : initialReq:",
-                initialReq
-              );
-              console.log(
-                "🚀 : file: main.js:849 : main : node_children:",
-                initialReq.children
-              );
               let getDir = await (await eGet.getDirectory(initialReq)).response;
               console.log("🚀 : file: main.js:864 : main : getDir:", getDir);
-              //nodeDir = initialReq
               nodeChildren = Object.keys(initialReq.children);
               for (i = 0; i < nodeChildren.length; i++) {
                 newreq = await eGet.getElementByPath(
                   ePath + "." + nodeChildren[i]
                 );
-                //newreq = [newreq.contents,newreq.number]
-                console.log("🚀 : file: main.js:867 : main : newreq:", newreq);
               }
-              console.log(
-                "🚀 : file: main.js:851 : main : node_children:",
-                nodeChildren
-              );
               win.webContents.send(
                 "loginfo",
                 "WARNING! : You're trying to connect to a NODE ( " +
@@ -930,13 +792,7 @@ function createWindow() {
               oMax,
               oMin
             );
-            //        win.webContents.send('loginfo', "initialReq: " + initialReq);
             let state = ["first", myRow];
-            console.log(
-              "🚀 : file: main.js:883 : main : JSON.stringify(state):",
-              JSON.stringify(state)
-            );
-            console.log("🚀 : file: main.js:886 : main : ePath:", ePath);
             try {
               eGet.subscribe(initialReq, () => {
                 if (
@@ -946,10 +802,6 @@ function createWindow() {
                   win.webContents.send("loginfo", "subscribed to " + ePath);
                   win.webContents.send("loginfo", contents);
                   emberValue = initialReq.contents.value;
-                  console.log(
-                    "🚀 : file: main.js:895 : eGet.subscribe : emberValue:",
-                    emberValue
-                  );
                   directions[myRow] = "-";
                   event.sender.send(
                     "sendEmberValue",
@@ -969,25 +821,10 @@ function createWindow() {
                   EmberIn[myRow] = Date.now();
                   if (EmberOut[myRow]) {
                     let emb_io_delay = EmberIn[myRow] - EmberOut[myRow];
-                    console.log(
-                      "🚀 : file: main.js:861 : eGet.subscribe : emb_io_delay:",
-                      emb_io_delay
-                    );
-                    console.log(
-                      "🚀 : file: main.js:863 : eGet.subscribe : directions[myRow]:",
-                      directions[myRow]
-                    );
                     if (EmberIn[myRow] - EmberOut[myRow] > EmberRate) {
                       if (directions[myRow] !== "◄") {
-                        //---Sending received values from Ember+ to OSC
                         directions[myRow] = "►";
-                        //           console.log("direction set to E->O")
-
                         emberValue = initialReq.contents.value;
-                        console.log(
-                          "🚀 : file: main.js:870 : eGet.subscribe : emberValue:",
-                          emberValue
-                        );
                         event.sender.send(
                           "sendEmberValue",
                           emberValue,
@@ -1000,7 +837,6 @@ function createWindow() {
                           oMax,
                           oMin
                         );
-                        //emberInputListener(initialReq, emberValue, myRow);
                         if (eVarType == "Integer" && eVarCurve == "lin") {
                           let value = mainFunctions.mapToScale(
                             Number(emberValue),
@@ -1029,7 +865,6 @@ function createWindow() {
                           eVarType == "Integer" &&
                           eVarCurve == "log"
                         ) {
-                          //              console.log("values sended to maptoscale: ", Number(emberValue), [Number(eMin), Number(eMax)], [Number(oMin), Number(oMax)])
                           let value = mainFunctions.mapToScale(
                             Number(emberValue),
                             [Number(eMin), Number(eMax)],
@@ -1037,7 +872,6 @@ function createWindow() {
                             2,
                             true
                           );
-                          //              console.log("value mapped:", value)
                           oscGet.send(
                             {
                               address: oAddr,
@@ -1170,48 +1004,19 @@ function createWindow() {
                         );
                         EmberOut[myRow] = Date.now();
                       }
-                      //else {
-                      //  // let emberValue = initialReq.contents.value;
-                      //  if (gateDelayIN) {
-                      //    if (Object.values(gateDelayIN)[5][0] == myRow) {
-                      //      //console.log(Object.values(gateDelayIN)[5][0])
-                      //      console.log("gateDelayIn aborted")
-                      //      clearTimeout(gateDelayIN)
-                      //    }
-                      //  };
-                      //
-                      //  gateDelayIN =
-                      //    (setTimeout(() => {
-                      //      console.log("gateDelayIn launched")
-                      //      directions[myRow] = "-";
-                      //      //   event.sender.send('sendEmberValue', emberValue, myRow, 1, directions[myRow]);
-                      //      win.webContents.send('loginfo', "waiting")
-                      //    }, 100, myRow));
-                      //  EmberOut[myRow] = Date.now()
-                      //  console.log("default case1", myRow)
-                      //}
                     } else {
                       EmberOut[myRow] = Date.now();
-                      //  directions[myRow] = "-";
                     }
                   } else {
                     EmberOut[myRow] = Date.now();
-                    //  directions[myRow] = "-";
                   }
-                  console.log(
-                    "🚀 : file: main.js:1062 : eGet.subscribe : EmberIn[myRow] - EmberOut[myRow]:",
-                    EmberIn[myRow] - EmberOut[myRow]
-                  );
-                } //let stringEpath = JSON.stringify(ePath);
+                }
               });
               win.webContents.send("noError", myRow);
             } catch (error) {
               msg = error.message;
               console.log("🚀 : file: main.js:1058 : main : msg:", msg);
               win.webContents.send("loginfo", msg);
-              //  win.webContents.send('errorOnEditedPath', myRow)
-              //  //  throw Error(error);
-              //
             }
           }
         );
@@ -1249,10 +1054,6 @@ function createWindow() {
             directions[myRow] = direction;
             if (OSCout[myRow]) {
               let osc_io_delay = OSCin[myRow] - OSCout[myRow];
-              console.log(
-                "🚀 : file: main.js:1100 : main : osc_io_delay:",
-                osc_io_delay
-              );
               if (osc_io_delay > OSCrate) {
                 if (directions[myRow] !== "►") {
                   directions[myRow] = "◄";
@@ -1264,10 +1065,6 @@ function createWindow() {
                   console.log("direction set to O->E");
                   if (gateDelayOUT[myRow]) {
                     if (Object.values(gateDelayOUT[myRow])[5][0] == myRow) {
-                      console.log(
-                        "🚀 : file: main.js:1112 : main : Object.values(gateDelayOUT:",
-                        Object.values(gateDelayOUT)
-                      );
                       clearTimeout(gateDelayOUT[myRow]);
                     }
                   }
@@ -1287,10 +1084,6 @@ function createWindow() {
                       [Number(eMin), Number(eMax)],
                       2
                     );
-                    console.log(
-                      "🚀 : file: main.js:1133 : main : value.toFixed(0):",
-                      value.toFixed(0)
-                    );
                     eGet.setValue(rereq, Number(value.toFixed(0)));
                     win.webContents.send(
                       "loginfo",
@@ -1305,131 +1098,59 @@ function createWindow() {
                       true,
                       -1
                     );
-                    console.log(
-                      "values submitted to maptoscale: ",
-                      Number(rOrArgs),
-                      [Number(eMin), Number(eMax)],
-                      [Number(oMin), Number(oMax)]
-                    );
-                    console.log(
-                      "🚀 : file: main.js:1155 : main : value:",
-                      value
-                    );
                     eGet.setValue(rereq, Number(value.toFixed(0)));
                     win.webContents.send(
                       "loginfo",
                       "OSC -log-> EMBER+ : " + value.toFixed(0)
                     );
                   } else if (eVarType == "Boolean" && rOrArgs == "1") {
-                    console.log(
-                      "🚀 : file: main.js:1161 : main : rOrArgs:",
-                      rOrArgs
-                    );
-                    console.log(
-                      "🚀 : file: main.js:1161 : main : eVarType:",
-                      eVarType
-                    );
                     eGet.setValue(rereq, true);
                     win.webContents.send(
                       "loginfo",
                       ("OSC -bool-> EMBER+", rOrArgs)
                     );
                   } else if (eVarType == "Boolean" && rOrArgs == "0") {
-                    console.log(
-                      "🚀 : file: main.js:1169 : main : rOrArgs:",
-                      rOrArgs
-                    );
-                    console.log(
-                      "🚀 : file: main.js:1169 : main : eVarType :",
-                      eVarType
-                    );
                     eGet.setValue(rereq, false);
                     win.webContents.send(
                       "loginfo",
                       ("OSC -bool-> EMBER+", rOrArgs)
                     );
                   } else if (eVarType == "String") {
-                    console.log(
-                      "🚀 : file: main.js:1177 : main : eVarType:",
-                      eVarType
-                    );
                     eGet.setValue(rereq, rOrArgs.toString());
                     win.webContents.send(
                       "loginfo",
                       ("OSC -string-> EMBER+", rOrArgs)
                     );
                   } else {
-                    console.log(
-                      "🚀 : file: main.js:1185 : main : rOrArgs:",
-                      rOrArgs
-                    );
                     eGet.setValue(rereq, rOrArgs);
                     win.webContents.send(
                       "loginfo",
                       ("OSC -string-> EMBER+", rOrArgs)
                     );
                   }
-                  console.log(
-                    "🚀 : file: main.js:1189 : main : Number(rOrArgs):",
-                    Number(rOrArgs)
-                  );
-                  console.log(
-                    "🚀 : file: main.js:1189 : main : rOrArgs:",
-                    rOrArgs
-                  );
-                  console.log(
-                    "🚀 : file: main.js:1189 : main : rOrArgs:",
-                    rOrArgs
-                  );
-
-                  //win.webContents.send('loginfo',"eGet resubscribe to"+ rereq)
                   gateDelayOUT[myRow] = setTimeout(
                     () => {
                       win.webContents.send("loginfo", "waiting");
                       win.webContents.send("resubscribe", myRow);
-                      //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
                       directions[myRow] = "-";
                       win.webContents.send(
                         "updateDirection",
                         myRow,
                         directions[myRow]
                       );
-                      console.log("direction set to none");
                       ro[myRow] = null;
                     },
                     500,
                     myRow
                   );
-                  console.log("directionzzzz", myRow, directions[myRow]);
                 }
-                //  else {
-                //    gateDelayOUT =
-                //      (setTimeout(() => {
-                //        win.webContents.send('loginfo', "waiting")
-                //        //  win.webContents.send("resubscribe", myRow)
-                //        //              win.webContents.send('loginfo', "eGet resubscribe to" + rereq)
-                //        directions[myRow] = "-";
-                //        win.webContents.send("updateDirection", myRow, directions[myRow])
-                //        //              console.log("direction set to none")
-                //        ro[myRow] = null
-                //        console.log("ro[myRow]", ro)
-                //      }, 200, myRow));
-                //    console.log("directionzzzz2", myRow, directions[myRow])
-                //    win.webContents.send('loginfo', "can't use O->E actual direction is set to E->O")
-                //  }
-                //  console.log("direction3", myRow, directions[myRow])
                 OSCout[myRow] = Date.now();
               } else {
-                console.log("direction4", myRow, directions[myRow]);
                 OSCout[myRow] = Date.now();
-                //    directions[myRow] = "-";
-                console.log("OSC dropped");
               }
             } else {
               OSCout[myRow] = Date.now();
-              console.log("direction5", myRow, directions[myRow]);
             }
-            console.log("1017ro[myRow]", ro);
           }
         );
 
@@ -1442,37 +1163,17 @@ function createWindow() {
                 parentPath.toString()
               );
               let expReqType = expandReq.contents.type;
-              //await eGet.expand(expandReq)
-              console.log(
-                "🚀 : file: main.js:1390 : == : ipcMain.on : expReqType:",
-                expReqType
-              );
-              console.log(
-                "🚀 : file: main.js:1389 : == : ipcMain.on : expandReq:",
-                expandReq
-              );
               let getDir = await (await eGet.getDirectory(expandReq)).response;
-              console.log(
-                "🚀 : file: main.js:1386 : ipcMain.on : getDir:",
-                getDir
-              );
               let nodeChildren = Object.keys(expandReq.children);
               for (i = 0; i < nodeChildren.length; i++) {
                 let newChild = await eGet.getElementByPath(
                   parentPath + "." + nodeChildren[i]
                 );
-                //  console.log("🚀 : file: main.js:1382 : main : newChild:", newChild)
-                //delete newChild.parent;
-                //delete newChild.children;
                 contents = newChild.contents;
                 number = newChild.number;
                 base_path = { contents, number };
                 childrenArray.push(base_path);
               }
-              console.log(
-                "🚀 : file: main.js:1401 : == : ipcMain.on : childrenArray:",
-                childrenArray
-              );
               win.webContents.send(
                 "expandedNode",
                 selectID,
@@ -1490,10 +1191,6 @@ function createWindow() {
               let mtx_conn_id = Object.keys(getDir.contents.connections);
 
               for (i = 0; i < mtx_conn_id.length; i++) {
-                console.log(
-                  "🚀 : file: main.js:1416 : == : ipcMain.on : mtx_connections:",
-                  mtx_conn_id[i] + " : " + mtx_conn_content[i]
-                );
                 //TODO:do something to create a matrix table
               }
               contents = getDir.contents;
@@ -1507,11 +1204,6 @@ function createWindow() {
               contents = expandReq.contents;
               number = expandReq.number;
               base_path = { contents, number };
-              console.log(
-                "🚀 : file: main.js:1413 : == : ipcMain.on : expandReq:",
-                expandReq.contents
-              );
-
               win.webContents.send("expandedElement", base_path, true);
             }
           }
@@ -1524,27 +1216,11 @@ function createWindow() {
     }
     main().catch((err) => {
       msg = err.message;
-      //  win.webContents.on('did-finish-load', () => {
       win.webContents.send("resolveError", msg);
-      //  })
       console.error("1029", msg);
     });
   });
 
-  //  main().log.catchErrors({
-  //    showDialog: false,
-  //    onError(error, versions, submitIssue) {
-  //      electron.dialog.showMessageBox({
-  //        title: 'An error occurred',
-  //        message: error.message,
-  //        detail: error.stack,
-  //        type: 'error',
-  //        buttons: ['Ignore', 'Report', 'Exit'],
-  //      })
-  //    }
-  //  });
-
-  // Using a button field with `channel: 'reset'`
   preferences.on("click", (key) => {
     if (key === "resetButton") {
       win.webContents.send("loginfo", "ember+ provider settings changed!");
@@ -1552,14 +1228,9 @@ function createWindow() {
       emberGet();
       main().catch((err) => {
         msg = err.message;
-        //      win.webContents.on('did-finish-load', () => {
         win.webContents.send("resolveError", err);
-        //      })
         console.error(err);
       });
-      //emberPost();
-
-      //eGet.connect()
     } else if (key === "applyButton") {
       win.webContents.send("loginfo", "listening port changed!");
       win.webContents.send(
@@ -1570,50 +1241,28 @@ function createWindow() {
       oscListening();
       oscGet.on("error", function (error) {
         msg = error.message;
-        console.log("🚀 : file: main.js:1301 : msg:", msg);
         win.webContents.send("udpportKO", msg);
-
         win.webContents.send("resolveError", msg);
       });
-
-      //eGet.connect()
     }
   });
-
   oscGet.on("error", (error) => {
     msg = error.message;
-    console.log("🚀 : file: main.js:1313 : oscGet.on : msg:", msg);
-    //    win.webContents.on('did-finish-load', () => {
-
     win.webContents.send("udpportKO", msg);
-    //      win.webContents.on('did-finish-load', () => {
     win.webContents.send("resolveError", msg);
-    //      })
     oscGet.close();
-    //    });
   });
-
   win.autoHideMenuBar = "true";
   win.menuBarVisible = "false";
-  //  win.webContents.on('did-finish-load', () => {
-  console.log(
-    "🚀 : file: main.js:1328 : //win.webContents.on : appVersion:",
-    appVersion
-  );
   win.webContents.send("appVersion", app.getVersion());
-
   win.on("close", (e) => {
     if (win) {
       e.preventDefault();
       win.webContents.send("autoSave");
     }
   });
-
-  //  })
 }
-
 app.whenReady().then(createWindow);
-
 app.on("activate", () => {
   if (win === null) {
     createWindow();
