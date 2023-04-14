@@ -61,7 +61,7 @@
     "electron-context-menu": "^3.3.0",
     "electron-log": "^5.0.0-beta.16",
     "electron-preferences": "^2.7.0",
-    "emberplus-connection": "^0.1.2",
+    "emberplus-connection": "^0.2.1-nightly-master-20230414-132419-ee926d2.0",
     "osc": "^2.4.2",
     "pretty-print-json": "^1.5.0"
   },

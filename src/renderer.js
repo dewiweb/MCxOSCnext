@@ -83,6 +83,25 @@ ipcRenderer.on("eServerOK", (event, eAddress) => {
 
 ipcRenderer.on("embertree", (event, root) => {
   let treeslct_0 = document.getElementById("treeSlct0");
+
+  for (i = 1; i < 13; i++) {
+    let next_slcts = document.getElementById("treeSlct" + i);
+    while (next_slcts.firstChild) {
+      next_slcts.removeChild(next_slcts.firstChild);
+    }
+    let opt0 = document.createElement("option");
+    opt0.text = "---";
+    next_slcts.add(opt0);
+    next_slcts.style.visibility = "hidden";
+  }
+  while (treeslct_0.firstChild) {
+    treeslct_0.removeChild(treeslct_0.firstChild);
+  }
+  let opt0 = document.createElement("option");
+  opt0.text = "---";
+  treeslct_0.add(opt0);
+
+
   for (i = 0; i < root.length; i++) {
     let opt = document.createElement("option");
     opt.id = "opt" + (i + 1);
@@ -134,9 +153,10 @@ ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
   current_slct.style.visibility = "visible";
   current_slct.addEventListener("change", (event) => {
     let chosenPath = event.target.value;
+    console.log("🚀 : file: renderer.js:137 : current_slct.addEventListener : chosenPath:", chosenPath)
     let currOpt_class =
       current_slct.options[current_slct.selectedIndex].className;
-    if (current_slct.selectedIndex > 0) {
+    if (current_slct.selectedIndex > -1) {
       ipcRenderer.send(
         "expandNode",
         selectID,

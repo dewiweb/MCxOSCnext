@@ -427,10 +427,10 @@ function createWindow() {
   //    detail: "It does really matter",
   //  };
   //  dialog.showMessageBox(win, dial_options).then((response) => {
-  //    console.log(
-  //      "🚀 : file: main.js:469 : dialog.showMessageBox : Object.values(response)[0]:",
-  //      Object.values(response)[0]
-  //    );
+  // console.log(
+  // "🚀 : file: main.js:469 : dialog.showMessageBox : Object.values(response)[0]:",
+  // Object.values(response)[0]
+  // );
   //    win.webContents.send("choosen_type", Object.values(response)[0]);
   //  });
   //});
@@ -445,7 +445,7 @@ function createWindow() {
     const eServerPort = Number(
       preferences.value("network_settings.ember_provider").split(":")[1]
     );
-    eGet = new EmberClient(eServerIP, eServerPort, 10000);
+    eGet = new EmberClient(eServerIP, eServerPort, 10000, true,5000);
     let status = net.createConnection(eServerPort, eServerIP);
     status.on("error", (e) => {
       win.webContents.send(
@@ -456,11 +456,11 @@ function createWindow() {
       );
     });
     eGet.on("connected", () => {
-      console.log(
-        "🚀 : file: main.js:495 : eGet.on : eServerPort:",
-        eServerPort
-      );
-      console.log("🚀 : file: main.js:495 : eGet.on : eServerIP:", eServerIP);
+      // console.log(
+      // "🚀 : file: main.js:495 : eGet.on : eServerPort:",
+      // eServerPort
+      // );
+      // console.log("🚀 : file: main.js:495 : eGet.on : eServerIP:", eServerIP);
       //      win.webContents.on('did-finish-load', () => {
       win.webContents.send("eServerOK", eAddress);
       win.webContents.send(
@@ -488,7 +488,7 @@ function createWindow() {
 
   function oscListening() {
     oUDPport = preferences.value("network_settings.osc_receiver_port");
-    console.log("🚀 : file: main.js:523 : oscListening : oUDPport:", oUDPport);
+    // console.log("🚀 : file: main.js:523 : oscListening : oUDPport:", oUDPport);
     //  win.webContents.on('did-finish-load', () => {
     win.webContents.send("loginfo", "Port de reception OSC:" + oUDPport);
     //  })
@@ -711,10 +711,10 @@ function createWindow() {
 
             sFactor = Number(sFactor);
             let initialReq = await eGet.getElementByPath(ePath);
-            console.log(
-              "🚀 : file: main.js:783 : main : initialReq:",
-              initialReq
-            );
+            // console.log(
+            // "🚀 : file: main.js:783 : main : initialReq:",
+            // initialReq
+            // );
             let parameter_type = initialReq.contents.parameterType;
             let contents_type = initialReq.contents.type;
             let contents = initialReq.contents;
@@ -764,7 +764,7 @@ function createWindow() {
             } else if (contents_type == "NODE") {
               let node_description = initialReq.contents.description;
               let getDir = await (await eGet.getDirectory(initialReq)).response;
-              console.log("🚀 : file: main.js:864 : main : getDir:", getDir);
+              // console.log("🚀 : file: main.js:864 : main : getDir:", getDir);
               nodeChildren = Object.keys(initialReq.children);
               for (i = 0; i < nodeChildren.length; i++) {
                 newreq = await eGet.getElementByPath(
@@ -1028,7 +1028,7 @@ function createWindow() {
               win.webContents.send("noError", myRow);
             } catch (error) {
               msg = error.message;
-              console.log("🚀 : file: main.js:1058 : main : msg:", msg);
+              // console.log("🚀 : file: main.js:1058 : main : msg:", msg);
               win.webContents.send("loginfo", msg);
             }
           }
@@ -1170,23 +1170,35 @@ function createWindow() {
         ipcMain.on(
           "expandNode",
           async (event, selectID, parentPath, currOpt_class) => {
+            console.log("🚀 : file: main.js:1173 : currOpt_class:", currOpt_class)
             if (currOpt_class == "NODE") {
               let childrenArray = [];
               let expandReq = await eGet.getElementByPath(
                 parentPath.toString()
               );
-              let expReqType = expandReq.contents.type;
-              let getDir = await (await eGet.getDirectory(expandReq)).response;
+              // console.log("🚀 : file: main.js:1178 : == : expandReq:", expandReq)
+              let getDir = await eGet.getDirectory(expandReq);
+              try {
+                let getDirResponse = await getDir.response  
+              } catch (error) {
+                // console.log("🚀 : file: main.js:1183 : == : error:", error)
+                
+                
+              }
               let nodeChildren = Object.keys(expandReq.children);
+              // console.log("🚀 : file: main.js:1187 : == : nodeChildren:", nodeChildren)
               for (i = 0; i < nodeChildren.length; i++) {
                 let newChild = await eGet.getElementByPath(
                   parentPath + "." + nodeChildren[i]
                 );
                 contents = newChild.contents;
+                // console.log("🚀 : file: main.js:1193 : == : newChild.contents:", newChild.contents)
                 number = newChild.number;
+                // console.log("🚀 : file: main.js:1195 : == : newChild.number:", newChild.number)
                 base_path = { contents, number };
                 childrenArray.push(base_path);
               }
+              // console.log("🚀 : file: main.js:1204 : == : childrenArray:", childrenArray)
               win.webContents.send(
                 "expandedNode",
                 selectID,
@@ -1194,6 +1206,8 @@ function createWindow() {
                 childrenArray
               );
               win.webContents.send("expandedElement", expandReq, false);
+            
+                
             } else if (currOpt_class == "MATRIX") {
               let mtx_Array = [];
               let expandReq = await eGet.getElementByPath(
@@ -1223,7 +1237,7 @@ function createWindow() {
         );
       } catch (error) {
         msg = error.message;
-        console.log("🚀 : file: main.js:1423 : main : msg:", msg);
+        // console.log("🚀 : file: main.js:1423 : main : msg:", msg);
         throw Error(error);
       }
     }
