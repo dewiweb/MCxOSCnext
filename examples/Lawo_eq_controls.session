@@ -1,0 +1,218 @@
+[
+  {
+    "path": "26596.306435.306436.306462.306490.306491",
+    "factor": "32",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_1_Gain",
+    "type": "Integer",
+    "math": "log",
+    "min": "-768/-24",
+    "max": "768/24"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306492",
+    "factor": "undefined",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_1_Frequency",
+    "type": "Integer",
+    "math": "lin",
+    "min": "2131/2131",
+    "max": "7045/7045"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306493",
+    "factor": "64",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_1_Q",
+    "type": "Integer",
+    "math": "lin",
+    "min": "6/0",
+    "max": "5120/80"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306494",
+    "factor": "0",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_1_On",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306495",
+    "factor": "1",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_1_Slope",
+    "type": "Enum",
+    "math": "lin",
+    "min": "0/0",
+    "max": "2/2"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306496",
+    "factor": "1",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_1_Type",
+    "type": "Enum",
+    "math": "lin",
+    "min": "1/1",
+    "max": "5/5"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306497",
+    "factor": "32",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_2_Gain",
+    "type": "Integer",
+    "math": "log",
+    "min": "-768/-24",
+    "max": "768/24"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306498",
+    "factor": "undefined",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_2_Frequency",
+    "type": "Integer",
+    "math": "lin",
+    "min": "2131/2131",
+    "max": "7045/7045"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306499",
+    "factor": "64",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_2_Q",
+    "type": "Integer",
+    "math": "lin",
+    "min": "6/0",
+    "max": "5120/80"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306500",
+    "factor": "0",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_2_On",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306501",
+    "factor": "1",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_2_Slope",
+    "type": "Enum",
+    "math": "lin",
+    "min": "0/0",
+    "max": "2/2"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306503",
+    "factor": "32",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_3_Gain",
+    "type": "Integer",
+    "math": "log",
+    "min": "-768/-24",
+    "max": "768/24"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306504",
+    "factor": "undefined",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_3_Frequency",
+    "type": "Integer",
+    "math": "lin",
+    "min": "2131/2131",
+    "max": "7045/7045"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306505",
+    "factor": "64",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_3_Q",
+    "type": "Integer",
+    "math": "lin",
+    "min": "6/0",
+    "max": "5120/80"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306506",
+    "factor": "0",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_3_On",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306507",
+    "factor": "1",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_3_Slope",
+    "type": "Enum",
+    "math": "lin",
+    "min": "0/0",
+    "max": "2/2"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306508",
+    "factor": "1",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_3_Type",
+    "type": "Enum",
+    "math": "lin",
+    "min": "0/0",
+    "max": "1/1"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306509",
+    "factor": "32",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_4_Gain",
+    "type": "Integer",
+    "math": "log",
+    "min": "-768/-24",
+    "max": "768/24"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306510",
+    "factor": "undefined",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_4_Frequency",
+    "type": "Integer",
+    "math": "lin",
+    "min": "2131/2131",
+    "max": "7045/7045"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306511",
+    "factor": "64",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_4_Q",
+    "type": "Integer",
+    "math": "lin",
+    "min": "6/0",
+    "max": "5120/80"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306512",
+    "factor": "0",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_4_On",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306513",
+    "factor": "1",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_4_Slope",
+    "type": "Enum",
+    "math": "lin",
+    "min": "0/0",
+    "max": "2/2"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306514",
+    "factor": "1",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_4_Type",
+    "type": "Enum",
+    "math": "lin",
+    "min": "1/1",
+    "max": "4/4"
+  },
+  {
+    "path": "26596.306435.306436.306462.306490.306515",
+    "factor": "0",
+    "address": "/Channels/GP_Channels/GPC_1/Signal_Processing/Equalizer/Equalizer_On",
+    "type": "Boolean",
+    "math": "",
+    "min": "false/0",
+    "max": "true/1"
+  }
+]
