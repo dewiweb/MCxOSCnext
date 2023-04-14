@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.4](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.2-alpha.4...v2.2.0-alpha.4) (2023-04-14)
+
+
+### Bug Fixes
+
+* :bug: bugfixes and nightly version of emberplus-connection ([e063bc7](https://github.com/dewiweb/MCxOSCnext/commit/e063bc71b509b57c7479d9035657df83fe6efd35))
+
 ## [2.2.0-alpha.3](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.2...v2.2.0-alpha.3) (2023-04-10)
 
 ## [2.2.0-alpha.2](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.0...v2.2.0-alpha.2) (2023-04-09)
