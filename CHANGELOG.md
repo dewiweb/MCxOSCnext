@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.5](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.4...v2.2.0-alpha.5) (2023-04-21)
+
 ## [2.2.0-alpha.4](https://github.com/dewiweb/MCxOSCnext/compare/v2.1.2-alpha.4...v2.2.0-alpha.4) (2023-04-14)
 
 
