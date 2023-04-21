@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.8](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.7...v2.2.0-alpha.8) (2023-04-21)
+
+
+### Bug Fixes
+
+* :bug: css ([0834c74](https://github.com/dewiweb/MCxOSCnext/commit/0834c748dbe4bf807f43326ba02705e39f955a36))
+* :bug: css ([0e5153a](https://github.com/dewiweb/MCxOSCnext/commit/0e5153aa9b0f2b372692758a464a033e312338c7))
+
 ## [2.2.0-alpha.7](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.6...v2.2.0-alpha.7) (2023-04-21)
 
 
