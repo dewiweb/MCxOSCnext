@@ -21,8 +21,8 @@ Heavily based on <https://github.com/nrkno/tv-automation-emberplus-connection> \
 
 - Preferences are automatically stored in a 'config.json'
 - Connections are stored in a separated JSON formatted '\*.session' file. -->[examples](/examples)
-- A pre-configured form , dedicated for Lawo MC²36 console (not tested yet on other models), helps you to specify ember+ paths.
-- Clicking 'Add' button add a line in the table of connections.
+- A 'Tree Viewer' inspired by [EmberPlus Viewer](https://github.com/Lawo/ember-plus/releases) helps you to specify ember+ paths.
+- Clicking '!Submit' button add selected parameter the table of connections.
 - Once you've clicked it, you can modify OSC addresses, ember+ paths, types, OSC mins, OSC maxs directly in table cells.
 - If you want to connect other parameters or devices, you can edit ember+ path directly in the table of connections.
 - You can retrieve paths needed with [emberplus viewer](https://github.com/Lawo/ember-plus/releases).
