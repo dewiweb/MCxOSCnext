@@ -25,5 +25,4 @@ Heavily based on <https://github.com/nrkno/tv-automation-emberplus-connection> \
 - Clicking '!Submit' button add selected parameter the table of connections.
 - Once you've clicked it, you can modify OSC addresses, ember+ paths, types, OSC mins, OSC maxs directly in table cells.
 - If you want to connect other parameters or devices, you can edit ember+ path directly in the table of connections.
-- You can retrieve paths needed with [emberplus viewer](https://github.com/Lawo/ember-plus/releases).
-- Then you've got to click "go" buttons to establish connections.
+- Finally you've got to click "go" buttons to establish connections.
