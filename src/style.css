@@ -110,7 +110,6 @@ input[type=text], input[type=number], select{
 }
 
 #Connections_Settings {
-  border: solid #47496c;
   padding: 0.001px;
   border-radius: 10px;
   top: 10px;
@@ -204,8 +203,11 @@ td>input[type=number]:hover, td>select:hover{
 }
 
 #CS_title{
+  display: flex;
+  flex-direction: row; 
+  direction: rtl;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 #CS_button{
@@ -213,12 +215,16 @@ td>input[type=number]:hover, td>select:hover{
   flex-direction: row; 
   direction: rtl;
   align-items: center;
-  justify-content: space-around;
   height: 30px;
+  top: 10px;
+  right: 10px;
 }
 
 #CS_content > div {
-  width: 50%;
+  width: 49%;
+  border: solid #47496c;
+  border-radius: 10px;
+  background-color: #282C34;
 }
 
 #oscAddr, #manualEmberPath {

@@ -55,7 +55,7 @@ let openOptions;
 function createWindow() {
   let win = new BrowserWindow({
     width: 1200,
-    height: 600,
+    height: 630,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
