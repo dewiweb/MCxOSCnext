@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.7](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.6...v2.2.0-alpha.7) (2023-04-21)
+
+
+### Bug Fixes
+
+* :bug: app relaunch on ember+ provider's address change ([9da326b](https://github.com/dewiweb/MCxOSCnext/commit/9da326b394a0146d22be99d235998599f2ee09f0))
+
 ## [2.2.0-alpha.6](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.5...v2.2.0-alpha.6) (2023-04-21)
 
 
