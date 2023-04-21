@@ -66,7 +66,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-    win.webContents.openDevTools({ mode: "detach" });
+    //  win.webContents.openDevTools({ mode: "detach" });
     win.webContents.send("ready");
   });
   ipcMain.on("sendAutoSave", function (event, content) {
