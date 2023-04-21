@@ -26,7 +26,7 @@
       <img
         src="./assets/MxOSC-dark-bann.png"
         alt=""
-        style="max-width: 25%; height: auto;"
+        style="max-width: 18%; height: auto;"
         class="center"
       />
     </div>
@@ -118,7 +118,14 @@
     <div id="Connections_Settings">
       <div id="CS_title">
         <label
-          style="text-align: center; margin: auto; left: 0; right: 0;"
+          style="
+            text-align: center;
+            margin: auto;
+            left: 0;
+            right: 0;
+            align-self: center;
+            display: flex !important;
+          "
           for="fname"
           >Ember+ to OSC connection creator</label
         >
@@ -131,9 +138,13 @@
             id="expandedElement"
             style="
               font-size: x-small;
-              min-height: 150px;
-              max-height: 250px;
+              min-height: 230px;
+              max-height: 230px;
               overflow: auto;
+              background-color: #282c34;
+              margin: 0px;
+              margin-left: 10px;
+              margin-top: 10px;
             "
             class="json-container"
           ></pre>
@@ -156,7 +167,7 @@
         </button>
       </div>
     </div>
-    <div class="table">
+    <div class="table" style="margin-top: 20px;">
       <table id="tableOfConnection" style="width: 100%; text-align: center;">
         <caption>
           OVERVIEW
@@ -192,33 +203,26 @@
       </div>
     </div>
 
-    <div
-      style="
-        background-color: black;
-        width: 100%;
-        height: 20px;
-        text-align: center;
-      "
-    >
+    <div style="width: 100%; height: 20px; text-align: center;">
       LOGS <button id="viewlogs" onclick="viewlogs()">►</button>
     </div>
-    <div id="logging" style="background-color: black; visibility: hidden;">
-      <div id="anchor"></div>
-    </div>
     <div
-      id="clearlogs"
+      id="logging"
       style="
         background-color: black;
-        width: 100%;
-        height: 1px;
         visibility: hidden;
+        border: solid #47496c;
+        border-radius: 10px;
       "
     >
+      <div id="anchor"></div>
+    </div>
+    <div id="clearlogs" style="width: 100%; height: 1px; visibility: hidden;">
       <button
         style="position: absolute; left: 50%; margin-left: -20px;"
         onclick="clearLog()"
       >
-        Clear
+        Clear Logs!
       </button>
     </div>
     <br />
