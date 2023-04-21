@@ -10,25 +10,31 @@
       type="text/css"
       href="./pretty-json-css/pretty-print-json.dark-mode.css"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../node_modules/tabulator-tables/dist/css/tabulator_midnight.css"
+    />
+    <link rel="stylesheet" type="text/css" href="./treejs.css" />
     <meta
       http-equiv="Content-Security-Policy"
       content="script-src 'self' 'unsafe-inline';"
     />
   </head>
   <body>
-    <div id="header" style="text-align: center">
+    <div id="header" style="text-align: center;">
       <img
         src="./assets/MxOSC-dark-bann.png"
         alt=""
-        style="max-width: 25%; height: auto"
+        style="max-width: 25%; height: auto;"
         class="center"
       />
     </div>
-    <div id="menu" class="left" style="font-weight: bold; padding-left: 2%">
+    <div id="menu" class="left" style="font-weight: bold; padding-left: 2%;">
       <button
         class="button menuBtn"
         id="menuBtn"
-        style="margin-left: -20px"
+        style="margin-left: -20px;"
         onclick="menu()"
       >
         &#9776;
@@ -36,7 +42,7 @@
       <button
         class="button loadBtn"
         id="loadBtn"
-        style="display: none"
+        style="display: none;"
         onclick="load(this.id) "
       >
         Open File
@@ -44,7 +50,7 @@
       <button
         class="button saveAsBtn"
         id="saveAsBtn"
-        style="display: none"
+        style="display: none;"
         onclick="saveAs(this.id)"
       >
         Save as...
@@ -52,7 +58,7 @@
       <button
         class="button saveBtn"
         id="saveBtn"
-        style="display: none"
+        style="display: none;"
         onclick="save(this.id)"
       >
         Save
@@ -60,7 +66,7 @@
       <button
         class="button preferencesBtn"
         id="preferencesBtn"
-        style="display: none"
+        style="display: none;"
         onclick="prefs(this.id)"
       >
         Preferences
@@ -70,123 +76,88 @@
     <div id="Network_Settings">
       <div class="form">
         <form id="form1">
-          <label style="text-align: center" for="fname"
+          <label style="text-align: center;" for="fname"
             >Remote Ember+ Provider
           </label>
           <p id="add1">Waiting</p>
           <span
             id="dot1"
             class="infoDot"
-            style="position: absolute; top: 0; right: 10px"
+            style="position: absolute; top: 0; right: 10px;"
             >&#9679;</span
           >
         </form>
       </div>
       <div class="form">
         <form id="form2">
-          <label style="text-align: center" for="fname">Local OSC Port </label>
+          <label style="text-align: center;" for="fname">Local OSC Port </label>
           <p id="add2">Waiting</p>
           <span
             id="dot2"
             class="infoDot"
-            style="position: absolute; top: 0; right: 10px"
+            style="position: absolute; top: 0; right: 10px;"
             >&#9679;</span
           >
         </form>
       </div>
       <div class="form">
         <form id="form3">
-          <label style="text-align: center" for="fname"
+          <label style="text-align: center;" for="fname"
             >Remote OSC Server</label
           >
           <p id="add3">Waiting</p>
           <span
             id="dot3"
             class="infoDot"
-            style="position: absolute; top: 0; right: 10px"
+            style="position: absolute; top: 0; right: 10px;"
             >&#9679;</span
           >
         </form>
       </div>
     </div>
     <div id="Connections_Settings">
-      <label
-        style="
-          text-align: center;
-          position: absolute;
-          margin: auto;
-          left: 0;
-          right: 0;
-          margin-top: 0;
-        "
-        for="fname"
-        >Ember+ to OSC connection creator</label
-      ><br />
-      <br />
-      <div id="test">
-        <form id="test_form" style="padding-left: 2%" onsubmit="return false">
-          <select id="treeSlct0">
-            <option>---</option>
-          </select>
-          <select id="treeSlct1" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct2" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct3" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct4" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct5" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct6" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct7" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct8" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct9" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct10" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct11" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <select id="treeSlct12" style="visibility: hidden">
-            <option>---</option>
-          </select>
-          <input
+      <div id="CS_title">
+        <label
+          style="text-align: center; margin: auto; left: 0; right: 0;"
+          for="fname"
+          >Ember+ to OSC connection creator</label
+        >
+      </div>
+      <div id="CS_content">
+        <div id="tree"></div>
+        <br />
+        <div id="test">
+          <pre
+            id="expandedElement"
             style="
-              position: absolute;
-              right: 10px;
-              top: 5px;
-              visibility: hidden;
+              font-size: x-small;
+              min-height: 150px;
+              max-height: 250px;
+              overflow: auto;
             "
-            class="button"
-            id="suscribe_2"
-            style="text-align: center"
-            type="submit"
-            value="submit!"
-          />
-        </form>
-        <pre
-          id="expandedElement"
-          style="font-size: smaller; min-height: 150px"
-          class="json-container"
-        ></pre>
+            class="json-container"
+          ></pre>
+        </div>
+      </div>
+      <div id="CS_button">
+        <button
+          style="visibility: hidden;"
+          class="button"
+          id="suscribe_2"
+          style="
+            text-align: center;
+            align-self: center;
+            display: flex !important;
+          "
+          onclick="submitPath()"
+          value="submit!"
+        >
+          Submit!
+        </button>
       </div>
     </div>
     <div class="table">
-      <table id="tableOfConnection" style="width: 100%; text-align: center">
+      <table id="tableOfConnection" style="width: 100%; text-align: center;">
         <caption>
           OVERVIEW
         </caption>
@@ -212,7 +183,7 @@
       </table>
       <div>
         <button
-          style="position: absolute; left: 50%; margin-left: -20px"
+          style="position: absolute; left: 50%; margin-left: -20px;"
           onclick="addemptyrow()"
         >
           +
@@ -231,7 +202,7 @@
     >
       LOGS <button id="viewlogs" onclick="viewlogs()">►</button>
     </div>
-    <div id="logging" style="background-color: black; visibility: hidden">
+    <div id="logging" style="background-color: black; visibility: hidden;">
       <div id="anchor"></div>
     </div>
     <div
@@ -244,23 +215,26 @@
       "
     >
       <button
-        style="position: absolute; left: 50%; margin-left: -20px"
+        style="position: absolute; left: 50%; margin-left: -20px;"
         onclick="clearLog()"
       >
         Clear
       </button>
     </div>
     <br />
-
-    <script>
-      test_form.addEventListener("submit", submitPath);
-    </script>
+    <!--   
+    <div>
+      <button id="reactivity-add" onclick="reactivity_add()">add empty row</button>
+    </div>
+    <br />
+    <div id="tabulator"></div>
+-->
   </body>
-  <footer class="little" style="display: inline-block">
+  <footer class="little" style="display: inline-block;">
     <p>
       Actual FilePath :
       <span id="filepath"></span>
-      <span style="position: absolute; right: 10px" id="appVersion"
+      <span style="position: absolute; right: 10px;" id="appVersion"
         >MCxOSCnext Version :
       </span>
     </p>

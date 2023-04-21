@@ -66,7 +66,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-    //  win.webContents.openDevTools({ mode: "detach" });
+    win.webContents.openDevTools({ mode: "detach" });
     win.webContents.send("ready");
   });
   ipcMain.on("sendAutoSave", function (event, content) {
@@ -134,7 +134,7 @@ function createWindow() {
       },
       other_settings: {
         autoGo: [],
-      //  emberpath_format: ['numbers']
+        //  emberpath_format: ['numbers']
       },
     },
     sections: [
@@ -289,14 +289,14 @@ function createWindow() {
                   hideLabel: true,
                 },
                 {
-                  label: 'emberpath format',
-                  key: 'emberpath_format',
-                  type: 'dropdown',
+                  label: "emberpath format",
+                  key: "emberpath_format",
+                  type: "dropdown",
                   options: [
-                    { label: 'Numbers', value: 'numbers' },
-                    { label: 'Properties', value: 'properties' },
+                    { label: "Numbers", value: "numbers" },
+                    { label: "Properties", value: "properties" },
                   ],
-                  help: 'Choose a format for ember+ path',
+                  help: "Choose a format for ember+ path",
                 },
               ],
             },
@@ -326,7 +326,7 @@ function createWindow() {
     let autoLoad = preferences.value("save_settings.autoLoad")[0];
     let default_file = preferences.value("save_settings.default_file");
     let autoGo = preferences.value("other_settings.autoGo")[0];
-    let embPathFormat = preferences.value("other_settings.emberpath_format")
+    let embPathFormat = preferences.value("other_settings.emberpath_format");
     if (autoLoad !== undefined) {
       let content = fs.readFileSync(default_file, "utf-8");
       let sendedContent = JSON.stringify(content);
@@ -336,7 +336,7 @@ function createWindow() {
         win.webContents.send("autoGo");
       }
     }
-    win.webContents.send("emberpathFormat",embPathFormat)
+    win.webContents.send("emberpathFormat", embPathFormat);
   }
   loadPrefs();
 
@@ -417,24 +417,6 @@ function createWindow() {
     });
   });
 
-  //ipcMain.on("choose_type", () => {
-  //  const dial_options = {
-  //    type: "question",
-  //    buttons: ["String", "Boolean", "Integer", "Float"],
-  //    defaultId: 0,
-  //    title: "",
-  //    message: "Which type of data?",
-  //    detail: "It does really matter",
-  //  };
-  //  dialog.showMessageBox(win, dial_options).then((response) => {
-  // console.log(
-  // "🚀 : file: main.js:469 : dialog.showMessageBox : Object.values(response)[0]:",
-  // Object.values(response)[0]
-  // );
-  //    win.webContents.send("choosen_type", Object.values(response)[0]);
-  //  });
-  //});
-
   //---Network Settings Section---//
   //---Initiating Ember and OSC---//
   function emberGet() {
@@ -445,7 +427,7 @@ function createWindow() {
     const eServerPort = Number(
       preferences.value("network_settings.ember_provider").split(":")[1]
     );
-    eGet = new EmberClient(eServerIP, eServerPort, 10000, true,5000);
+    eGet = new EmberClient(eServerIP, eServerPort, 10000, true, 5000);
     let status = net.createConnection(eServerPort, eServerIP);
     status.on("error", (e) => {
       win.webContents.send(
@@ -546,72 +528,11 @@ function createWindow() {
         });
         root = await (await eGet.getDirectory(eGet.tree)).response;
         first_branch = eGet.tree.flat(0);
-        first_br_list = [];
-        for (i = 0; i < first_branch.length; i++) {
-          first_br_list.push(first_branch[i].number);
-        }
+        //first_br_list = [];
+        //for (i = 0; i < first_branch.length; i++) {
+        //  first_br_list.push(first_branch[i].number);
+        //}
         win.webContents.send("embertree", first_branch);
-
-        //        async function getUserLabels() {
-        //          let inputsUserLabels = [];
-        //          let auxesUserLabels = [];
-        //          let mastersUserLabels = [];
-        //          let sumsUserLabels = [];
-        //          let gpcsUserLabels = [];
-        //          await mainFunctions.sleep(2000);
-        //          for (i = 0x01; i < 0x0c1; i++) {
-        //            try {
-        //              //          await mainFunctions.sleep(2000);
-        //              let req = await eGet.getElementByPath("_2._1._" + i.toString(16));
-        //              inputsUserLabels.push(req.contents.description);
-        //            } catch (e) {
-        //              // exit the loop
-        //              break;
-        //            }
-        //          }
-        //          win.webContents.send("inputsUserLabels", inputsUserLabels);
-        //          for (i = 0x01; i < 0x0c1; i++) {
-        //            try {
-        //              let req = await eGet.getElementByPath("_2._5._" + i.toString(16));
-        //              auxesUserLabels.push(req.contents.description);
-        //            } catch (e) {
-        //              // exit the loop
-        //              break;
-        //            }
-        //          }
-        //          win.webContents.send("auxesUserLabels", auxesUserLabels);
-        //          for (i = 0x01; i < 0x0c1; i++) {
-        //            try {
-        //              let req = await eGet.getElementByPath("_2._4._" + i.toString(16));
-        //              sumsUserLabels.push(req.contents.description);
-        //            } catch (e) {
-        //              // exit the loop
-        //              break;
-        //            }
-        //          }
-        //          win.webContents.send("sumsUserLabels", sumsUserLabels);
-        //          for (i = 0x01; i < 0x0c1; i++) {
-        //            try {
-        //              let req = await eGet.getElementByPath("_2._6._" + i.toString(16));
-        //              mastersUserLabels.push(req.contents.description);
-        //            } catch (e) {
-        //              // exit the loop
-        //              break;
-        //            }
-        //          }
-        //          win.webContents.send("mastersUserLabels", mastersUserLabels);
-        //          for (i = 0x01; i < 0x0c1; i++) {
-        //            try {
-        //              let req = await eGet.getElementByPath("_2._7._" + i.toString(16));
-        //              gpcsUserLabels.push(req.contents.description);
-        //            } catch (e) {
-        //              // exit the loop
-        //              break;
-        //            }
-        //          }
-        //          win.webContents.send("gpcsUserLabels", gpcsUserLabels);
-        //        }
-        //        getUserLabels();
 
         async function channelAccess(OID_to_OSC) {
           if (OID_to_OSC[0]) {
@@ -1167,74 +1088,67 @@ function createWindow() {
           }
         );
 
-        ipcMain.on(
-          "expandNode",
-          async (event, selectID, parentPath, currOpt_class) => {
-            console.log("🚀 : file: main.js:1173 : currOpt_class:", currOpt_class)
-            if (currOpt_class == "NODE") {
-              let childrenArray = [];
-              let expandReq = await eGet.getElementByPath(
-                parentPath.toString()
-              );
-              // console.log("🚀 : file: main.js:1178 : == : expandReq:", expandReq)
-              let getDir = await eGet.getDirectory(expandReq);
-              try {
-                let getDirResponse = await getDir.response  
-              } catch (error) {
-                // console.log("🚀 : file: main.js:1183 : == : error:", error)
-                
-                
-              }
-              let nodeChildren = Object.keys(expandReq.children);
-              // console.log("🚀 : file: main.js:1187 : == : nodeChildren:", nodeChildren)
-              for (i = 0; i < nodeChildren.length; i++) {
-                let newChild = await eGet.getElementByPath(
-                  parentPath + "." + nodeChildren[i]
-                );
-                contents = newChild.contents;
-                // console.log("🚀 : file: main.js:1193 : == : newChild.contents:", newChild.contents)
-                number = newChild.number;
-                // console.log("🚀 : file: main.js:1195 : == : newChild.number:", newChild.number)
-                base_path = { contents, number };
-                childrenArray.push(base_path);
-              }
-              // console.log("🚀 : file: main.js:1204 : == : childrenArray:", childrenArray)
-              win.webContents.send(
-                "expandedNode",
-                selectID,
-                parentPath,
-                childrenArray
-              );
-              win.webContents.send("expandedElement", expandReq, false);
-            
-                
-            } else if (currOpt_class == "MATRIX") {
-              let mtx_Array = [];
-              let expandReq = await eGet.getElementByPath(
-                parentPath.toString()
-              );
-              let getDir = await (await eGet.getDirectory(expandReq)).response;
-              let mtx_conn_content = Object.values(getDir.contents.connections);
-              let mtx_conn_id = Object.keys(getDir.contents.connections);
-
-              for (i = 0; i < mtx_conn_id.length; i++) {
-                //TODO:do something to create a matrix table
-              }
-              contents = getDir.contents;
-              number = getDir.number;
-              base_path = { contents, number };
-              win.webContents.send("expandedElement", base_path, true);
-            } else {
-              let expandReq = await eGet.getElementByPath(
-                parentPath.toString()
-              );
-              contents = expandReq.contents;
-              number = expandReq.number;
-              base_path = { contents, number };
-              win.webContents.send("expandedElement", base_path, true);
+        ipcMain.on("expandNode", async (event, parentPath, currOpt_class) => {
+          console.log("🚀 : file: main.js:1173 : parentPath,:", parentPath);
+          console.log(
+            "🚀 : file: main.js:1173 : currOpt_class:",
+            currOpt_class
+          );
+          if (currOpt_class == "NODE") {
+            let childrenArray = [];
+            let expandReq = await eGet.getElementByPath(parentPath.toString());
+            console.log("🚀 : file: main.js:1178 : == : expandReq:", expandReq);
+            let getDir = await eGet.getDirectory(expandReq);
+            try {
+              let getDirResponse = await getDir.response;
+            } catch (error) {
+              // console.log("🚀 : file: main.js:1183 : == : error:", error)
             }
+            let nodeChildren = Object.keys(expandReq.children);
+            // console.log("🚀 : file: main.js:1187 : == : nodeChildren:", nodeChildren)
+            for (i = 0; i < nodeChildren.length; i++) {
+              let newChild = await eGet.getElementByPath(
+                parentPath + "." + nodeChildren[i]
+              );
+              console.log(
+                "🚀 : file: main.js:1113 : == : ipcMain.on : newChild:",
+                newChild
+              );
+              contents = newChild.contents;
+              // console.log("🚀 : file: main.js:1193 : == : newChild.contents:", newChild.contents)
+              number = newChild.number;
+              parentPath = newChild.parent.path;
+              // console.log("🚀 : file: main.js:1195 : == : newChild.number:", newChild.number)
+              base_path = { contents, number, parentPath };
+              childrenArray.push(base_path);
+            }
+            // console.log("🚀 : file: main.js:1204 : == : childrenArray:", childrenArray)
+            win.webContents.send("expandedNode", parentPath, childrenArray);
+            win.webContents.send("expandedElement", expandReq, false);
+          } else if (currOpt_class == "MATRIX") {
+            let mtx_Array = [];
+            let expandReq = await eGet.getElementByPath(parentPath.toString());
+            let getDir = await (await eGet.getDirectory(expandReq)).response;
+            let mtx_conn_content = Object.values(getDir.contents.connections);
+            let mtx_conn_id = Object.keys(getDir.contents.connections);
+
+            for (i = 0; i < mtx_conn_id.length; i++) {
+              //TODO:do something to create a matrix table
+            }
+            contents = getDir.contents;
+            number = getDir.number;
+            parentPath = getDir.parent.path;
+            base_path = { contents, number, parentPath };
+            win.webContents.send("expandedElement", base_path, true);
+          } else {
+            let expandReq = await eGet.getElementByPath(parentPath.toString());
+            contents = expandReq.contents;
+            number = expandReq.number;
+            parentPath = expandReq.parent.path;
+            base_path = { contents, number, parentPath };
+            win.webContents.send("expandedElement", base_path, true);
           }
-        );
+        });
       } catch (error) {
         msg = error.message;
         // console.log("🚀 : file: main.js:1423 : main : msg:", msg);

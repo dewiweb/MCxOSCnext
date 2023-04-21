@@ -1,6 +1,8 @@
 const { ipcRenderer } = require("electron");
 const mainFunctions = require("./mainFunctions");
 const preferences = ipcRenderer.sendSync("getPreferences");
+const Tabulator = require("tabulator-tables");
+const { TreeView, TreeNode, TreeUtil, TreeConfig } = require("./tree");
 const log = require("electron-log");
 const { prettyPrintJson } = require("pretty-print-json");
 const osc = require("osc/src/osc-transports");
@@ -24,34 +26,38 @@ function scrollToBottom() {
 //let rMastersUserLabels = [];
 //let rSumsUserLabels = [];
 //let rGpcsUserLabels = [];
+let racine = new TreeNode("tree");
+let tree = new TreeView(racine);
+let nodes = [];
+let tableData = [
+  {
+    id: "1",
+    path: "boo",
+    go_x: '<button type="button" class="btn-click">Click here</button>',
+  },
+];
+let stringPath;
+let stringPathFormat = "STRING";
+let parameter_content = "";
 const autoSave = null;
 const embPathFormat = null;
 let innerPath = undefined;
 let stream_direction;
+
 //---Listen to the `preferencesUpdated` event to be notified when preferences are changed.---//
+
 ipcRenderer.on("preferencesUpdated", (e, preferences) => {
   logRenderer("Preferences were updated" + preferences);
 });
-ipcRenderer.on("emberpathFormat",(e,embPathFormat) => {
-  console.log("🚀 : file: renderer.js:36 : ipcRenderer.on : embPathFormat:", embPathFormat)
+ipcRenderer.on("emberpathFormat", (e, embPathFormat) => {
+  console.log(
+    "🚀 : file: renderer.js:36 : ipcRenderer.on : embPathFormat:",
+    embPathFormat
+  );
 });
+
 //---Interactions with Back-End---//
 
-//ipcRenderer.on("inputsUserLabels", (event, inputsUserLabels) => {
-//  rInputsUserLabels = inputsUserLabels;
-//});
-//ipcRenderer.on("auxesUserLabels", (event, auxesUserLabels) => {
-//  rAuxesUserLabels = auxesUserLabels;
-//});
-//ipcRenderer.on("mastersUserLabels", (event, mastersUserLabels) => {
-//  rMastersUserLabels = mastersUserLabels;
-//});
-//ipcRenderer.on("sumsUserLabels", (event, sumsUserLabels) => {
-//  rSumsUserLabels = sumsUserLabels;
-//});
-//ipcRenderer.on("gpcsUserLabels", (event, gpcsUserLabels) => {
-//  rGpcsUserLabels = gpcsUserLabels;
-//});
 ipcRenderer.on("resubscribe", (event, myRow) => {
   let table = document.getElementById("tableOfConnection");
   table.rows[myRow].cells[5].firstElementChild.click();
@@ -68,118 +74,15 @@ ipcRenderer.on("udpportOK", (event, uPort) => {
   add2.classList.remove("blink");
 });
 
-ipcRenderer.on("eServerOK", (event, eAddress) => {
-  let add1 = document.getElementById("add1");
-  if (add1.firstChild) {
-    add1.removeChild(add1.firstChild);
-  }
-  add1.textContent = "Connected to " + eAddress;
-  let dot1 = document.getElementById("dot1");
-  dot1.style.color = "green";
-  dot1.classList.remove("blink");
-  add1.style.color = "green";
-  add1.classList.remove("blink");
-});
-
-ipcRenderer.on("embertree", (event, root) => {
-  let treeslct_0 = document.getElementById("treeSlct0");
-
-  for (i = 1; i < 13; i++) {
-    let next_slcts = document.getElementById("treeSlct" + i);
-    while (next_slcts.firstChild) {
-      next_slcts.removeChild(next_slcts.firstChild);
-    }
-    let opt0 = document.createElement("option");
-    opt0.text = "---";
-    next_slcts.add(opt0);
-    next_slcts.style.visibility = "hidden";
-  }
-  while (treeslct_0.firstChild) {
-    treeslct_0.removeChild(treeslct_0.firstChild);
-  }
-  let opt0 = document.createElement("option");
-  opt0.text = "---";
-  treeslct_0.add(opt0);
-
-
-  for (i = 0; i < root.length; i++) {
-    let opt = document.createElement("option");
-    opt.id = "opt" + (i + 1);
-    opt.value = root[i].number;
-    opt.text = root[i].contents.description;
-    opt.className = root[i].contents.type;
-    treeslct_0.add(opt);
-  }
-  let current_class = "NODE";
-  treeslct_0.addEventListener("change", (event) => {
-    parentPath = event.target.value;
-    selectID = 0;
-    console.log("branch chosen : ", parentPath);
-    ipcRenderer.send("expandNode", selectID, parentPath, current_class);
-  });
-});
-
-ipcRenderer.on("expandedNode", (event, selectID, parentPath, childrenArray) => {
-  selectID = selectID + 1;
-  for (i = selectID + 1; i < 13; i++) {
-    let next_slcts = document.getElementById("treeSlct" + i);
-    while (next_slcts.firstChild) {
-      next_slcts.removeChild(next_slcts.firstChild);
-    }
-    let opt0 = document.createElement("option");
-    opt0.text = "---";
-    next_slcts.add(opt0);
-    next_slcts.style.visibility = "hidden";
-  }
-  let current_slct = document.getElementById("treeSlct" + selectID);
-  while (current_slct.firstChild) {
-    current_slct.removeChild(current_slct.firstChild);
-  }
-  let opt0 = document.createElement("option");
-  opt0.text = "---";
-  current_slct.add(opt0);
-  for (i = 0; i < childrenArray.length; i++) {
-    let opt = document.createElement("option");
-    opt.id = "opt" + (i + 1);
-    opt.value = childrenArray[i].number;
-    if (childrenArray[i].contents.description !== undefined) {
-      opt.text = childrenArray[i].contents.description;
-    } else {
-      opt.text = childrenArray[i].contents.identifier;
-    }
-    opt.className = childrenArray[i].contents.type;
-    current_slct.add(opt);
-  }
-  current_slct.style.visibility = "visible";
-  current_slct.addEventListener("change", (event) => {
-    let chosenPath = event.target.value;
-    console.log("🚀 : file: renderer.js:137 : current_slct.addEventListener : chosenPath:", chosenPath)
-    let currOpt_class =
-      current_slct.options[current_slct.selectedIndex].className;
-    if (current_slct.selectedIndex > -1) {
-      ipcRenderer.send(
-        "expandNode",
-        selectID,
-        (parentPath + "." + chosenPath).toString(),
-        currOpt_class
-      );
-    }
-  });
-});
-
-ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
-  let leaf = document.getElementById("expandedElement");
-  let sub_2_button = document.getElementById("suscribe_2");
-  if (Boolean == true) {
-    innerPath = expandReq;
-    leaf.innerHTML = prettyPrintJson.toHtml(expandReq);
-    //leaf.style.visibility = 'visible'
-    sub_2_button.style.visibility = "visible";
-  } else {
-    leaf.innerHTML = null;
-    //leaf.style.visibility = 'hidden'
-    sub_2_button.style.visibility = "hidden";
-  }
+ipcRenderer.on("udpportKO", (event, msg) => {
+  let add2 = document.getElementById("add2");
+  add2.removeChild(add2.firstChild);
+  add2.textContent = "An Error ocurred :" + msg;
+  let dot2 = document.getElementById("dot2");
+  dot2.style.color = "red";
+  dot2.classList.add("blink");
+  add2.style.color = "red";
+  add2.classList.add("blink");
 });
 
 ipcRenderer.on("oServerOK", (event, oAddress) => {
@@ -193,15 +96,17 @@ ipcRenderer.on("oServerOK", (event, oAddress) => {
   add3.classList.remove("blink");
 });
 
-ipcRenderer.on("udpportKO", (event, msg) => {
-  let add2 = document.getElementById("add2");
-  add2.removeChild(add2.firstChild);
-  add2.textContent = "An Error ocurred :" + msg;
-  let dot2 = document.getElementById("dot2");
-  dot2.style.color = "red";
-  dot2.classList.add("blink");
-  add2.style.color = "red";
-  add2.classList.add("blink");
+ipcRenderer.on("eServerOK", (event, eAddress) => {
+  let add1 = document.getElementById("add1");
+  if (add1.firstChild) {
+    add1.removeChild(add1.firstChild);
+  }
+  add1.textContent = "Connected to " + eAddress;
+  let dot1 = document.getElementById("dot1");
+  dot1.style.color = "green";
+  dot1.classList.remove("blink");
+  add1.style.color = "green";
+  add1.classList.remove("blink");
 });
 
 ipcRenderer.on("eServConnError", function (event, msg) {
@@ -277,6 +182,124 @@ ipcRenderer.on("loginfo", (e, msg) => {
       .getElementById("logging")
       .insertAdjacentHTML("beforeend", date + JSON.stringify(msg) + "<br>");
     scrollToBottom();
+  }
+});
+
+ipcRenderer.on("embertree", (event, root) => {
+  let nodeType = "NODE";
+  for (i = 0; i < root.length; i++) {
+    nodes[root[i].number.toString()] = new TreeNode(
+      root[i].number.toString() + " - " + root[i].contents.description,
+      {
+        icon: TreeUtil.default_parent_icon,
+      }
+    );
+    racine.addChild(nodes[root[i].number.toString()]);
+    tree.reload();
+    nodes[root[i].number.toString()].on("select", (e) => {
+      let path = getNodePathToRoot(e);
+      stringPath = "";
+      if (stringPathFormat == "NUMBER") {
+        path.forEach(function (node) {
+          stringPath +=
+            node.getUserObject().split("-")[0].replace(/\D+/g, "") + ".";
+        });
+        stringPath = stringPath.substring(1, stringPath.length - 1);
+      } else {
+        path.forEach(function (node) {
+          stringPath += node.getUserObject().split("- ")[1] + ".";
+        });
+        stringPath = stringPath.substring(10, stringPath.length - 1);
+      }
+      console.log(
+        "🚀 : file: renderer.js:103 : path.forEach : stringPath:",
+        stringPath
+      );
+    });
+
+    nodes[root[i].number.toString()].on("click", (e) => {
+      parentPath = e.srcElement.innerText.split("-")[0].replace(/\D+/g, "");
+      ipcRenderer.send("expandNode", parentPath, nodeType);
+    });
+  }
+});
+
+ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
+  for (i = 0; i < childrenArray.length; i++) {
+    let nodeText;
+    if (childrenArray[i].contents.description !== undefined) {
+      nodeText = childrenArray[i].contents.description;
+    } else {
+      nodeText = childrenArray[i].contents.identifier;
+    }
+    let nodeType = childrenArray[i].contents.type;
+    if (!nodes[parentPath + "." + childrenArray[i].number.toString()]) {
+      if (nodeType == "NODE") {
+        nodes[parentPath + "." + childrenArray[i].number.toString()] =
+          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText, {
+            icon: TreeUtil.default_parent_icon,
+          });
+      } else {
+        nodes[parentPath + "." + childrenArray[i].number.toString()] =
+          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText);
+      }
+      //console.log("🚀 : file: renderer.js:151 : ipcRenderer.on : nodes:", nodes);
+      nodes[parentPath].addChild(
+        nodes[parentPath + "." + childrenArray[i].number.toString()]
+      );
+      tree.reload();
+      nodes[parentPath + "." + childrenArray[i].number.toString()].on(
+        "select",
+        (e) => {
+          let path = getNodePathToRoot(e);
+          stringPath = "";
+          if (stringPathFormat == "NUMBER") {
+            path.forEach(function (node) {
+              stringPath +=
+                node.getUserObject().split("-")[0].replace(/\D+/g, "") + ".";
+            });
+            stringPath = stringPath.substring(1, stringPath.length - 1);
+          } else {
+            path.forEach(function (node) {
+              stringPath += node.getUserObject().split("- ")[1] + ".";
+            });
+            stringPath = stringPath.substring(10, stringPath.length - 1);
+          }
+
+          console.log(
+            "🚀 : file: renderer.js:125 : path.forEach : stringPath:",
+            stringPath
+          );
+        }
+      );
+
+      nodes[parentPath + "." + childrenArray[i].number.toString()].on(
+        "click",
+        (e) => {
+          ipcRenderer.send(
+            "expandNode",
+            parentPath +
+              "." +
+              e.srcElement.innerText.split("-")[0].replace(/\D+/g, ""),
+            nodeType
+          );
+        }
+      );
+    }
+  }
+});
+
+ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
+  let leaf = document.getElementById("expandedElement");
+  let sub_2_button = document.getElementById("suscribe_2");
+  if (Boolean == true) {
+    innerPath = expandReq;
+    parameter_content = expandReq;
+    leaf.innerHTML = prettyPrintJson.toHtml(expandReq);
+    sub_2_button.style.visibility = "visible";
+  } else {
+    leaf.innerHTML = null;
+    sub_2_button.style.visibility = "hidden";
   }
 });
 
@@ -793,6 +816,8 @@ function addemptyrow(event) {
 }
 
 function submitPath(event) {
+  //console.log("🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():", tree.getSelectedNodes())
+  console.log("stringPath : line813 : ", stringPath);
   pathType = innerPath.contents.parameterType;
   eVarType = pathType[0].toUpperCase() + pathType.substring(1).toLowerCase();
   let eVarMin = "";
@@ -828,23 +853,8 @@ function submitPath(event) {
   }
   let btnDel = document.createElement("BUTTON");
   let btnGo = document.createElement("BUTTON");
-  let valueslct = [];
-  for (i = 0; i < 13; i++) {
-    valueslct[i] = document.getElementById("treeSlct" + i).value;
-  }
-  valueslct = valueslct.filter((x) => x !== "---");
-  let emBerPath = valueslct.join(".");
-  let innerslct = [];
-  for (i = 0; i < 13; i++) {
-    let selection = document.getElementById("treeSlct" + i);
-    innerslct[i] = selection.options[selection.selectedIndex].text.replaceAll(
-      / /g,
-      "_"
-    );
-  }
-  innerslct = innerslct.filter((x) => x !== "---");
-  innerslct = innerslct.join("/");
-  innerslct = "/" + innerslct;
+  let emBerPath = stringPath;
+  let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
   btnDel.innerHTML = "X";
   btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
   btnGo.innerHTML = "Go!";
@@ -876,7 +886,7 @@ function submitPath(event) {
   cell2.innerHTML = innerPath.contents.value;
   cell3.innerHTML = eVarFactor;
   cell4.innerHTML = "----";
-  cell5.innerHTML = innerslct;
+  cell5.innerHTML = OSCpath;
   cell5.contentEditable = true;
   cell5.onblur = function () {
     changed(this.parentNode.rowIndex);
@@ -1242,4 +1252,50 @@ function tableToJson(table) {
 
 function clearLog() {
   document.getElementById("logging").innerHTML = '<div id="anchor"></div>';
+}
+
+//---tabulator---//
+ipcRenderer.on("ready", (e) => {
+  var treeContainer = document.getElementById("tree");
+  //var l1 =
+
+  tree.setContainer(treeContainer);
+  tree.reload();
+  //let tabul = document.getElementById('tabulator')
+  ////let tabul = document.getElementById('tableOfConnection')
+  //var mytable = new Tabulator(tabul,{
+  //  reactiveData : true,
+  //  data: tableData,
+  //  layout: "fitColumns",
+  //  columns:[
+  //    {title: "Path", field:"path", editor:"input"},
+  //    {title: "Ember+Value", field:"ember+value"},
+  //    {title: "Factor", field:"factor"},
+  //    {title: "OSCvalue", field:"oscValue"},
+  //    {title: "Address", field:"address", editor:"input"},
+  //    {title: "GO/X", field:"go_x",formatter: "html",},
+  //    {title: "Type", field:"type", formatter: "html"},
+  //    {title: "Math", field:"math", formatter: "html"},
+  //    {title: "Min", field:"min", formatter: "html"},
+  //    {title: "Direction", field:"direction", formatter: "html"},
+  //    {title: "Max", field:"max", formatter: "html"},
+  //
+  //  ],
+  //})
+});
+
+function reactivity_add() {
+  tableData.push({
+    go_x: '<button type="button" onclick="sendConnection(this)">GO!</button><button type="button" onclick="SomeDeleteRowFunction(this)">X</button>',
+  });
+}
+
+function getNodePathToRoot(node) {
+  let parentNode = node.parent;
+
+  if (typeof parentNode === "undefined") {
+    return [node];
+  }
+
+  return getNodePathToRoot(parentNode).concat([node]);
 }
