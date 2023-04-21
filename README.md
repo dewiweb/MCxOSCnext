@@ -15,12 +15,12 @@ Heavily based on <https://github.com/nrkno/tv-automation-emberplus-connection> \
 
 `yarn start`
 
-![Screenshot](/src/assets/screenshot2.0.0.png)
+![Screenshot](/src/assets/screenshot_v2.2.0-alpha.7.png)
 
 # Instructions
 
-- Preferences are automatically stored  in a 'config.json'
-- Connections are stored in a separated JSON formatted '*.session' file. -->[examples](/examples) 
+- Preferences are automatically stored in a 'config.json'
+- Connections are stored in a separated JSON formatted '\*.session' file. -->[examples](/examples)
 - A pre-configured form , dedicated for Lawo MC²36 console (not tested yet on other models), helps you to specify ember+ paths.
 - Clicking 'Add' button add a line in the table of connections.
 - Once you've clicked it, you can modify OSC addresses, ember+ paths, types, OSC mins, OSC maxs directly in table cells.
