@@ -647,14 +647,26 @@ function createWindow() {
                 enum_length = enumList.length;
               } else if (parameter_type == "INTEGER") {
                 win.webContents.send("choosen_type", 2, myRow);
-                if (initialReq.contents.maximum !== eMax) {
-                  eMax = initialReq.contents.maximum;
+                if (typeof initialReq.contents.maximum !== "undefined") {
+                  if (initialReq.contents.maximum !== eMax) {
+                    eMax = initialReq.contents.maximum;
+                  }
+                } else {
+                  eMax = 128;
                 }
-                if (initialReq.contents.minimum !== eMin) {
-                  eMin = initialReq.contents.minimum;
+                if (typeof initialReq.contents.minimum !== "undefined") {
+                  if (initialReq.contents.minimum !== eMin) {
+                    eMin = initialReq.contents.minimum;
+                  }
+                } else {
+                  eMin = 0;
                 }
-                if (Number(initialReq.contents.factor) !== sFactor) {
-                  sFactor = initialReq.contents.factor;
+                if (typeof initialReq.contents.factor !== "undefined") {
+                  if (Number(initialReq.contents.factor) !== sFactor) {
+                    sFactor = initialReq.contents.factor;
+                  }
+                } else {
+                  sFactor = 1;
                 }
               } else if (parameter_type == "BOOLEAN") {
                 let bool_description = initialReq.contents.description;
