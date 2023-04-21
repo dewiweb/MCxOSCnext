@@ -1164,14 +1164,16 @@ function createWindow() {
 
   preferences.on("click", (key) => {
     if (key === "resetButton") {
-      win.webContents.send("loginfo", "ember+ provider settings changed!");
-
-      emberGet();
-      main().catch((err) => {
-        msg = err.message;
-        win.webContents.send("resolveError", err);
-        console.error(err);
-      });
+      //    win.webContents.send("loginfo", "ember+ provider settings changed!");
+      //
+      //    emberGet();
+      //    main().catch((err) => {
+      //      msg = err.message;
+      //      win.webContents.send("resolveError", err);
+      //      console.error(err);
+      //    });
+      app.relaunch();
+      app.quit();
     } else if (key === "applyButton") {
       win.webContents.send("loginfo", "listening port changed!");
       win.webContents.send(
