@@ -10,6 +10,8 @@ const TreeUtil = {
   default_parent_icon: "<span>&#x2630;</span>",
   default_open_icon: "<span>&#9698;</span>",
   default_close_icon: "<span>&#9654;</span>",
+  default_matrix_icon: "<span>&#x25A6;</span>",
+  default_fx_icon: "<span>&#x192;x</span>",
 
   isDOM: function (obj) {
     try {

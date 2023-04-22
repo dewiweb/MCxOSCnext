@@ -239,9 +239,19 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
           new TreeNode(childrenArray[i].number.toString() + " - " + nodeText, {
             icon: TreeUtil.default_parent_icon,
           });
-      } else {
+      } else if (nodeType == "PARAMETER") {
         nodes[parentPath + "." + childrenArray[i].number.toString()] =
           new TreeNode(childrenArray[i].number.toString() + " - " + nodeText);
+      } else if (nodeType == "MATRIX") {
+        nodes[parentPath + "." + childrenArray[i].number.toString()] =
+          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText, {
+            icon: TreeUtil.default_matrix_icon,
+          });
+      } else if (nodeType == "FUNCTION") {
+        nodes[parentPath + "." + childrenArray[i].number.toString()] =
+          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText, {
+            icon: TreeUtil.default_fx_icon,
+          });
       }
       //console.log("🚀 : file: renderer.js:151 : ipcRenderer.on : nodes:", nodes);
       nodes[parentPath].addChild(
@@ -290,13 +300,23 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
 });
 
 ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
+  console.log(
+    "🚀 : file: renderer.js:303 : ipcRenderer.on : expandReq:",
+    expandReq
+  );
   let leaf = document.getElementById("expandedElement");
   let sub_2_button = document.getElementById("suscribe_2");
   if (Boolean == true) {
     innerPath = expandReq;
     parameter_content = expandReq;
+    parameter_type = expandReq.contents.type;
     leaf.innerHTML = prettyPrintJson.toHtml(expandReq);
-    sub_2_button.style.visibility = "visible";
+
+    if (parameter_type == "PARAMETER") {
+      sub_2_button.style.visibility = "visible";
+    } else {
+      sub_2_button.style.visibility = "hidden";
+    }
   } else {
     leaf.innerHTML = null;
     sub_2_button.style.visibility = "hidden";
