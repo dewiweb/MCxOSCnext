@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.9](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.8...v2.2.0-alpha.9) (2023-04-22)
+
+
+### Bug Fixes
+
+* :bug: custom icons + disable submit ([bc7125c](https://github.com/dewiweb/MCxOSCnext/commit/bc7125cdaca06c6dcdce9bcf825e1de126994247))
+* :bug: default values ([a02ca0e](https://github.com/dewiweb/MCxOSCnext/commit/a02ca0e966524a0a8734da4b504c418d9a462864))
+* :bug: disable developper windows ([c5066e4](https://github.com/dewiweb/MCxOSCnext/commit/c5066e4f6af4fdb9369dfd35cf12193525017c5c))
+
 ## [2.2.0-alpha.8](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.7...v2.2.0-alpha.8) (2023-04-21)
 
 
