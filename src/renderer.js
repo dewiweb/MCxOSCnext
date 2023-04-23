@@ -306,6 +306,10 @@ ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
   );
   let leaf = document.getElementById("expandedElement");
   let sub_2_button = document.getElementById("suscribe_2");
+  let matrixView = document.getElementById("matrix_view");
+  matrixView.innerHTML = "";
+  matrixView.style.width = "0%";
+  matrixView.style.visibility = "hidden";
   if (Boolean == true) {
     innerPath = expandReq;
     parameter_content = expandReq;
@@ -314,6 +318,14 @@ ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
 
     if (parameter_type == "PARAMETER") {
       sub_2_button.style.visibility = "visible";
+    } else if (parameter_type == "MATRIX") {
+      let targets = expandReq.contents.targetCount;
+      let sources = expandReq.contents.sourceCount;
+      let connections = expandReq.contents.connections;
+      createMatrixView(targets, sources, connections);
+      sub_2_button.style.visibility = "hidden";
+      matrixView.style.visibility = "visible";
+      matrixView.style.width = "33%";
     } else {
       sub_2_button.style.visibility = "hidden";
     }
@@ -974,7 +986,7 @@ function submitPath(event) {
       addGenBtns();
     }
   }
-  event.preventDefault();
+  // event.preventDefault();
 }
 
 function SomeDeleteRowFunction(o) {
@@ -1318,4 +1330,82 @@ function getNodePathToRoot(node) {
   }
 
   return getNodePathToRoot(parentNode).concat([node]);
+}
+
+function createMatrixView(targets, sources, connections) {
+  let matrixView = document.createElement("table");
+  matrixView.style.overflow = "auto";
+  matrixView.style.tableLayout = "fixed";
+  matrixView.style.width = "100%";
+  matrixView.style.whiteSpace = "nowrap";
+  matrixView.style.border = "1px";
+  matrixView.id = "mtx_table";
+  let headerRow = matrixView.insertRow(-1);
+  let cross = document.createElement("th");
+  cross.style.position = "sticky";
+  cross.style.rotate = "-45deg";
+  cross.style.top = "-5px";
+  cross.style.left = "0px";
+  cross.style.height = "30px";
+  cross.style.width = "20px";
+  cross.innerHTML = "&#x269E;";
+  headerRow.appendChild(cross);
+  for (i = 0; i < targets; i++) {
+    let horHeaderCell = document.createElement("th");
+    horHeaderCell.innerHTML =
+      '<span style="">' + "t-" + i.toString() + "</span>";
+    //horHeaderCell.style.transform = "rotate(-45deg)";
+    horHeaderCell.style.height = "20px";
+    horHeaderCell.style.width = "20px";
+    horHeaderCell.firstChild.style.color = "black";
+    horHeaderCell.style.background = "grey";
+    //horHeaderCell.style.borderRadius = "5px";
+    horHeaderCell.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
+    headerRow.appendChild(horHeaderCell);
+  }
+  for (j = 0; j < sources; j++) {
+    let vertHeaderCell = document.createElement("th");
+    let newRow = matrixView.insertRow(-1);
+    vertHeaderCell.innerHTML = "s-" + j.toString();
+    vertHeaderCell.style.width = "20px";
+    vertHeaderCell.style.height = "20px";
+    vertHeaderCell.style.color = "black";
+    vertHeaderCell.style.background = "grey";
+    newRow.appendChild(vertHeaderCell);
+    newRow.firstChild.style.position = "sticky";
+    newRow.firstChild.style.left = "0px";
+    for (k = 0; k < targets; k++) {
+      let otherCell = document.createElement("td");
+      otherCell.style.width = "20px";
+
+      otherCell.innerHTML =
+        "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
+      //otherCell.firstChild.style.zIndex = "-1";
+      newRow.appendChild(otherCell);
+    }
+  }
+  headerRow.style.position = "sticky";
+  headerRow.style.top = "0px";
+  for (t in connections) {
+    console.log(
+      "🚀 : file: renderer.js:1375 : createMatrixView : item:",
+      connections[t]
+    );
+    if (connections[t].sources !== []) {
+      for (s in connections[t].sources) {
+        console.log("🚀 : file: renderer.js:1381 : createMatrixView : s :", s);
+        let xcell =
+          matrixView.rows[connections[t].sources[s] + 1].cells[
+            connections[t].target + 1
+          ];
+        xcell.style.textAlign = "center";
+        xcell.innerHTML =
+          "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
+      }
+    }
+  }
+  let matrix_container = document.getElementById("matrix_view");
+  matrix_container.appendChild(matrixView);
 }

@@ -222,9 +222,18 @@ td>input[type=number]:hover, td>select:hover{
 
 #CS_content > div {
   width: 49%;
-  border: solid #47496c;
+  border: solid #47496c ;
   border-radius: 10px;
   background-color: #282C34;
+}
+
+.mtx_table {
+  background-color: black;
+}
+
+input[type=radio]:checked{
+  background:  #282C34;
+  border: 0px;
 }
 
 #oscAddr, #manualEmberPath {
