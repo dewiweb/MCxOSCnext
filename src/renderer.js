@@ -322,7 +322,8 @@ ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
       let targets = expandReq.contents.targetCount;
       let sources = expandReq.contents.sourceCount;
       let connections = expandReq.contents.connections;
-      createMatrixView(targets, sources, connections);
+      let mtx_path = expandReq.parentPath + "." + expandReq.number.toString();
+      createMatrixView(mtx_path, targets, sources, connections);
       sub_2_button.style.visibility = "hidden";
       matrixView.style.visibility = "visible";
       matrixView.style.width = "33%";
@@ -1400,7 +1401,7 @@ function getNodePathToRoot(node) {
   return getNodePathToRoot(parentNode).concat([node]);
 }
 
-async function createMatrixView(targets, sources, connections) {
+async function createMatrixView(mtx_path, targets, sources, connections) {
   await targets;
   await sources;
   await connections;
@@ -1452,7 +1453,9 @@ async function createMatrixView(targets, sources, connections) {
       otherCell.style.width = "20px";
 
       otherCell.innerHTML =
-        "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
+        "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked onclick='check_uncheck(this,`" +
+        mtx_path +
+        "`)'>";
       //otherCell.firstChild.style.zIndex = "-1";
       newRow.appendChild(otherCell);
     }
@@ -1473,10 +1476,45 @@ async function createMatrixView(targets, sources, connections) {
           ];
         xcell.style.textAlign = "center";
         xcell.innerHTML =
-          "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
+          "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked onclick='check_uncheck(this,`" +
+          mtx_path +
+          "`)'>";
       }
     }
   }
   let matrix_container = document.getElementById("matrix_view");
   matrix_container.appendChild(matrixView);
+}
+
+function check_uncheck(checkbox, mtx_path) {
+  let m_table = document.getElementById("mtx_table");
+  console.log("mtx-table-length: ", m_table.rows.length);
+  let checkbox_cell = checkbox.parentNode.cellIndex;
+  console.log(
+    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_cell:",
+    checkbox_cell
+  );
+  let checkbox_row = checkbox.parentNode.parentNode.rowIndex;
+  console.log(
+    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_row:",
+    checkbox_row
+  );
+  console.log(
+    "🚀 : file: renderer.js:1485 : check_uncheck : this:",
+    checkbox.checked
+  );
+  let check_t = checkbox_cell - 1;
+  let check_s = [];
+
+  for (i = 1; i < m_table.rows.length; i++) {
+    console.log("🚀 : file: renderer.js:1505 : check_uncheck : row:", i);
+    if (m_table.rows[i].cells[checkbox_cell].firstChild.checked == true) {
+      check_s.push(i - 1);
+    }
+  }
+  console.log(
+    "🚀 : file: renderer.js:1503 : check_uncheck : check_s :",
+    check_s
+  );
+  ipcRenderer.send("mtx_connect", mtx_path, check_t, check_s);
 }

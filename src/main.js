@@ -721,8 +721,13 @@ function createWindow() {
                   await eGet.invoke(initialReq)
                 ).response;
                 console.log(
-                  "🚀 : file: main.js:724 : main : function_cb:",
-                  function_cb.result[0].value
+                  "🚀 : file: main.js:727 : main : function_cb.result[0]:",
+                  function_cb
+                );
+                win.webContents.send(
+                  "loginfo",
+                  "🚀 : file: main.js:724 : main : function_cb:" +
+                    JSON.stringify(function_cb.result)
                 );
               } else {
                 console.log(
@@ -980,6 +985,15 @@ function createWindow() {
             }
           }
         );
+
+        ipcMain.on("mtx_connect", async (event, mtx_path, check_t, check_s) => {
+          console.log(
+            "🚀 : file: main.js:990 : ipcMain.on : mtx_path:",
+            mtx_path
+          );
+          let mtx = await eGet.getElementByPath(mtx_path);
+          await eGet.matrixSetConnection(mtx, check_t, check_s);
+        });
 
         ipcMain.on(
           "deleteConnection",
