@@ -716,6 +716,20 @@ function createWindow() {
               win.webContents.send("errorOnEditedPath", myRow);
             } else if (contents_type == "FUNCTION") {
               let fct_description = initialReq.contents.description;
+              if (!initialReq.contents.args) {
+                let function_cb = await (
+                  await eGet.invoke(initialReq)
+                ).response;
+                console.log(
+                  "🚀 : file: main.js:724 : main : function_cb:",
+                  function_cb.result[0].value
+                );
+              } else {
+                console.log(
+                  "🚀 : file: main.js:720 : main : initialReq.contents.args:",
+                  initialReq.contents.args
+                );
+              }
               win.webContents.send(
                 "loginfo",
                 "WARNING! : You're trying to connect to a FUNCTION ( " +

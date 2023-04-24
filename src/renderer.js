@@ -326,6 +326,8 @@ ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
       sub_2_button.style.visibility = "hidden";
       matrixView.style.visibility = "visible";
       matrixView.style.width = "33%";
+    } else if (parameter_type == "FUNCTION") {
+      sub_2_button.style.visibility = "visible";
     } else {
       sub_2_button.style.visibility = "hidden";
     }
@@ -850,140 +852,206 @@ function addemptyrow(event) {
 function submitPath(event) {
   //console.log("🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():", tree.getSelectedNodes())
   console.log("stringPath : line813 : ", stringPath);
-  pathType = innerPath.contents.parameterType;
-  eVarType = pathType[0].toUpperCase() + pathType.substring(1).toLowerCase();
-  let eVarMin = "";
-  let eVarMax = "";
-  let eVarFactor = "";
-  if (pathType == "INTEGER") {
-    eVarCurve = "lin";
-    eVarMin = innerPath.contents.minimum;
-    eVarMax = innerPath.contents.maximum;
-    if (innerPath.contents.format) {
-      if (innerPath.contents.format.includes("dB") == true) {
-        eVarCurve = "log";
+  let thisType = innerPath.contents.type;
+  if (thisType == "PARAMETER") {
+    pathType = innerPath.contents.parameterType;
+    eVarType = pathType[0].toUpperCase() + pathType.substring(1).toLowerCase();
+    let eVarMin = "";
+    let eVarMax = "";
+    let eVarFactor = "";
+    if (pathType == "INTEGER") {
+      eVarCurve = "lin";
+      eVarMin = innerPath.contents.minimum;
+      eVarMax = innerPath.contents.maximum;
+      if (innerPath.contents.format) {
+        if (innerPath.contents.format.includes("dB") == true) {
+          eVarCurve = "log";
+        }
       }
-    }
-    if (innerPath.contents.factor !== undefined) {
-      eVarFactor = innerPath.contents.factor;
-    } else {
+      if (innerPath.contents.factor !== undefined) {
+        eVarFactor = innerPath.contents.factor;
+      } else {
+        eVarFactor = 1;
+      }
+    } else if (pathType == "BOOLEAN") {
+      eVarCurve = "";
+      eVarMin = false;
+      eVarMax = true;
+    } else if (pathType == "ENUM" || pathType == "REAL") {
+      eVarCurve = "lin";
+      eVarMin = innerPath.contents.minimum;
+      eVarMax = innerPath.contents.maximum;
       eVarFactor = 1;
+    } else {
+      eVarCurve = "";
+      eVarMin = 0;
+      eVarMax = 1;
     }
-  } else if (pathType == "BOOLEAN") {
-    eVarCurve = "";
-    eVarMin = false;
-    eVarMax = true;
-  } else if (pathType == "ENUM" || pathType == "REAL") {
-    eVarCurve = "lin";
-    eVarMin = innerPath.contents.minimum;
-    eVarMax = innerPath.contents.maximum;
-    eVarFactor = 1;
-  } else {
-    eVarCurve = "";
-    eVarMin = 0;
-    eVarMax = 1;
-  }
-  let btnDel = document.createElement("BUTTON");
-  let btnGo = document.createElement("BUTTON");
-  let emBerPath = stringPath;
-  let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
-  btnDel.innerHTML = "X";
-  btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
-  btnGo.innerHTML = "Go!";
-  btnGo.setAttribute("onClick", "sendConnection(this)");
-  let table = document.getElementById("tableOfConnection");
-  let row = table.insertRow(-1);
-  row.style.fontSize = "smaller";
-  let cell1 = row.insertCell(0);
-  let cell2 = row.insertCell(1);
-  let cell3 = row.insertCell(2);
-  let cell4 = row.insertCell(3);
-  let cell5 = row.insertCell(4);
-  let cell6 = row.insertCell(5);
-  let cell7 = row.insertCell(6);
-  let cell8 = row.insertCell(7);
-  let cell9 = row.insertCell(8);
-  let cell10 = row.insertCell(9);
-  let cell11 = row.insertCell(10);
-  cell1.innerHTML = emBerPath;
-  cell1.contentEditable = true;
-  cell1.onblur = function () {
-    changedPath(this.parentNode.rowIndex);
-  };
-  if (innerPath.contents.description !== undefined) {
-    cell1.title = innerPath.contents.description;
-  } else {
-    cell1.title = innerPath.contents.identifier;
-  }
-  cell2.innerHTML = innerPath.contents.value;
-  cell3.innerHTML = eVarFactor;
-  cell4.innerHTML = "----";
-  cell5.innerHTML = OSCpath;
-  cell5.contentEditable = true;
-  cell5.onblur = function () {
-    changed(this.parentNode.rowIndex);
-  };
-  cell6.appendChild(btnGo);
-  cell6.appendChild(btnDel);
+    let btnDel = document.createElement("BUTTON");
+    let btnGo = document.createElement("BUTTON");
+    let emBerPath = stringPath;
+    let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
+    btnDel.innerHTML = "X";
+    btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
+    btnGo.innerHTML = "Go!";
+    btnGo.setAttribute("onClick", "sendConnection(this)");
+    let table = document.getElementById("tableOfConnection");
+    let row = table.insertRow(-1);
+    row.style.fontSize = "smaller";
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
+    let cell5 = row.insertCell(4);
+    let cell6 = row.insertCell(5);
+    let cell7 = row.insertCell(6);
+    let cell8 = row.insertCell(7);
+    let cell9 = row.insertCell(8);
+    let cell10 = row.insertCell(9);
+    let cell11 = row.insertCell(10);
+    cell1.innerHTML = emBerPath;
+    cell1.contentEditable = true;
+    cell1.onblur = function () {
+      changedPath(this.parentNode.rowIndex);
+    };
+    if (innerPath.contents.description !== undefined) {
+      cell1.title = innerPath.contents.description;
+    } else {
+      cell1.title = innerPath.contents.identifier;
+    }
+    cell2.innerHTML = innerPath.contents.value;
+    cell3.innerHTML = eVarFactor;
+    cell4.innerHTML = "----";
+    cell5.innerHTML = OSCpath;
+    cell5.contentEditable = true;
+    cell5.onblur = function () {
+      changed(this.parentNode.rowIndex);
+    };
+    cell6.appendChild(btnGo);
+    cell6.appendChild(btnDel);
 
-  cell7.innerHTML = eVarType;
-  if (eVarCurve == "lin") {
-    cell8.innerHTML =
-      `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
+    cell7.innerHTML = eVarType;
+    if (eVarCurve == "lin") {
+      cell8.innerHTML =
+        `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="` +
-      eVarCurve +
-      `" selected >` +
-      eVarCurve +
-      `</option>
+        eVarCurve +
+        `" selected >` +
+        eVarCurve +
+        `</option>
       <option value="log">log</option>
       </select>`;
-  } else if (eVarCurve == "log") {
-    cell8.innerHTML =
-      `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
+    } else if (eVarCurve == "log") {
+      cell8.innerHTML =
+        `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="` +
-      eVarCurve +
-      `" selected >` +
-      eVarCurve +
-      `</option>
+        eVarCurve +
+        `" selected >` +
+        eVarCurve +
+        `</option>
       <option value="lin">lin</option>
       </select>`;
-  } else if (eVarCurve == "") {
-    cell8.innerHTML = `<select>
+    } else if (eVarCurve == "") {
+      cell8.innerHTML = `<select>
   <option value="" selected class="without-icon"></option>
   </select>`;
-  }
-  if (eVarFactor !== "") {
-    cell9.innerHTML =
-      eVarMin +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-      (Number(eVarMin) / Number(eVarFactor)).toFixed(0) +
-      `>`;
-    cell11.innerHTML =
-      eVarMax +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-      (Number(eVarMax) / Number(eVarFactor)).toFixed(0) +
-      `>`;
-  } else {
-    cell9.innerHTML =
-      eVarMin +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
-    cell11.innerHTML =
-      eVarMax +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
-  }
-  cell10.innerHTML = "-";
-  cell3.style.fontSize = "x-small";
-  cell7.style.fontSize = "x-small";
-  cell8.style.fontSize = "x-small";
-  cell9.style.fontSize = "x-small";
-  cell11.style.fontSize = "x-small";
-  if (table.rows.length == 3) {
-    if (table.rows[1].cells[5].innerHTML == "") {
-      addGenBtns();
+    }
+    if (eVarFactor !== "") {
+      cell9.innerHTML =
+        eVarMin +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+        (Number(eVarMin) / Number(eVarFactor)).toFixed(0) +
+        `>`;
+      cell11.innerHTML =
+        eVarMax +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+        (Number(eVarMax) / Number(eVarFactor)).toFixed(0) +
+        `>`;
+    } else {
+      cell9.innerHTML =
+        eVarMin +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+      cell11.innerHTML =
+        eVarMax +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
+    }
+    cell10.innerHTML = "-";
+    cell3.style.fontSize = "x-small";
+    cell7.style.fontSize = "x-small";
+    cell8.style.fontSize = "x-small";
+    cell9.style.fontSize = "x-small";
+    cell11.style.fontSize = "x-small";
+    if (table.rows.length == 3) {
+      if (table.rows[1].cells[5].innerHTML == "") {
+        addGenBtns();
+      }
+    }
+  } else if (thisType == "FUNCTION") {
+    eVarType = thisType[0].toUpperCase() + thisType.substring(1).toLowerCase();
+    console.log(
+      "🚀 : file: renderer.js:995 : submitPath : eVarType:",
+      eVarType
+    );
+    let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
+    let eVarMin = "0";
+    let eVarMax = "1";
+    let eVarFactor = "1";
+    let eVarCurve = "invoke";
+    let btnDel = document.createElement("BUTTON");
+    let btnGo = document.createElement("BUTTON");
+    btnDel.innerHTML = "X";
+    btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
+    btnGo.innerHTML = "Go!";
+    btnGo.setAttribute("onClick", "sendConnection(this)");
+    let table = document.getElementById("tableOfConnection");
+    let row = table.insertRow(-1);
+    row.style.fontSize = "smaller";
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
+    let cell5 = row.insertCell(4);
+    let cell6 = row.insertCell(5);
+    let cell7 = row.insertCell(6);
+    let cell8 = row.insertCell(7);
+    let cell9 = row.insertCell(8);
+    let cell10 = row.insertCell(9);
+    let cell11 = row.insertCell(10);
+    cell1.innerHTML = stringPath;
+    cell1.contentEditable = true;
+    cell1.onblur = function () {
+      changedPath(this.parentNode.rowIndex);
+    };
+    cell2.innerHTML = "----";
+    cell3.innerHTML = eVarFactor;
+    cell4.innerHTML = "----";
+    cell5.innerHTML = OSCpath;
+    cell5.contentEditable = true;
+    cell5.onblur = function () {
+      changed(this.parentNode.rowIndex);
+    };
+    cell6.appendChild(btnGo);
+    cell6.appendChild(btnDel);
+    cell7.innerHTML = eVarType;
+    cell8.innerHTML = `<select>
+  <option value="" selected class="without-icon">invoke</option>
+  </select>`;
+    cell9.innerHTML = eVarMin + "/" + "<span>0</span>";
+    cell10.innerHTML = "-";
+    cell11.innerHTML = eVarMax + "/" + "<span>1</span>";
+    cell3.style.fontSize = "x-small";
+    cell7.style.fontSize = "x-small";
+    cell8.style.fontSize = "x-small";
+    cell9.style.fontSize = "x-small";
+    cell11.style.fontSize = "x-small";
+    if (table.rows.length == 3) {
+      if (table.rows[1].cells[5].innerHTML == "") {
+        addGenBtns();
+      }
     }
   }
   // event.preventDefault();
@@ -1332,7 +1400,10 @@ function getNodePathToRoot(node) {
   return getNodePathToRoot(parentNode).concat([node]);
 }
 
-function createMatrixView(targets, sources, connections) {
+async function createMatrixView(targets, sources, connections) {
+  await targets;
+  await sources;
+  await connections;
   let matrixView = document.createElement("table");
   matrixView.style.overflow = "auto";
   matrixView.style.tableLayout = "fixed";
