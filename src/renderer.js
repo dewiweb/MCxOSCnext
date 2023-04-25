@@ -1,7 +1,7 @@
 const { ipcRenderer } = require("electron");
 const mainFunctions = require("./mainFunctions");
 const preferences = ipcRenderer.sendSync("getPreferences");
-const Tabulator = require("tabulator-tables");
+//const Tabulator = require("tabulator-tables");
 const { TreeView, TreeNode, TreeUtil, TreeConfig } = require("./tree");
 const log = require("electron-log");
 const { prettyPrintJson } = require("pretty-print-json");
@@ -50,10 +50,10 @@ ipcRenderer.on("preferencesUpdated", (e, preferences) => {
   logRenderer("Preferences were updated" + preferences);
 });
 ipcRenderer.on("emberpathFormat", (e, embPathFormat) => {
-  console.log(
-    "🚀 : file: renderer.js:36 : ipcRenderer.on : embPathFormat:",
-    embPathFormat
-  );
+  // console.log(
+  // "🚀 : file: renderer.js:36 : ipcRenderer.on : embPathFormat:",
+  // embPathFormat
+  // );
 });
 
 //---Interactions with Back-End---//
@@ -134,7 +134,7 @@ ipcRenderer.on("eServDisconnected", function (event, eAddress) {
 
 ipcRenderer.on("resolveError", (e, msg) => {
   if (("error-msg: ", msg)) {
-    console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg);
+    // console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg);
     let date = new Date();
     date =
       date.getHours() +
@@ -145,7 +145,7 @@ ipcRenderer.on("resolveError", (e, msg) => {
       (date.getSeconds() < 10 ? "0" : "") +
       date.getSeconds() +
       "-->";
-    console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date);
+    // console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date);
     document
       .getElementById("logging")
       .insertAdjacentHTML("beforeend", date + msg + "<br>");
@@ -211,10 +211,10 @@ ipcRenderer.on("embertree", (event, root) => {
         });
         stringPath = stringPath.substring(10, stringPath.length - 1);
       }
-      console.log(
-        "🚀 : file: renderer.js:103 : path.forEach : stringPath:",
-        stringPath
-      );
+      // console.log(
+      // "🚀 : file: renderer.js:103 : path.forEach : stringPath:",
+      // stringPath
+      // );
     });
 
     nodes[root[i].number.toString()].on("click", (e) => {
@@ -253,7 +253,10 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
             icon: TreeUtil.default_fx_icon,
           });
       }
-      //console.log("🚀 : file: renderer.js:151 : ipcRenderer.on : nodes:", nodes);
+      // console.log(
+      // "🚀 : file: renderer.js:151 : ipcRenderer.on : nodes:",
+      // nodes
+      // );
       nodes[parentPath].addChild(
         nodes[parentPath + "." + childrenArray[i].number.toString()]
       );
@@ -276,10 +279,10 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
             stringPath = stringPath.substring(10, stringPath.length - 1);
           }
 
-          console.log(
-            "🚀 : file: renderer.js:125 : path.forEach : stringPath:",
-            stringPath
-          );
+          // console.log(
+          // "🚀 : file: renderer.js:125 : path.forEach : stringPath:",
+          // stringPath
+          // );
         }
       );
 
@@ -300,12 +303,16 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
 });
 
 ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
-  console.log(
-    "🚀 : file: renderer.js:303 : ipcRenderer.on : expandReq:",
-    expandReq
-  );
+  // console.log(
+  // "🚀 : file: renderer.js:303 : ipcRenderer.on : expandReq:",
+  // expandReq
+  // );
   let leaf = document.getElementById("expandedElement");
   let sub_2_button = document.getElementById("suscribe_2");
+  let matrixView = document.getElementById("central_view");
+  matrixView.innerHTML = "";
+  matrixView.style.width = "0%";
+  matrixView.style.visibility = "hidden";
   if (Boolean == true) {
     innerPath = expandReq;
     parameter_content = expandReq;
@@ -313,6 +320,26 @@ ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
     leaf.innerHTML = prettyPrintJson.toHtml(expandReq);
 
     if (parameter_type == "PARAMETER") {
+      sub_2_button.style.visibility = "visible";
+    } else if (parameter_type == "MATRIX") {
+      let targets = expandReq.contents.targetCount;
+      let sources = expandReq.contents.sourceCount;
+      let connections = expandReq.contents.connections;
+      let mtx_path = expandReq.parentPath + "." + expandReq.number.toString();
+      createMatrixView(mtx_path, targets, sources, connections);
+      sub_2_button.style.visibility = "hidden";
+      matrixView.style.visibility = "visible";
+      matrixView.style.width = "33%";
+    } else if (parameter_type == "FUNCTION") {
+      let func_args;
+      let func_result;
+      if (expandReq.contents.args) {
+        func_args = expandReq.contents.args;
+      }
+      if (expandReq.contents.result) {
+        func_result = expandReq.contents.result;
+      }
+      let func_path = expandReq.parentPath + "." + expandReq.number.toString();
       sub_2_button.style.visibility = "visible";
     } else {
       sub_2_button.style.visibility = "hidden";
@@ -337,10 +364,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
   let table = document.getElementById("tableOfConnection");
   let x = table.rows.length;
   if (!myRow) {
-    console.log(
-      "🚀 : file: renderer.js:197 : ipcRenderer.on : types[response]:",
-      types[response]
-    );
+    // console.log(
+    // "🚀 : file: renderer.js:197 : ipcRenderer.on : types[response]:",
+    // types[response]
+    // );
     table.rows[x - 1].cells[6].innerHTML = types[response];
     if (response > 1 && response < 5) {
       table.rows[
@@ -356,10 +383,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         "1/" +
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     } else if (response == 1) {
-      console.log(
-        "🚀 : file: renderer.js:230 : ipcRenderer.on : response:",
-        response
-      );
+      // console.log(
+      // "🚀 : file: renderer.js:230 : ipcRenderer.on : response:",
+      // response
+      // );
       table.rows[x - 1].cells[7].innerHTML = `<select>
                                           <option value="" selected class="without_icon"></option>
                                           </select>`;
@@ -381,10 +408,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     }
   } else {
-    console.log(
-      "🚀 : file: renderer.js:234 : ipcRenderer.on : types[response]:",
-      types[response]
-    );
+    // console.log(
+    // "🚀 : file: renderer.js:234 : ipcRenderer.on : types[response]:",
+    // types[response]
+    // );
     table.rows[myRow].cells[6].innerHTML = types[response];
     str = table.rows[myRow].cells[6].innerHTML;
     table.rows[myRow].cells[6].innerHTML =
@@ -710,7 +737,7 @@ function changed(myRow) {
 }
 
 function changedPath(myRow) {
-  console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow);
+  // console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow);
   table = document.getElementById("tableOfConnection");
   line = table.rows[myRow];
   line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;", " ");
@@ -836,145 +863,211 @@ function addemptyrow(event) {
 }
 
 function submitPath(event) {
-  //console.log("🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():", tree.getSelectedNodes())
-  console.log("stringPath : line813 : ", stringPath);
-  pathType = innerPath.contents.parameterType;
-  eVarType = pathType[0].toUpperCase() + pathType.substring(1).toLowerCase();
-  let eVarMin = "";
-  let eVarMax = "";
-  let eVarFactor = "";
-  if (pathType == "INTEGER") {
-    eVarCurve = "lin";
-    eVarMin = innerPath.contents.minimum;
-    eVarMax = innerPath.contents.maximum;
-    if (innerPath.contents.format) {
-      if (innerPath.contents.format.includes("dB") == true) {
-        eVarCurve = "log";
+  // //console.log("🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():", tree.getSelectedNodes())
+  // console.log("stringPath : line813 : ", stringPath);
+  let thisType = innerPath.contents.type;
+  if (thisType == "PARAMETER") {
+    pathType = innerPath.contents.parameterType;
+    eVarType = pathType[0].toUpperCase() + pathType.substring(1).toLowerCase();
+    let eVarMin = "";
+    let eVarMax = "";
+    let eVarFactor = "";
+    if (pathType == "INTEGER") {
+      eVarCurve = "lin";
+      eVarMin = innerPath.contents.minimum;
+      eVarMax = innerPath.contents.maximum;
+      if (innerPath.contents.format) {
+        if (innerPath.contents.format.includes("dB") == true) {
+          eVarCurve = "log";
+        }
       }
-    }
-    if (innerPath.contents.factor !== undefined) {
-      eVarFactor = innerPath.contents.factor;
-    } else {
+      if (innerPath.contents.factor !== undefined) {
+        eVarFactor = innerPath.contents.factor;
+      } else {
+        eVarFactor = 1;
+      }
+    } else if (pathType == "BOOLEAN") {
+      eVarCurve = "";
+      eVarMin = false;
+      eVarMax = true;
+    } else if (pathType == "ENUM" || pathType == "REAL") {
+      eVarCurve = "lin";
+      eVarMin = innerPath.contents.minimum;
+      eVarMax = innerPath.contents.maximum;
       eVarFactor = 1;
+    } else {
+      eVarCurve = "";
+      eVarMin = 0;
+      eVarMax = 1;
     }
-  } else if (pathType == "BOOLEAN") {
-    eVarCurve = "";
-    eVarMin = false;
-    eVarMax = true;
-  } else if (pathType == "ENUM" || pathType == "REAL") {
-    eVarCurve = "lin";
-    eVarMin = innerPath.contents.minimum;
-    eVarMax = innerPath.contents.maximum;
-    eVarFactor = 1;
-  } else {
-    eVarCurve = "";
-    eVarMin = 0;
-    eVarMax = 1;
-  }
-  let btnDel = document.createElement("BUTTON");
-  let btnGo = document.createElement("BUTTON");
-  let emBerPath = stringPath;
-  let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
-  btnDel.innerHTML = "X";
-  btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
-  btnGo.innerHTML = "Go!";
-  btnGo.setAttribute("onClick", "sendConnection(this)");
-  let table = document.getElementById("tableOfConnection");
-  let row = table.insertRow(-1);
-  row.style.fontSize = "smaller";
-  let cell1 = row.insertCell(0);
-  let cell2 = row.insertCell(1);
-  let cell3 = row.insertCell(2);
-  let cell4 = row.insertCell(3);
-  let cell5 = row.insertCell(4);
-  let cell6 = row.insertCell(5);
-  let cell7 = row.insertCell(6);
-  let cell8 = row.insertCell(7);
-  let cell9 = row.insertCell(8);
-  let cell10 = row.insertCell(9);
-  let cell11 = row.insertCell(10);
-  cell1.innerHTML = emBerPath;
-  cell1.contentEditable = true;
-  cell1.onblur = function () {
-    changedPath(this.parentNode.rowIndex);
-  };
-  if (innerPath.contents.description !== undefined) {
-    cell1.title = innerPath.contents.description;
-  } else {
-    cell1.title = innerPath.contents.identifier;
-  }
-  cell2.innerHTML = innerPath.contents.value;
-  cell3.innerHTML = eVarFactor;
-  cell4.innerHTML = "----";
-  cell5.innerHTML = OSCpath;
-  cell5.contentEditable = true;
-  cell5.onblur = function () {
-    changed(this.parentNode.rowIndex);
-  };
-  cell6.appendChild(btnGo);
-  cell6.appendChild(btnDel);
+    let btnDel = document.createElement("BUTTON");
+    let btnGo = document.createElement("BUTTON");
+    let emBerPath = stringPath;
+    let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
+    btnDel.innerHTML = "X";
+    btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
+    btnGo.innerHTML = "Go!";
+    btnGo.setAttribute("onClick", "sendConnection(this)");
+    let table = document.getElementById("tableOfConnection");
+    let row = table.insertRow(-1);
+    row.style.fontSize = "smaller";
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
+    let cell5 = row.insertCell(4);
+    let cell6 = row.insertCell(5);
+    let cell7 = row.insertCell(6);
+    let cell8 = row.insertCell(7);
+    let cell9 = row.insertCell(8);
+    let cell10 = row.insertCell(9);
+    let cell11 = row.insertCell(10);
+    cell1.innerHTML = emBerPath;
+    cell1.contentEditable = true;
+    cell1.onblur = function () {
+      changedPath(this.parentNode.rowIndex);
+    };
+    if (innerPath.contents.description !== undefined) {
+      cell1.title = innerPath.contents.description;
+    } else {
+      cell1.title = innerPath.contents.identifier;
+    }
+    cell2.innerHTML = innerPath.contents.value;
+    cell3.innerHTML = eVarFactor;
+    cell4.innerHTML = "----";
+    cell5.innerHTML = OSCpath;
+    cell5.contentEditable = true;
+    cell5.onblur = function () {
+      changed(this.parentNode.rowIndex);
+    };
+    cell6.appendChild(btnGo);
+    cell6.appendChild(btnDel);
 
-  cell7.innerHTML = eVarType;
-  if (eVarCurve == "lin") {
-    cell8.innerHTML =
-      `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
+    cell7.innerHTML = eVarType;
+    if (eVarCurve == "lin") {
+      cell8.innerHTML =
+        `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="` +
-      eVarCurve +
-      `" selected >` +
-      eVarCurve +
-      `</option>
+        eVarCurve +
+        `" selected >` +
+        eVarCurve +
+        `</option>
       <option value="log">log</option>
       </select>`;
-  } else if (eVarCurve == "log") {
-    cell8.innerHTML =
-      `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
+    } else if (eVarCurve == "log") {
+      cell8.innerHTML =
+        `<select onChange="changed(this.parentNode.parentNode.rowIndex)">
       <option value="` +
-      eVarCurve +
-      `" selected >` +
-      eVarCurve +
-      `</option>
+        eVarCurve +
+        `" selected >` +
+        eVarCurve +
+        `</option>
       <option value="lin">lin</option>
       </select>`;
-  } else if (eVarCurve == "") {
-    cell8.innerHTML = `<select>
+    } else if (eVarCurve == "") {
+      cell8.innerHTML = `<select>
   <option value="" selected class="without-icon"></option>
   </select>`;
-  }
-  if (eVarFactor !== "") {
-    cell9.innerHTML =
-      eVarMin +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-      (Number(eVarMin) / Number(eVarFactor)).toFixed(0) +
-      `>`;
-    cell11.innerHTML =
-      eVarMax +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-      (Number(eVarMax) / Number(eVarFactor)).toFixed(0) +
-      `>`;
-  } else {
-    cell9.innerHTML =
-      eVarMin +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
-    cell11.innerHTML =
-      eVarMax +
-      "/" +
-      `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
-  }
-  cell10.innerHTML = "-";
-  cell3.style.fontSize = "x-small";
-  cell7.style.fontSize = "x-small";
-  cell8.style.fontSize = "x-small";
-  cell9.style.fontSize = "x-small";
-  cell11.style.fontSize = "x-small";
-  if (table.rows.length == 3) {
-    if (table.rows[1].cells[5].innerHTML == "") {
-      addGenBtns();
+    }
+    if (eVarFactor !== "") {
+      cell9.innerHTML =
+        eVarMin +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+        (Number(eVarMin) / Number(eVarFactor)).toFixed(0) +
+        `>`;
+      cell11.innerHTML =
+        eVarMax +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+        (Number(eVarMax) / Number(eVarFactor)).toFixed(0) +
+        `>`;
+    } else {
+      cell9.innerHTML =
+        eVarMin +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="0">`;
+      cell11.innerHTML =
+        eVarMax +
+        "/" +
+        `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
+    }
+    cell10.innerHTML = "-";
+    cell3.style.fontSize = "x-small";
+    cell7.style.fontSize = "x-small";
+    cell8.style.fontSize = "x-small";
+    cell9.style.fontSize = "x-small";
+    cell11.style.fontSize = "x-small";
+    if (table.rows.length == 3) {
+      if (table.rows[1].cells[5].innerHTML == "") {
+        addGenBtns();
+      }
+    }
+  } else if (thisType == "FUNCTION") {
+    eVarType = thisType[0].toUpperCase() + thisType.substring(1).toLowerCase();
+    // console.log(
+    // "🚀 : file: renderer.js:995 : submitPath : eVarType:",
+    // eVarType
+    // );
+    let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
+    let eVarMin = "0";
+    let eVarMax = "1";
+    let eVarFactor = "1";
+    let eVarCurve = "invoke";
+    let btnDel = document.createElement("BUTTON");
+    let btnGo = document.createElement("BUTTON");
+    btnDel.innerHTML = "X";
+    btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
+    btnGo.innerHTML = "Go!";
+    btnGo.setAttribute("onClick", "sendConnection(this)");
+    let table = document.getElementById("tableOfConnection");
+    let row = table.insertRow(-1);
+    row.style.fontSize = "smaller";
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
+    let cell5 = row.insertCell(4);
+    let cell6 = row.insertCell(5);
+    let cell7 = row.insertCell(6);
+    let cell8 = row.insertCell(7);
+    let cell9 = row.insertCell(8);
+    let cell10 = row.insertCell(9);
+    let cell11 = row.insertCell(10);
+    cell1.innerHTML = stringPath;
+    cell1.contentEditable = true;
+    cell1.onblur = function () {
+      changedPath(this.parentNode.rowIndex);
+    };
+    cell2.innerHTML = "----";
+    cell3.innerHTML = eVarFactor;
+    cell4.innerHTML = "----";
+    cell5.innerHTML = OSCpath;
+    cell5.contentEditable = true;
+    cell5.onblur = function () {
+      changed(this.parentNode.rowIndex);
+    };
+    cell6.appendChild(btnGo);
+    cell6.appendChild(btnDel);
+    cell7.innerHTML = eVarType;
+    cell8.innerHTML = `<select>
+  <option value="" selected class="without-icon">invoke</option>
+  </select>`;
+    cell9.innerHTML = eVarMin + "/" + "<span>0</span>";
+    cell10.innerHTML = "-";
+    cell11.innerHTML = eVarMax + "/" + "<span>1</span>";
+    cell3.style.fontSize = "x-small";
+    cell7.style.fontSize = "x-small";
+    cell8.style.fontSize = "x-small";
+    cell9.style.fontSize = "x-small";
+    cell11.style.fontSize = "x-small";
+    if (table.rows.length == 3) {
+      if (table.rows[1].cells[5].innerHTML == "") {
+        addGenBtns();
+      }
     }
   }
-  event.preventDefault();
+  // event.preventDefault();
 }
 
 function SomeDeleteRowFunction(o) {
@@ -1038,13 +1131,13 @@ function sendConnection(o) {
   //  logRenderer("myrow : "+myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
-  console.log("🚀 : file: renderer.js:1184 : sendConnection : oAddr:", oAddr);
+  // console.log("🚀 : file: renderer.js:1184 : sendConnection : oAddr:", oAddr);
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
   let eVarType = table.rows[myRow].cells[6].innerHTML;
   let eMin = table.rows[myRow].cells[8].innerHTML
     .split(`<`)[0]
     .replace("/", "");
-  //  console.log("emin new connection: ", eMin)
+  // //  console.log("emin new connection: ", eMin)
   let eMax = table.rows[myRow].cells[10].innerHTML
     .split(`<`)[0]
     .replace("/", "");
@@ -1318,4 +1411,126 @@ function getNodePathToRoot(node) {
   }
 
   return getNodePathToRoot(parentNode).concat([node]);
+}
+
+async function createMatrixView(mtx_path, targets, sources, connections) {
+  await targets;
+  await sources;
+  await connections;
+  let matrixView = document.createElement("table");
+  matrixView.style.overflow = "auto";
+  matrixView.style.tableLayout = "fixed";
+  matrixView.style.width = "100%";
+  matrixView.style.whiteSpace = "nowrap";
+  matrixView.style.border = "1px";
+  matrixView.id = "mtx_table";
+  let headerRow = matrixView.insertRow(-1);
+  let cross = document.createElement("th");
+  cross.style.position = "sticky";
+  //cross.style.rotate = "-45deg";
+  cross.style.top = "-5px";
+  cross.style.left = "0px";
+  cross.style.height = "30px";
+  cross.style.width = "30px";
+  cross.innerHTML =
+    "<span style='-webkit-transform: rotate(-45deg);display: inline-block;'>&#x269E;</span>";
+  headerRow.appendChild(cross);
+  for (i = 0; i < targets; i++) {
+    let horHeaderCell = document.createElement("th");
+    horHeaderCell.innerHTML =
+      '<span style=" -webkit-transform: rotate(-90deg);display: inline-block;">' +
+      "t-" +
+      i.toString() +
+      "</span>";
+    //horHeaderCell.style.transform = "rotate(-45deg)";
+    horHeaderCell.style.height = "20px";
+    horHeaderCell.style.width = "20px";
+    horHeaderCell.firstChild.style.color = "black";
+    horHeaderCell.style.background = "grey";
+    //horHeaderCell.style.borderRadius = "5px";
+    horHeaderCell.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
+    headerRow.appendChild(horHeaderCell);
+  }
+  for (j = 0; j < sources; j++) {
+    let vertHeaderCell = document.createElement("th");
+    let newRow = matrixView.insertRow(-1);
+    vertHeaderCell.innerHTML = "s-" + j.toString();
+    vertHeaderCell.style.width = "30px";
+    vertHeaderCell.style.height = "20px";
+    vertHeaderCell.style.color = "black";
+    vertHeaderCell.style.background = "grey";
+    newRow.appendChild(vertHeaderCell);
+    newRow.firstChild.style.position = "sticky";
+    newRow.firstChild.style.left = "0px";
+    for (k = 0; k < targets; k++) {
+      let otherCell = document.createElement("td");
+      otherCell.style.width = "20px";
+
+      otherCell.innerHTML =
+        "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked onclick='check_uncheck(this,`" +
+        mtx_path +
+        "`)'>";
+      //otherCell.firstChild.style.zIndex = "-1";
+      newRow.appendChild(otherCell);
+    }
+  }
+  headerRow.style.position = "sticky";
+  headerRow.style.top = "0px";
+  for (t in connections) {
+    // console.log(
+    // "🚀 : file: renderer.js:1375 : createMatrixView : item:",
+    // connections[t]
+    // );
+    if (connections[t].sources !== []) {
+      for (s in connections[t].sources) {
+        // console.log("🚀 : file: renderer.js:1381 : createMatrixView : s :", s);
+        let xcell =
+          matrixView.rows[connections[t].sources[s] + 1].cells[
+            connections[t].target + 1
+          ];
+        xcell.style.textAlign = "center";
+        xcell.innerHTML =
+          "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked onclick='check_uncheck(this,`" +
+          mtx_path +
+          "`)'>";
+      }
+    }
+  }
+  let matrix_container = document.getElementById("central_view");
+  matrix_container.appendChild(matrixView);
+}
+
+function check_uncheck(checkbox, mtx_path) {
+  let m_table = document.getElementById("mtx_table");
+  // console.log("mtx-table-length: ", m_table.rows.length);
+  let checkbox_cell = checkbox.parentNode.cellIndex;
+  // console.log(
+  // "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_cell:",
+  // checkbox_cell
+  // );
+  let checkbox_row = checkbox.parentNode.parentNode.rowIndex;
+  // console.log(
+  // "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_row:",
+  // checkbox_row
+  // );
+  // console.log(
+  // "🚀 : file: renderer.js:1485 : check_uncheck : this:",
+  // checkbox.checked
+  // );
+  let check_t = checkbox_cell - 1;
+  let check_s = [];
+
+  for (i = 1; i < m_table.rows.length; i++) {
+    // console.log("🚀 : file: renderer.js:1505 : check_uncheck : row:", i);
+    if (m_table.rows[i].cells[checkbox_cell].firstChild.checked == true) {
+      check_s.push(i - 1);
+    }
+  }
+  // console.log(
+  // "🚀 : file: renderer.js:1503 : check_uncheck : check_s :",
+  // check_s
+  // );
+  ipcRenderer.send("mtx_connect", mtx_path, check_t, check_s);
 }

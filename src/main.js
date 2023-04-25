@@ -66,7 +66,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-    //  win.webContents.openDevTools({ mode: "detach" });
+    win.webContents.openDevTools({ mode: "detach" });
     win.webContents.send("ready");
   });
   ipcMain.on("sendAutoSave", function (event, content) {
@@ -716,6 +716,25 @@ function createWindow() {
               win.webContents.send("errorOnEditedPath", myRow);
             } else if (contents_type == "FUNCTION") {
               let fct_description = initialReq.contents.description;
+              if (!initialReq.contents.args) {
+                let function_cb = await (
+                  await eGet.invoke(initialReq)
+                ).response;
+                // console.log(
+                // "🚀 : file: main.js:727 : main : function_cb.result[0]:",
+                // function_cb
+                // );
+                win.webContents.send(
+                  "loginfo",
+                  "🚀 : file: main.js:724 : main : function_cb:" +
+                    JSON.stringify(function_cb.result)
+                );
+              } else {
+                // console.log(
+                // "🚀 : file: main.js:720 : main : initialReq.contents.args:",
+                // initialReq.contents.args
+                // );
+              }
               win.webContents.send(
                 "loginfo",
                 "WARNING! : You're trying to connect to a FUNCTION ( " +
@@ -967,6 +986,15 @@ function createWindow() {
           }
         );
 
+        ipcMain.on("mtx_connect", async (event, mtx_path, check_t, check_s) => {
+          // console.log(
+          // "🚀 : file: main.js:990 : ipcMain.on : mtx_path:",
+          // mtx_path
+          // );
+          let mtx = await eGet.getElementByPath(mtx_path);
+          await eGet.matrixSetConnection(mtx, check_t, check_s);
+        });
+
         ipcMain.on(
           "deleteConnection",
           async (event, ePath, oAddr, myRow, eVarType, sFactor) => {
@@ -1101,40 +1129,66 @@ function createWindow() {
         );
 
         ipcMain.on("expandNode", async (event, parentPath, currOpt_class) => {
-          console.log("🚀 : file: main.js:1173 : parentPath,:", parentPath);
-          console.log(
-            "🚀 : file: main.js:1173 : currOpt_class:",
-            currOpt_class
-          );
+          // console.log("🚀 : file: main.js:1173 : parentPath,:", parentPath);
+          // console.log(
+          // "🚀 : file: main.js:1173 : currOpt_class:",
+          // currOpt_class
+          // );
           if (currOpt_class == "NODE") {
             let childrenArray = [];
             let expandReq = await eGet.getElementByPath(parentPath.toString());
-            console.log("🚀 : file: main.js:1178 : == : expandReq:", expandReq);
+            // console.log("🚀 : file: main.js:1178 : == : expandReq:", expandReq);
             let getDir = await eGet.getDirectory(expandReq);
             try {
               let getDirResponse = await getDir.response;
             } catch (error) {
-              // console.log("🚀 : file: main.js:1183 : == : error:", error)
+              // console.log("🚀 : file: main.js:1183 : == : error:", error);
             }
             let nodeChildren = Object.keys(expandReq.children);
-            // console.log("🚀 : file: main.js:1187 : == : nodeChildren:", nodeChildren)
+            // console.log(
+            // "🚀 : file: main.js:1187 : == : nodeChildren:",
+            // nodeChildren
+            // );
+
             for (i = 0; i < nodeChildren.length; i++) {
-              let newChild = await eGet.getElementByPath(
-                parentPath + "." + nodeChildren[i]
-              );
-              console.log(
-                "🚀 : file: main.js:1113 : == : ipcMain.on : newChild:",
-                newChild
-              );
+              let numb_of_child = nodeChildren[i];
+              // console.log(
+              // "🚀 : file: main.js:1154 : == : ipcMain.on : numb_of_child:",
+              // numb_of_child
+              // );
+              let path_of_child =
+                parentPath.toString() + "." + numb_of_child.toString();
+              // console.log(
+              // "🚀 : file: main.js:1154 : == : ipcMain.on : path_of_child:",
+              // path_of_child
+              // );
+              let newChild = await eGet.getElementByPath(path_of_child);
+              // console.log(
+              // "🚀 : file: main.js:1113 : == : ipcMain.on : newChild:",
+              // newChild
+              // );
               contents = newChild.contents;
-              // console.log("🚀 : file: main.js:1193 : == : newChild.contents:", newChild.contents)
+              // console.log(
+              // "🚀 : file: main.js:1193 : == : newChild.contents:",
+              // newChild.contents
+              // );
               number = newChild.number;
-              parentPath = newChild.parent.path;
-              // console.log("🚀 : file: main.js:1195 : == : newChild.number:", newChild.number)
+              if (newChild.parent.path) {
+                parentPath = newChild.parent.path;
+              } else if (newChild.parent.number) {
+                parentPath = newChild.parent.number.toString();
+              }
+              // console.log(
+              // "🚀 : file: main.js:1195 : == : newChild.number:",
+              // newChild.number
+              // );
               base_path = { contents, number, parentPath };
               childrenArray.push(base_path);
             }
-            // console.log("🚀 : file: main.js:1204 : == : childrenArray:", childrenArray)
+            // console.log(
+            // "🚀 : file: main.js:1204 : == : childrenArray:",
+            // childrenArray
+            // );
             win.webContents.send("expandedNode", parentPath, childrenArray);
             win.webContents.send("expandedElement", expandReq, false);
           } else if (currOpt_class == "MATRIX") {
