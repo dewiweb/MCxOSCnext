@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.10](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.9...v2.2.0-alpha.10) (2023-04-25)
+
+
+### Features
+
+* :sparkles: first step for functions ([a0a9c71](https://github.com/dewiweb/MCxOSCnext/commit/a0a9c713d7d5e65ad7facfd170ae258aa6886b35))
+* :sparkles: matrix setconnection ([a5f7a0f](https://github.com/dewiweb/MCxOSCnext/commit/a5f7a0ff6b083e6ec33b5718a95ef19d1ad22ab5))
+* :tada: matrix view ([198cf34](https://github.com/dewiweb/MCxOSCnext/commit/198cf34358c41dac312c123f16b3d4aa327ffd93))
+
+
+### Bug Fixes
+
+* :bug: riedel vs lawo / parent.number vs parent.path ([2c3c56a](https://github.com/dewiweb/MCxOSCnext/commit/2c3c56a4f38e0009f9ebd70b426f6501966757b9))
+
 ## [2.2.0-alpha.9](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.8...v2.2.0-alpha.9) (2023-04-22)
 
 
