@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.11](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.10...v2.2.0-alpha.11) (2023-04-25)
+
+
+### Features
+
+* :memo: ability to invoke function (result in logs) and to make connections in matrices(still in dev) ([d84d4ce](https://github.com/dewiweb/MCxOSCnext/commit/d84d4ce3feb28f171120a749bc4e11deb119f346))
+
 ## [2.2.0-alpha.10](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.9...v2.2.0-alpha.10) (2023-04-25)
 
 
