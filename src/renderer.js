@@ -1418,6 +1418,19 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
   await sources;
   await connections;
   let matrixView = document.createElement("table");
+  matrixView.onclick = function (event) {
+    let clicked = event.target.closest("td");
+    if (clicked.firstChild.checked) {
+      let checkbox = clicked.firstChild;
+      if (checkbox.checked == true) {
+        checkbox.checked == false;
+        check_uncheck(checkbox, mtx_path);
+      } else {
+        checkbox.checked == true;
+        check_uncheck(checkbox, mtx_path);
+      }
+    }
+  };
   matrixView.style.overflow = "auto";
   matrixView.style.tableLayout = "fixed";
   matrixView.style.width = "100%";
@@ -1427,37 +1440,33 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
   let headerRow = matrixView.insertRow(-1);
   let cross = document.createElement("th");
   cross.style.position = "sticky";
-  //cross.style.rotate = "-45deg";
+  cross.style.rotate = "-45deg";
   cross.style.top = "-5px";
   cross.style.left = "0px";
   cross.style.height = "30px";
-  cross.style.width = "30px";
-  cross.innerHTML =
-    "<span style='-webkit-transform: rotate(-45deg);display: inline-block;'>&#x269E;</span>";
+  cross.style.width = "20px";
+  cross.innerHTML = "&#x269E;";
   headerRow.appendChild(cross);
   for (i = 0; i < targets; i++) {
     let horHeaderCell = document.createElement("th");
     horHeaderCell.innerHTML =
-      '<span style=" -webkit-transform: rotate(-90deg);display: inline-block;">' +
-      "t-" +
-      i.toString() +
-      "</span>";
+      '<span style="">' + "t-" + i.toString() + "</span>";
     //horHeaderCell.style.transform = "rotate(-45deg)";
     horHeaderCell.style.height = "20px";
     horHeaderCell.style.width = "20px";
     horHeaderCell.firstChild.style.color = "black";
     horHeaderCell.style.background = "grey";
     //horHeaderCell.style.borderRadius = "5px";
-    horHeaderCell.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-    });
+    //horHeaderCell.addEventListener("contextmenu", (e) => {
+    //  e.preventDefault();
+    //});
     headerRow.appendChild(horHeaderCell);
   }
   for (j = 0; j < sources; j++) {
     let vertHeaderCell = document.createElement("th");
     let newRow = matrixView.insertRow(-1);
     vertHeaderCell.innerHTML = "s-" + j.toString();
-    vertHeaderCell.style.width = "30px";
+    vertHeaderCell.style.width = "20px";
     vertHeaderCell.style.height = "20px";
     vertHeaderCell.style.color = "black";
     vertHeaderCell.style.background = "grey";
@@ -1469,9 +1478,11 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
       otherCell.style.width = "20px";
 
       otherCell.innerHTML =
-        "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked onclick='check_uncheck(this,`" +
-        mtx_path +
-        "`)'>";
+        "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
+
+      //onclick = 'check_uncheck(this,`" +
+      //  mtx_path +
+      //  "`)'>";
       //otherCell.firstChild.style.zIndex = "-1";
       newRow.appendChild(otherCell);
     }
@@ -1479,26 +1490,27 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
   headerRow.style.position = "sticky";
   headerRow.style.top = "0px";
   for (t in connections) {
-    // console.log(
-    // "🚀 : file: renderer.js:1375 : createMatrixView : item:",
-    // connections[t]
-    // );
+    console.log(
+      "🚀 : file: renderer.js:1375 : createMatrixView : item:",
+      connections[t]
+    );
     if (connections[t].sources !== []) {
       for (s in connections[t].sources) {
-        // console.log("🚀 : file: renderer.js:1381 : createMatrixView : s :", s);
+        console.log("🚀 : file: renderer.js:1381 : createMatrixView : s :", s);
         let xcell =
           matrixView.rows[connections[t].sources[s] + 1].cells[
             connections[t].target + 1
           ];
         xcell.style.textAlign = "center";
         xcell.innerHTML =
-          "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked onclick='check_uncheck(this,`" +
-          mtx_path +
-          "`)'>";
+          "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
+        //onclick = 'check_uncheck(this,`" +
+        //  mtx_path +
+        //  "`)'>";
       }
     }
   }
-  let matrix_container = document.getElementById("central_view");
+  let matrix_container = document.getElementById("matrix_view");
   matrix_container.appendChild(matrixView);
 }
 
