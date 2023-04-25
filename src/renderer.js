@@ -50,10 +50,10 @@ ipcRenderer.on("preferencesUpdated", (e, preferences) => {
   logRenderer("Preferences were updated" + preferences);
 });
 ipcRenderer.on("emberpathFormat", (e, embPathFormat) => {
-  // console.log(
-  // "🚀 : file: renderer.js:36 : ipcRenderer.on : embPathFormat:",
-  // embPathFormat
-  // );
+  console.log(
+    "🚀 : file: renderer.js:36 : ipcRenderer.on : embPathFormat:",
+    embPathFormat
+  );
 });
 
 //---Interactions with Back-End---//
@@ -134,7 +134,7 @@ ipcRenderer.on("eServDisconnected", function (event, eAddress) {
 
 ipcRenderer.on("resolveError", (e, msg) => {
   if (("error-msg: ", msg)) {
-    // console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg);
+    console.log("🚀 : file: renderer.js:132 : ipcRenderer.on : msg:", msg);
     let date = new Date();
     date =
       date.getHours() +
@@ -145,7 +145,7 @@ ipcRenderer.on("resolveError", (e, msg) => {
       (date.getSeconds() < 10 ? "0" : "") +
       date.getSeconds() +
       "-->";
-    // console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date);
+    console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date);
     document
       .getElementById("logging")
       .insertAdjacentHTML("beforeend", date + msg + "<br>");
@@ -211,10 +211,10 @@ ipcRenderer.on("embertree", (event, root) => {
         });
         stringPath = stringPath.substring(10, stringPath.length - 1);
       }
-      // console.log(
-      // "🚀 : file: renderer.js:103 : path.forEach : stringPath:",
-      // stringPath
-      // );
+      console.log(
+        "🚀 : file: renderer.js:103 : path.forEach : stringPath:",
+        stringPath
+      );
     });
 
     nodes[root[i].number.toString()].on("click", (e) => {
@@ -253,10 +253,6 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
             icon: TreeUtil.default_fx_icon,
           });
       }
-      // console.log(
-      // "🚀 : file: renderer.js:151 : ipcRenderer.on : nodes:",
-      // nodes
-      // );
       nodes[parentPath].addChild(
         nodes[parentPath + "." + childrenArray[i].number.toString()]
       );
@@ -279,10 +275,10 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
             stringPath = stringPath.substring(10, stringPath.length - 1);
           }
 
-          // console.log(
-          // "🚀 : file: renderer.js:125 : path.forEach : stringPath:",
-          // stringPath
-          // );
+          console.log(
+            "🚀 : file: renderer.js:125 : path.forEach : stringPath:",
+            stringPath
+          );
         }
       );
 
@@ -303,10 +299,10 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
 });
 
 ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
-  // console.log(
-  // "🚀 : file: renderer.js:303 : ipcRenderer.on : expandReq:",
-  // expandReq
-  // );
+  //console.log(
+  //  "🚀 : file: renderer.js:303 : ipcRenderer.on : expandReq:",
+  //  expandReq
+  //);
   let leaf = document.getElementById("expandedElement");
   let sub_2_button = document.getElementById("suscribe_2");
   let matrixView = document.getElementById("central_view");
@@ -322,6 +318,10 @@ ipcRenderer.on("expandedElement", (event, expandReq, Boolean) => {
     if (parameter_type == "PARAMETER") {
       sub_2_button.style.visibility = "visible";
     } else if (parameter_type == "MATRIX") {
+      console.log(
+        "🚀 : file: renderer.js:321 : ipcRenderer.on : parameter_type:",
+        parameter_type
+      );
       let targets = expandReq.contents.targetCount;
       let sources = expandReq.contents.sourceCount;
       let connections = expandReq.contents.connections;
@@ -364,10 +364,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
   let table = document.getElementById("tableOfConnection");
   let x = table.rows.length;
   if (!myRow) {
-    // console.log(
-    // "🚀 : file: renderer.js:197 : ipcRenderer.on : types[response]:",
-    // types[response]
-    // );
+    console.log(
+      "🚀 : file: renderer.js:197 : ipcRenderer.on : types[response]:",
+      types[response]
+    );
     table.rows[x - 1].cells[6].innerHTML = types[response];
     if (response > 1 && response < 5) {
       table.rows[
@@ -383,10 +383,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         "1/" +
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     } else if (response == 1) {
-      // console.log(
-      // "🚀 : file: renderer.js:230 : ipcRenderer.on : response:",
-      // response
-      // );
+      console.log(
+        "🚀 : file: renderer.js:230 : ipcRenderer.on : response:",
+        response
+      );
       table.rows[x - 1].cells[7].innerHTML = `<select>
                                           <option value="" selected class="without_icon"></option>
                                           </select>`;
@@ -408,10 +408,10 @@ ipcRenderer.on("choosen_type", (e, response, myRow) => {
         `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value="1">`;
     }
   } else {
-    // console.log(
-    // "🚀 : file: renderer.js:234 : ipcRenderer.on : types[response]:",
-    // types[response]
-    // );
+    console.log(
+      "🚀 : file: renderer.js:234 : ipcRenderer.on : types[response]:",
+      types[response]
+    );
     table.rows[myRow].cells[6].innerHTML = types[response];
     str = table.rows[myRow].cells[6].innerHTML;
     table.rows[myRow].cells[6].innerHTML =
@@ -737,7 +737,7 @@ function changed(myRow) {
 }
 
 function changedPath(myRow) {
-  // console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow);
+  console.log("🚀 : file: renderer.js:545 : changedPath : myRow:", myRow);
   table = document.getElementById("tableOfConnection");
   line = table.rows[myRow];
   line.cells[0].innerHTML = line.cells[0].innerHTML.replace("&nbsp;", " ");
@@ -863,8 +863,11 @@ function addemptyrow(event) {
 }
 
 function submitPath(event) {
-  // //console.log("🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():", tree.getSelectedNodes())
-  // console.log("stringPath : line813 : ", stringPath);
+  console.log(
+    "🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():",
+    tree.getSelectedNodes()
+  );
+  console.log("stringPath : line813 : ", stringPath);
   let thisType = innerPath.contents.type;
   if (thisType == "PARAMETER") {
     pathType = innerPath.contents.parameterType;
@@ -1005,10 +1008,10 @@ function submitPath(event) {
     }
   } else if (thisType == "FUNCTION") {
     eVarType = thisType[0].toUpperCase() + thisType.substring(1).toLowerCase();
-    // console.log(
-    // "🚀 : file: renderer.js:995 : submitPath : eVarType:",
-    // eVarType
-    // );
+    console.log(
+      "🚀 : file: renderer.js:995 : submitPath : eVarType:",
+      eVarType
+    );
     let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
     let eVarMin = "0";
     let eVarMax = "1";
@@ -1131,13 +1134,13 @@ function sendConnection(o) {
   //  logRenderer("myrow : "+myRow);
   let ePath = table.rows[myRow].cells[0].innerHTML;
   let oAddr = table.rows[myRow].cells[4].innerHTML;
-  // console.log("🚀 : file: renderer.js:1184 : sendConnection : oAddr:", oAddr);
+  console.log("🚀 : file: renderer.js:1184 : sendConnection : oAddr:", oAddr);
   let eVarFactor = table.rows[myRow].cells[2].innerHTML;
   let eVarType = table.rows[myRow].cells[6].innerHTML;
   let eMin = table.rows[myRow].cells[8].innerHTML
     .split(`<`)[0]
     .replace("/", "");
-  // //  console.log("emin new connection: ", eMin)
+  console.log("emin new connection: ", eMin);
   let eMax = table.rows[myRow].cells[10].innerHTML
     .split(`<`)[0]
     .replace("/", "");
@@ -1431,71 +1434,107 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
   cross.style.top = "-5px";
   cross.style.left = "0px";
   cross.style.height = "30px";
-  cross.style.width = "20px";
+  cross.style.width = "30px";
   cross.innerHTML = "&#x269E;";
   headerRow.appendChild(cross);
-  for (i = 0; i < targets; i++) {
-    let horHeaderCell = document.createElement("th");
-    horHeaderCell.innerHTML =
-      '<span style="">' + "t-" + i.toString() + "</span>";
-    //horHeaderCell.style.transform = "rotate(-45deg)";
-    horHeaderCell.style.height = "20px";
-    horHeaderCell.style.width = "20px";
-    horHeaderCell.firstChild.style.color = "black";
-    horHeaderCell.style.background = "grey";
-    //horHeaderCell.style.borderRadius = "5px";
-    //horHeaderCell.addEventListener("contextmenu", (e) => {
-    //  e.preventDefault();
-    //});
-    headerRow.appendChild(horHeaderCell);
-  }
-  for (j = 0; j < sources; j++) {
-    let vertHeaderCell = document.createElement("th");
-    let newRow = matrixView.insertRow(-1);
-    vertHeaderCell.innerHTML = "s-" + j.toString();
-    vertHeaderCell.style.width = "20px";
-    vertHeaderCell.style.height = "20px";
-    vertHeaderCell.style.color = "black";
-    vertHeaderCell.style.background = "grey";
-    newRow.appendChild(vertHeaderCell);
-    newRow.firstChild.style.position = "sticky";
-    newRow.firstChild.style.left = "0px";
-    for (k = 0; k < targets; k++) {
-      let otherCell = document.createElement("td");
-      otherCell.style.width = "20px";
-
-      otherCell.innerHTML =
-        "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
-
-      //onclick = 'check_uncheck(this,`" +
-      //  mtx_path +
-      //  "`)'>";
-      //otherCell.firstChild.style.zIndex = "-1";
-      newRow.appendChild(otherCell);
+  try {
+    for (i = 0; i < targets && i < 201; i++) {
+      console.log("🚀 : file: renderer.js:1442 : createMatrixView : i:", i);
+      let horHeaderCell = document.createElement("th");
+      horHeaderCell.innerHTML =
+        '<span style="-webkit-transform: rotate(-90deg);display: inline-block;">' +
+        "t-" +
+        i.toString() +
+        "</span>";
+      //horHeaderCell.style.transform = "rotate(-45deg)";
+      horHeaderCell.style.height = "20px";
+      horHeaderCell.style.width = "20px";
+      horHeaderCell.firstChild.style.color = "black";
+      horHeaderCell.style.background = "grey";
+      //horHeaderCell.style.borderRadius = "5px";
+      //horHeaderCell.addEventListener("contextmenu", (e) => {
+      //  e.preventDefault();
+      //});
+      headerRow.appendChild(horHeaderCell);
     }
-  }
-  headerRow.style.position = "sticky";
-  headerRow.style.top = "0px";
-  for (t in connections) {
+  } catch (error) {
     console.log(
-      "🚀 : file: renderer.js:1375 : createMatrixView : item:",
-      connections[t]
+      "🚀 : file: renderer.js:1457 : createMatrixView : error:",
+      error
     );
-    if (connections[t].sources !== []) {
-      for (s in connections[t].sources) {
-        console.log("🚀 : file: renderer.js:1381 : createMatrixView : s :", s);
-        let xcell =
-          matrixView.rows[connections[t].sources[s] + 1].cells[
-            connections[t].target + 1
-          ];
-        xcell.style.textAlign = "center";
-        xcell.innerHTML =
-          "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
+  }
+  try {
+    for (j = 0; j < sources && j < 201; j++) {
+      console.log("🚀 : file: renderer.js:1465 : createMatrixView : j:", j);
+      let vertHeaderCell = document.createElement("th");
+      let newRow = matrixView.insertRow(-1);
+      vertHeaderCell.innerHTML = "s-" + j.toString();
+      vertHeaderCell.style.width = "20px";
+      vertHeaderCell.style.height = "20px";
+      vertHeaderCell.style.color = "black";
+      vertHeaderCell.style.background = "grey";
+      newRow.appendChild(vertHeaderCell);
+      newRow.firstChild.style.position = "sticky";
+      newRow.firstChild.style.left = "0px";
+
+      //let otherCell = document.createElement("td");
+      //otherCell.style.width = "20px";
+      //otherCell.innerHTML =
+      //  "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
+
+      for (k = 0; k < targets && k < 201; k++) {
+        console.log("🚀 : file: renderer.js:1477 : createMatrixView : k:", k);
+        let otherCell = newRow.insertCell(k + 1);
+        otherCell.style.width = "20px";
+        //
+        otherCell.innerHTML =
+          "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
+        ////
         //onclick = 'check_uncheck(this,`" +
         //  mtx_path +
         //  "`)'>";
+        //otherCell.firstChild.style.zIndex = "-1";
+        //newRow.appendChild(otherCell);
       }
     }
+  } catch (error) {
+    console.log(
+      "🚀 : file: renderer.js:1487 : createMatrixView : error:",
+      error
+    );
+  }
+  headerRow.style.position = "sticky";
+  headerRow.style.top = "0px";
+  try {
+    for (t in connections) {
+      console.log(
+        "🚀 : file: renderer.js:1375 : createMatrixView : item:",
+        connections[t]
+      );
+      if (connections[t].sources !== []) {
+        for (s in connections[t].sources) {
+          console.log(
+            "🚀 : file: renderer.js:1381 : createMatrixView : s :",
+            s
+          );
+          let xcell =
+            matrixView.rows[connections[t].sources[s] + 1].cells[
+              connections[t].target + 1
+            ];
+          xcell.style.textAlign = "center";
+          xcell.innerHTML =
+            "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
+          //onclick = 'check_uncheck(this,`" +
+          //  mtx_path +
+          //  "`)'>";
+        }
+      }
+    }
+  } catch (error) {
+    console.log(
+      "🚀 : file: renderer.js:1518 : createMatrixView : error:",
+      error
+    );
   }
   matrixView.onclick = function (event) {
     let clicked = event.target.closest("td");
@@ -1511,38 +1550,45 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
     }
   };
   let matrix_container = document.getElementById("central_view");
-  matrix_container.appendChild(matrixView);
+  try {
+    matrix_container.appendChild(matrixView);
+  } catch (error) {
+    console.log(
+      "🚀 : file: renderer.js:1544 : createMatrixView : error:",
+      error
+    );
+  }
 }
 
 function check_uncheck(checkbox, mtx_path) {
   let m_table = document.getElementById("mtx_table");
-  // console.log("mtx-table-length: ", m_table.rows.length);
+  console.log("mtx-table-length: ", m_table.rows.length);
   let checkbox_cell = checkbox.parentNode.cellIndex;
-  // console.log(
-  // "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_cell:",
-  // checkbox_cell
-  // );
+  console.log(
+    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_cell:",
+    checkbox_cell
+  );
   let checkbox_row = checkbox.parentNode.parentNode.rowIndex;
-  // console.log(
-  // "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_row:",
-  // checkbox_row
-  // );
-  // console.log(
-  // "🚀 : file: renderer.js:1485 : check_uncheck : this:",
-  // checkbox.checked
-  // );
+  console.log(
+    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_row:",
+    checkbox_row
+  );
+  console.log(
+    "🚀 : file: renderer.js:1485 : check_uncheck : this:",
+    checkbox.checked
+  );
   let check_t = checkbox_cell - 1;
   let check_s = [];
 
   for (i = 1; i < m_table.rows.length; i++) {
-    // console.log("🚀 : file: renderer.js:1505 : check_uncheck : row:", i);
+    console.log("🚀 : file: renderer.js:1505 : check_uncheck : row:", i);
     if (m_table.rows[i].cells[checkbox_cell].firstChild.checked == true) {
       check_s.push(i - 1);
     }
   }
-  // console.log(
-  // "🚀 : file: renderer.js:1503 : check_uncheck : check_s :",
-  // check_s
-  // );
+  console.log(
+    "🚀 : file: renderer.js:1503 : check_uncheck : check_s :",
+    check_s
+  );
   ipcRenderer.send("mtx_connect", mtx_path, check_t, check_s);
 }
