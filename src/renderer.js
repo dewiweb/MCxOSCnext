@@ -1418,19 +1418,6 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
   await sources;
   await connections;
   let matrixView = document.createElement("table");
-  matrixView.onclick = function (event) {
-    let clicked = event.target.closest("td");
-    if (clicked.firstChild.checked) {
-      let checkbox = clicked.firstChild;
-      if (checkbox.checked == true) {
-        checkbox.checked == false;
-        check_uncheck(checkbox, mtx_path);
-      } else {
-        checkbox.checked == true;
-        check_uncheck(checkbox, mtx_path);
-      }
-    }
-  };
   matrixView.style.overflow = "auto";
   matrixView.style.tableLayout = "fixed";
   matrixView.style.width = "100%";
@@ -1510,7 +1497,20 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
       }
     }
   }
-  let matrix_container = document.getElementById("matrix_view");
+  matrixView.onclick = function (event) {
+    let clicked = event.target.closest("td");
+    if (clicked.firstChild.checked) {
+      let checkbox = clicked.firstChild;
+      if (checkbox.checked == true) {
+        checkbox.checked == false;
+        check_uncheck(checkbox, mtx_path);
+      } else {
+        checkbox.checked == true;
+        check_uncheck(checkbox, mtx_path);
+      }
+    }
+  };
+  let matrix_container = document.getElementById("central_view");
   matrix_container.appendChild(matrixView);
 }
 
