@@ -1,0 +1,37 @@
+[
+  {
+    "path": "Channels.Audio Follows Video.Event 1.State",
+    "factor": "1",
+    "address": "/Channels/Audio_Follows_Video/Event_1/State",
+    "type": "Integer",
+    "math": "lin",
+    "min": "0/0",
+    "max": "1/1"
+  },
+  {
+    "path": "Channels.Audio Follows Video.Event 2.State",
+    "factor": "1",
+    "address": "/Channels/Audio_Follows_Video/Event_2/State",
+    "type": "Integer",
+    "math": "lin",
+    "min": "0/0",
+    "max": "1/1"
+  },  {
+    "path": "Channels.Audio Follows Video.Event 3.State",
+    "factor": "1",
+    "address": "/Channels/Audio_Follows_Video/Event_3/State",
+    "type": "Integer",
+    "math": "lin",
+    "min": "0/0",
+    "max": "1/1"
+  },
+  {
+    "path": "Channels.Audio Follows Video.Event 4.State",
+    "factor": "1",
+    "address": "/Channels/Audio_Follows_Video/Event_4/State",
+    "type": "Integer",
+    "math": "lin",
+    "min": "0/0",
+    "max": "1/1"
+  }
+]
