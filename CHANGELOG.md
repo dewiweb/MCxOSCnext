@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-alpha.12](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.11...v2.2.0-alpha.12) (2023-04-26)
+
+
+### Bug Fixes
+
+* :bug: event.target.closest('td') in place of too many addeventlistener ([3b5227a](https://github.com/dewiweb/MCxOSCnext/commit/3b5227a5382946b26cd1e503443ac24d268105b5))
+* :bug: matrix_view renamed central_view + opendevtools re-enabled ([7aa2c4d](https://github.com/dewiweb/MCxOSCnext/commit/7aa2c4df1451f7a9881f832c79b7c289e40cecf4))
+* :bug: reduce max matrix view to 200X200 ([3ec77fe](https://github.com/dewiweb/MCxOSCnext/commit/3ec77fea9fa2dfdc5e41b1e446eab1bbd85da9c5))
+
 ## [2.2.0-alpha.11](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.10...v2.2.0-alpha.11) (2023-04-25)
 
 
