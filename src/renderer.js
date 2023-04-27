@@ -1517,16 +1517,18 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
             "🚀 : file: renderer.js:1381 : createMatrixView : s :",
             s
           );
-          let xcell =
-            matrixView.rows[connections[t].sources[s] + 1].cells[
-              connections[t].target + 1
-            ];
-          xcell.style.textAlign = "center";
-          xcell.innerHTML =
-            "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
-          //onclick = 'check_uncheck(this,`" +
-          //  mtx_path +
-          //  "`)'>";
+          if (matrixView.rows[connections[t].sources[s] + 1]) {
+            let xcell =
+              matrixView.rows[connections[t].sources[s] + 1].cells[
+                connections[t].target + 1
+              ];
+            xcell.style.textAlign = "center";
+            xcell.innerHTML =
+              "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
+            //onclick = 'check_uncheck(this,`" +
+            //  mtx_path +
+            //  "`)'>";
+          }
         }
       }
     }
