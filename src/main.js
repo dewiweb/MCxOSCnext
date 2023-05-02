@@ -364,9 +364,15 @@ function createWindow() {
     /* Context Menu Items */
     menu: (actions, params, win, dicSuggestion) => [
       /* System Buttons */
-      actions.copy(),
-      actions.cut(),
-      actions.paste(),
+      actions.copy({
+        transform: (content) => `${content}`,
+      }),
+      actions.cut({
+        transform: (content) => `${content}`,
+      }),
+      actions.paste({
+        transform: (content) => `${content}`,
+      }),
     ],
   });
   //---MENU OPERATIONS---//

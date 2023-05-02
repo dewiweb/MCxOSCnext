@@ -1437,8 +1437,16 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
   cross.style.width = "30px";
   cross.innerHTML = "&#x269E;";
   headerRow.appendChild(cross);
+  let lastConnection =
+    Object.keys(connections)[Object.keys(connections).length - 1];
+  console.log("🚀 : file: renderer.js:1441 : lastConnection:", lastConnection);
+
   try {
-    for (i = 0; i < targets && i < 201; i++) {
+    for (i = 0; i < lastConnection && i < 201; i++) {
+      //   if (i.toString() in connections) {
+      //    for (i in connections) {
+      //      i = Number(i);
+      //      if (i < 201) {
       console.log("🚀 : file: renderer.js:1442 : createMatrixView : i:", i);
       let horHeaderCell = document.createElement("th");
       horHeaderCell.innerHTML =
@@ -1456,6 +1464,7 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
       //  e.preventDefault();
       //});
       headerRow.appendChild(horHeaderCell);
+      //      }
     }
   } catch (error) {
     console.log(
@@ -1481,20 +1490,32 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
       //otherCell.style.width = "20px";
       //otherCell.innerHTML =
       //  "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
-
-      for (k = 0; k < targets && k < 201; k++) {
-        console.log("🚀 : file: renderer.js:1477 : createMatrixView : k:", k);
-        let otherCell = newRow.insertCell(k + 1);
-        otherCell.style.width = "20px";
-        //
-        otherCell.innerHTML =
-          "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
-        ////
-        //onclick = 'check_uncheck(this,`" +
-        //  mtx_path +
-        //  "`)'>";
-        //otherCell.firstChild.style.zIndex = "-1";
-        //newRow.appendChild(otherCell);
+      try {
+        for (k = 0; k < lastConnection && k < 201; k++) {
+          //  if (k.toString() in connections) {
+          //for (k in connections) {
+          //  k = Number(k);
+          //  if (k < 201) {
+          console.log("🚀 : file: renderer.js:1477 : createMatrixView : k:", k);
+          let otherCell = newRow.insertCell(k + 1);
+          otherCell.style.width = "20px";
+          //
+          if (k in connections) {
+            otherCell.innerHTML =
+              "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
+            ////
+            //onclick = 'check_uncheck(this,`" +
+            //  mtx_path +
+            //  "`)'>";
+            //otherCell.firstChild.style.zIndex = "-1";
+            //newRow.appendChild(otherCell);
+          }
+        }
+      } catch (error) {
+        console.log(
+          "🚀 : file: renderer.js:1500 : createMatrixView : error:",
+          error
+        );
       }
     }
   } catch (error) {
@@ -1517,7 +1538,12 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
             "🚀 : file: renderer.js:1381 : createMatrixView : s :",
             s
           );
-          if (matrixView.rows[connections[t].sources[s] + 1]) {
+          if (
+            matrixView.rows[connections[t].sources[s] + 1] != undefined &&
+            matrixView.rows[connections[t].sources[s] + 1].cells[
+              connections[t].target + 1
+            ] != undefined
+          ) {
             let xcell =
               matrixView.rows[connections[t].sources[s] + 1].cells[
                 connections[t].target + 1
