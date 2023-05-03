@@ -62,6 +62,7 @@
     "electron-log": "^5.0.0-beta.16",
     "electron-preferences": "^2.7.0",
     "emberplus-connection": "^0.2.1-nightly-master-20230414-132419-ee926d2.0",
+    "ip": "^1.1.8",
     "osc": "^2.4.2",
     "pretty-print-json": "^1.5.0",
     "tabulator-tables": "^5.4.4"

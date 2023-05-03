@@ -1176,11 +1176,11 @@ function sendConnection(o) {
 function sendAllConnections() {
   var table = document.getElementById("tableOfConnection");
   for (i = 2; i < table.rows.length; i++) {
-    (function (n) {
-      setTimeout(() => {
-        sendConnection(n);
-      }, 25);
-    })(i);
+    //   (function (n) {
+    //  setTimeout(() => {
+    sendConnection(i);
+    //  }, 250);
+    //  })(i);
   }
 }
 
