@@ -19,6 +19,7 @@ if (!fs.existsSync(defaultDir)) {
 }
 const log = require("electron-log");
 const { fail } = require("assert");
+const ip = require("ip");
 
 const stream = [];
 let directions = [];
@@ -37,6 +38,8 @@ let EmberRate = 8;
 
 let ro = [];
 let root;
+let myIp = ip.address();
+console.log("🚀 : file: main.js:42 : myIp:", myIp);
 
 //---Time Section---//
 let date_ob = new Date();
@@ -481,7 +484,7 @@ function createWindow() {
     win.webContents.send("loginfo", "Port de reception OSC:" + oUDPport);
     //  })
     oscGet = new osc.UDPPort({
-      localAddress: "127.0.0.1",
+      localAddress: myIp,
       localPort: Number(oUDPport),
       metadata: true,
     });
