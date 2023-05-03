@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0-beta.1](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.14...v2.2.0-beta.1) (2023-05-03)
+
+
+### Features
+
+* :bug: admit matrix with empty connections ([74c8b0a](https://github.com/dewiweb/MCxOSCnext/commit/74c8b0a5a83de9808e99c0e663ef899b30ce791f))
+
+
+### Bug Fixes
+
+* :bug: add node "ip" to determine host ip(OSC) ([da02e10](https://github.com/dewiweb/MCxOSCnext/commit/da02e10619df6cb613a17e6cd6fd11536dad3dc8))
+* :bug: context menu copy/paste rich text to plain text ([1c3201a](https://github.com/dewiweb/MCxOSCnext/commit/1c3201aa9dd7f1418cf80ffb5889fe779e4513a2))
+
 ## [2.2.0-beta.0](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-alpha.14...v2.2.0-beta.0) (2023-05-02)
 
 
