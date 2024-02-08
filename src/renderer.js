@@ -630,6 +630,7 @@ ipcRenderer.on("sendFileContent", (e, content) => {
       </select>`;
       }
       if (element.factor !== "") {
+        if (element.factor !== "*"){
         cell9.innerHTML =
           element.min.split("/")[0] +
           "/" +
@@ -646,6 +647,25 @@ ipcRenderer.on("sendFileContent", (e, content) => {
             0
           ) +
           `>`;
+      }else{
+        cell9.innerHTML =
+          element.min.split("/")[0] +
+          "/" +
+          `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+          (Number(element.min.split("/")[1])).toFixed(
+            0
+          )+
+          `>`;
+        cell11.innerHTML =
+          element.max.split("/")[0] +
+          "/" +
+          `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+          (Number(element.max.split("/")[1])).toFixed(
+            0
+          )+
+          `>`;
+
+      }
       } else {
         cell9.innerHTML =
           element.min.split("/")[0] +
@@ -887,7 +907,7 @@ function submitPath(event) {
       if (innerPath.contents.factor !== undefined) {
         eVarFactor = innerPath.contents.factor;
       } else {
-        eVarFactor = 1;
+        eVarFactor = "*";
       }
     } else if (pathType == "BOOLEAN") {
       eVarCurve = "";
