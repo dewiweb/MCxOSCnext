@@ -69,7 +69,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-    //win.webContents.openDevTools({ mode: "detach" });
+    win.webContents.openDevTools({ mode: "detach" });
     win.webContents.send("ready");
   });
   ipcMain.on("sendAutoSave", function (event, content) {
@@ -582,7 +582,43 @@ function createWindow() {
                 args: [
                   {
                     type: "s",
-                    value: "/track/"+init_CA_OID.contents.description.match((/\d+/g)),
+                    value: "/track/"+init_CA_OID.contents.description.match((/\d+/g))+"/gain",
+                  },
+                ],
+              },
+              oServerIP,
+              oServerPort
+              );
+              oscGet.send({
+                address: "/get",
+                args: [
+                  {
+                    type: "s",
+                    value: "/track/"+(init_CA_OID.contents.description.match((/\d+/g))).toString()+"/aed",
+                  },
+                ],
+              },
+              oServerIP,
+              oServerPort
+              );
+              oscGet.send({
+                address: "/get",
+                args: [
+                  {
+                    type: "s",
+                    value: "/track/"+(init_CA_OID.contents.description.match((/\d+/g))).toString()+"/mute",
+                  },
+                ],
+              },
+              oServerIP,
+              oServerPort
+              );
+              oscGet.send({
+                address: "/get",
+                args: [
+                  {
+                    type: "s",
+                    value: "/track/"+(init_CA_OID.contents.description.match((/\d+/g))).toString()+"/lfe/send",
                   },
                 ],
               },
@@ -615,7 +651,43 @@ function createWindow() {
                     args: [
                       {
                         type: "s",
-                        value: "/track/"+init_CA_OID.contents.description.match((/\d+/g)),
+                        value: "/track/"+CA_OID.contents.description.match((/\d+/g))+"/gain",
+                      },
+                    ],
+                  },
+                  oServerIP,
+                  oServerPort
+                  );
+                  oscGet.send({
+                    address: "/get",
+                    args: [
+                      {
+                        type: "s",
+                        value: "/track/"+(CA_OID.contents.description.match((/\d+/g))).toString()+"/aed",
+                      },
+                    ],
+                  },
+                  oServerIP,
+                  oServerPort
+                  );
+                  oscGet.send({
+                    address: "/get",
+                    args: [
+                      {
+                        type: "s",
+                        value: "/track/"+(CA_OID.contents.description.match((/\d+/g))).toString()+"/mute",
+                      },
+                    ],
+                  },
+                  oServerIP,
+                  oServerPort
+                  );
+                  oscGet.send({
+                    address: "/get",
+                    args: [
+                      {
+                        type: "s",
+                        value: "/track/"+(CA_OID.contents.description.match((/\d+/g))).toString()+"/lfe/send",
                       },
                     ],
                   },
