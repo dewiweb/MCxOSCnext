@@ -1,7 +1,7 @@
 {
   "name": "mcxoscnext",
   "productName": "mcxoscnext",
-  "version": "2.2.1-1",
+  "version": "2.2.1-2",
   "description": "A bridge between emberplus and OSC protocols",
   "main": "src/main.js",
   "scripts": {
@@ -65,7 +65,7 @@
     "emberplus-connection": "^0.2.1-nightly-master-20230414-132419-ee926d2.0",
     "ip": "^1.1.8",
     "osc": "^2.4.4",
-    "pretty-print-json": "^3.0.0",
+    "pretty-print-json": "^1.5.0",
     "tabulator-tables": "^5.5.4"
   },
   "devDependencies": {
