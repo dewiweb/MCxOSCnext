@@ -667,6 +667,7 @@ ipcRenderer.on("sendFileContent", (e, content) => {
 
       }
       } else {
+        //cell3.innerHTML = "*"
         cell9.innerHTML =
           element.min.split("/")[0] +
           "/" +

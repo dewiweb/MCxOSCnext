@@ -577,6 +577,18 @@ function createWindow() {
                 o2o_address,
                 Number(o2o_port)
               );
+              oscGet.send({
+                address: "/get",
+                args: [
+                  {
+                    type: "s",
+                    value: "/track/"+init_CA_OID.contents.description.match((/\d+/g)),
+                  },
+                ],
+              },
+              oServerIP,
+              oServerPort
+              );
               eGet.subscribe(init_oid2osc, () => {
                 async function bip() {
                   let emberValue = init_oid2osc.contents.value;
@@ -597,6 +609,18 @@ function createWindow() {
                     },
                     o2o_address,
                     Number(o2o_port)
+                  );
+                  oscGet.send({
+                    address: "/get",
+                    args: [
+                      {
+                        type: "s",
+                        value: "/track/"+init_CA_OID.contents.description.match((/\d+/g)),
+                      },
+                    ],
+                  },
+                  oServerIP,
+                  oServerPort
                   );
                 }
                 bip();
@@ -679,6 +703,7 @@ function createWindow() {
                 }
               } else if (parameter_type == "BOOLEAN") {
                 let bool_description = initialReq.contents.description;
+                sFactor = "*";
                 win.webContents.send("choosen_type", 1, myRow);
                 win.webContents.send(
                   "loginfo",
