@@ -58,20 +58,20 @@
     }
   },
   "dependencies": {
-    "electron-context-menu": "^3.3.0",
-    "electron-log": "^5.0.0-beta.16",
-    "electron-preferences": "^2.7.0",
+    "electron-context-menu": "^3.6.1",
+    "electron-log": "^5.1.1",
+    "electron-preferences": "^2.8.2",
     "emberplus-connection": "^0.2.1-nightly-master-20230414-132419-ee926d2.0",
-    "ip": "^1.1.8",
-    "osc": "^2.4.2",
+    "ip": "^2.0.1",
+    "osc": "^2.4.4",
     "pretty-print-json": "^1.5.0",
-    "tabulator-tables": "^5.4.4"
+    "tabulator-tables": "^5.6.1"
   },
   "devDependencies": {
-    "electron": "^23.1.0",
-    "electron-builder": "^23.1.0",
-    "node-abi": "^3.33.0",
-    "serialport": "^10.2.2",
+    "electron": "^29.0.1",
+    "electron-builder": "^24.12.0",
+    "node-abi": "^3.55.0",
+    "serialport": "^12.0.0",
     "standard-version": "^9.5.0"
   }
 }

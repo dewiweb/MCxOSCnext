@@ -1,60 +1,54 @@
+const electron = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, nativeTheme } = electron;
+const fs = require("fs");
+const ip = require("ip");
+const { EmberClient } = require("emberplus-connection");
 const osc = require("osc");
 const net = require("net");
-const lib = require("./mainFunctions");
-const { EmberClient } = require("emberplus-connection");
-const ElectronPreferences = require("electron-preferences");
 const contextMenu = require("electron-context-menu");
-const electron = require("electron");
-const { ipcMain } = require("electron");
-const nativeTheme = electron.nativeTheme;
-const { app, BrowserWindow } = require("electron");
+const ElectronPreferences = require("electron-preferences");
 const mainFunctions = require("./mainFunctions");
-const { dialog } = require("electron");
 const { send } = require("process");
-const appVersion = app.getVersion();
-const fs = require("fs");
+const log = require("electron-log");
+const { fail } = require("assert");
+
 const defaultDir = app.getPath("documents") + "/MCxOSCnext";
 if (!fs.existsSync(defaultDir)) {
   fs.mkdirSync(defaultDir);
 }
-const log = require("electron-log");
-const { fail } = require("assert");
-const ip = require("ip");
 
-const stream = [];
-let directions = [];
-let oUDPport;
-let gateDelayIN = [];
-let gateDelayOUT = [];
-
-let timestamp = [];
-let OSCin = [];
-let OSCout = [];
-let OSCrate = 25;
-
-let EmberIn = [];
-let EmberOut = [];
-let EmberRate = 8;
-
-let ro = [];
-let root;
+const appVersion = app.getVersion();
 let myIp = ip.address();
 console.log("🚀 : file: main.js:42 : myIp:", myIp);
 
 //---Time Section---//
 let date_ob = new Date();
-let date = lib.IntTwoChars(date_ob.getDate());
-let month = lib.IntTwoChars(date_ob.getMonth() + 1);
+let date = ('0' + date_ob.getDate()).slice(-2);
+let month = ('0' + (date_ob.getMonth() + 1)).slice(-2);
 let year = date_ob.getFullYear();
-let hours = lib.IntTwoChars(date_ob.getHours());
-let minutes = lib.IntTwoChars(date_ob.getMinutes());
-let seconds = lib.IntTwoChars(date_ob.getSeconds());
+let hours = ('0' + date_ob.getHours()).slice(-2);
+let minutes = ('0' + date_ob.getMinutes()).slice(-2);
+let seconds = ('0' + date_ob.getSeconds()).slice(-2);
 const datePath = `autosave_${hours}-${minutes}-${seconds}_${date}-${month}-${year}`;
 log.info("datePath : ", datePath);
 //---Options Section---//
 let recOptions;
 let openOptions;
 //---------------------//
+const stream = [];
+let directions = [];
+let oUDPport;
+let gateDelayIN = [];
+let gateDelayOUT = [];
+let timestamp = [];
+let OSCin = [];
+let OSCout = [];
+let OSCrate = 25;
+let EmberIn = [];
+let EmberOut = [];
+let EmberRate = 8;
+let ro = [];
+let root;
 function createWindow() {
   let win = new BrowserWindow({
     width: 1200,
@@ -91,27 +85,36 @@ function createWindow() {
       app.quit();
     }
   });
+  // Defines the options for save dialogs
   function optionsDef() {
+    // Save session dialog options
     recOptions = {
       filters: [
         { name: "Session file", extensions: ["session"] },
         { name: "All Files", extensions: ["*"] },
       ],
       title: "Save your session in a *.session file",
-      defaultPath: defaultDir + "/MySession.session",
+      defaultPath: defaultDir + "/MySession.session", // Default file name
     };
+
+    // Open session dialog options
     openOptions = {
       filters: [
         { name: "Session file", extensions: ["session"] },
         { name: "All Files", extensions: ["*"] },
       ],
-      properties: ["openFile", "multiSelections"],
+      properties: ["openFile", "multiSelections"], // Allow multiple selection
       title: "Choose a *.session file",
-      defaultPath: defaultDir,
+      defaultPath: defaultDir, // Default directory
     };
+
+    // Path for autosave file
     autoSaveFilepath = defaultDir + "/" + datePath + ".session";
+
+    // Log autosave filepath in dev tools console
     win.webContents.send("loginfo", "autoSaveFilepath: " + autoSaveFilepath);
   }
+
   optionsDef();
 
   //---Preferences Window#//
@@ -510,7 +513,7 @@ function createWindow() {
       let oRargs = mainFunctions.oscToEmber(oscBundle);
 
       win.webContents.send("oReceivedAddr", oRaddr, oRargs);
-      //      win.webContents.send('loginfo', 'oscBundle : ' + oscBundle);
+            win.webContents.send('loginfo', 'oscBundle : ' + oscBundle);
       //      win.webContents.send('loginfo', "OSC Address received" + oRaddr);
       //      win.webContents.send('loginfo', "oRargs: " + oRargs);
     });
@@ -543,76 +546,69 @@ function createWindow() {
         //}
         win.webContents.send("embertree", first_branch);
 
-        async function channelAccess(OID_to_OSC) {
-          if (OID_to_OSC[0]) {
-            let oid2osc = preferences.value("other_settings.oid2osc");
-            let o2o_address = oid2osc.toString().split(":")[0];
-            let o2o_port = oid2osc.split(":")[1].split("/")[0];
-            let o2o_path = "/" + oid2osc.slice(oid2osc.indexOf("/") + 1);
-            let init_oid2osc = "";
-            try {
-              await mainFunctions.sleep(2000);
-              init_oid2osc = await eGet.getElementByPath(
-                "Console.AccessChannelOID"
-              );
-              let init_emberValue = init_oid2osc.contents.value;
-              let init_CA_OID = await eGet.getElementByPath(init_emberValue);
-              //            win.webContents.on('did-finish-load', () => {
-              win.webContents.send(
-                "loginfo",
-                "initial ChannelAccess name is: " +
-                  init_CA_OID.contents.description
-              );
-              //            })
-              oscGet.send(
-                {
-                  address: o2o_path,
-                  args: [
-                    {
-                      type: "s",
-                      value: init_CA_OID.contents.description,
-                    },
-                  ],
-                },
-                o2o_address,
-                Number(o2o_port)
-              );
-              eGet.subscribe(init_oid2osc, () => {
-                async function bip() {
-                  let emberValue = init_oid2osc.contents.value;
-                  let CA_OID = await eGet.getElementByPath(emberValue);
-                  win.webContents.send(
-                    "loginfo",
-                    "CA_OID changed: " + CA_OID.contents.description
-                  );
-                  oscGet.send(
-                    {
-                      address: o2o_path,
-                      args: [
-                        {
-                          type: "s",
-                          value: CA_OID.contents.description,
-                        },
-                      ],
-                    },
-                    o2o_address,
-                    Number(o2o_port)
-                  );
-                }
-                bip();
-              });
-            } catch (e) {
-              const message = await e.message;
-              //          win.webContents.on('did-finish-load', () => {
-              win.webContents.send(
-                "loginfo",
-                "oid2osc failed due to: " + message
-              );
-              //          })
-            }
-          }
+/**
+ * Asynchronously accesses a channel based on the provided OID to OSC mapping
+ * @param {Array} OID_to_OSC - Array containing OID to OSC mapping
+ */
+async function channelAccess(OID_to_OSC) {
+  if (OID_to_OSC[0]) {
+    const oid2osc = preferences._preferences.other_settings.oid2osc;
+    const [o2o_address, o2o_port, o2o_path] = oid2osc.toString().split(/:|(?=\/)/);
+    try {
+      await mainFunctions.sleep(2000);
+      const init_oid2osc = await eGet.getElementByPath("Console.AccessChannelOID");
+      const init_emberValue = init_oid2osc.contents.value;
+      //delete last number separated by dot of init_emberValue formatted as "11021.11022.33117" to get "11021.11022"
+      const init_parentId = init_emberValue.split(".").slice(0, -1).join(".");
+      let channelType = (await eGet.getElementByPath(init_parentId)).contents.description;
+      console.log("channelType", channelType);
+      const init_CA_OID = await eGet.getElementByPath(init_emberValue);
+      const emberId = init_CA_OID.contents.identifier;
+      //convert emberId from hex to decimal with emberId formatted as '_a'
+      const init_CA_OID_dec = parseInt(emberId.slice(1), 16);
+      console.log("init_CA_OID_dec", init_CA_OID_dec);
+      win.webContents.send("loginfo", "initial ChannelAccess name is: " + init_CA_OID.contents.description);
+       //convert channelType to match corresponding value from "Inputs" to "track" or from "Sums" to "bus"
+       if (channelType === "Inputs") {
+        channelType = "track";
+    } else if (channelType === "Sums") {
+        channelType = "bus";
+    }
+    console.log("channelType2", channelType);
+      oscGet.send({
+        address: o2o_path,
+        args: [{ type: "s", value: channelType+"_"+init_CA_OID_dec }],
+      }, o2o_address, Number(o2o_port));
+      eGet.subscribe(init_oid2osc, async () => {
+        const emberValue = init_oid2osc.contents.value;
+        //delete last number separated by dot of emberValue formatted as "11021.11022.33117" to get "11021.11022"
+        const parentId = emberValue.split(".").slice(0, -1).join(".");
+        channelType = (await eGet.getElementByPath(parentId)).contents.description;
+        
+        const CA_OID = await eGet.getElementByPath(emberValue);
+        const CA_OID_dec = parseInt(CA_OID.contents.identifier.slice(1), 16);
+        win.webContents.send("loginfo", "CA_OID changed: " + CA_OID.contents.description);
+        //convert channelType to match corresponding value from "Inputs" to "track" or from "Sums" to "bus"
+        if (channelType === "Inputs") {
+          channelType = "track";
+        } else if (channelType === "Sums") {
+          channelType = "bus";
         }
-        channelAccess(OID_to_OSC);
+        oscGet.send({
+          address: o2o_path,
+          args: [{ type: "s", value: channelType+"_"+CA_OID_dec }],
+        }, o2o_address, Number(o2o_port));
+      });
+    } catch (e) {
+      const message = e.message;
+      win.webContents.send("loginfo", "oid2osc failed due to: " + message);
+    }
+  }
+
+}
+
+// Call the channelAccess function
+channelAccess(OID_to_OSC);
 
         preferences.on("click", (key) => {
           if (key === "change_oid_dest") {
