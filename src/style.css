@@ -364,6 +364,7 @@ caption{
 
 #logging{
   font-size: x-small;
+  min-height: 100px;
 }
 
 select.without-icon {appearance:none;background-image:url('');}

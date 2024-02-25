@@ -3,17 +3,8 @@ const mainFunctions = require("./mainFunctions");
 const preferences = ipcRenderer.sendSync("getPreferences");
 //const Tabulator = require("tabulator-tables");
 const { TreeView, TreeNode, TreeUtil, TreeConfig } = require("./tree");
-const log = require("electron-log");
 const { prettyPrintJson } = require("pretty-print-json");
 const osc = require("osc/src/osc-transports");
-function logDefinition() {
-  console.log = log.log;
-  Object.assign(console, log.functions);
-  log.transports.console.format = "{h}:{i}:{s} / {text}";
-}
-logDefinition();
-
-log.transports.div = log.transports.console;
 
 function scrollToBottom() {
   document.getElementById("logging").scrollTop =
@@ -148,7 +139,7 @@ ipcRenderer.on("resolveError", (e, msg) => {
     console.log("🚀 : file: renderer.js:142 : ipcRenderer.on : date:", date);
     document
       .getElementById("logging")
-      .insertAdjacentHTML("beforeend", date + msg + "<br>");
+      .insertAdjacentHTML("beforeend", "<pre>" + date + msg + "</pre>");
     scrollToBottom();
     ipcRenderer.send("showPreferences");
   }
@@ -472,7 +463,10 @@ ipcRenderer.on("oReceivedAddr", (e, oRaddr, oRargs) => {
   let oMax2;
   let eVarCurve2;
   let dot2 = document.getElementById("dot2");
-  dot2.classList.toggle("blink");
+  if (!dot2.classList.contains("blink")) {
+    dot2.classList.toggle("blink");
+  }
+  
   filteR = oRaddr.toUpperCase();
   table = document.getElementById("tableOfConnection");
   tr = table.getElementsByTagName("tr");
@@ -540,7 +534,7 @@ ipcRenderer.on("oReceivedAddr", (e, oRaddr, oRargs) => {
   }
   setTimeout(() => {
     dot2.classList.remove("blink");
-  }, 2000);
+  }, 200);
   osc_address = oRaddr;
 });
 
@@ -781,7 +775,7 @@ function logRenderer(msg) {
     "-->";
   document
     .getElementById("logging")
-    .insertAdjacentHTML("beforeend", date + msg + "<br>");
+    .insertAdjacentHTML("beforeend", +"<pre>" + date + msg + "</pre>");
   scrollToBottom();
 }
 
@@ -1090,11 +1084,11 @@ function SomeDeleteRowFunction(o) {
       eVarFactor
     );
     table.deleteRow(o);
-    logRenderer("delete Row number: " + o);
+    //logRenderer("delete Row number: " + o);
   } else {
     let p = o.parentNode.parentNode;
     myRow = p.rowIndex;
-    logRenderer(myRow);
+    //logRenderer(myRow);
     let ePath = table.rows[myRow].cells[0].innerHTML;
     let oAddr = table.rows[myRow].cells[4].innerHTML;
     let eVarFactor = table.rows[myRow].cells[2].innerHTML;
@@ -1108,7 +1102,7 @@ function SomeDeleteRowFunction(o) {
       eVarFactor
     );
     p.parentNode.removeChild(p);
-    logRenderer("delete row number: " + myRow);
+    //logRenderer("delete row number: " + myRow);
   }
 }
 
@@ -1244,7 +1238,7 @@ function saveAs(saveAsBtn) {
     data.push(rowData);
   }
   let content = JSON.stringify(data, null, 2);
-  logRenderer("contentsended:" + content);
+  //logRenderer("contentsended:" + content);
   ipcRenderer.send("sendSaveAs", content);
 }
 
@@ -1306,7 +1300,7 @@ function prefs(preferencesBtn) {
 function menu() {
   let menu = document.getElementById("menu").querySelectorAll(".button");
   let menuDiv = document.getElementById("menu");
-  logRenderer("menubkgcolor" + menuDiv.style.backgroundColor);
+  //logRenderer("menubkgcolor" + menuDiv.style.backgroundColor);
   if (menuDiv.style.backgroundColor === "rgb(71, 73, 108)") {
     menuDiv.style.backgroundColor = "rgb(40, 44, 52)";
   } else {

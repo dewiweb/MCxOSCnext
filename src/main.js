@@ -52,7 +52,7 @@ let root;
 function createWindow() {
   let win = new BrowserWindow({
     width: 1200,
-    height: 630,
+    height: 750,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -514,16 +514,23 @@ function createWindow() {
       let oRargs = mainFunctions.oscToEmber(oscBundle);
 
       win.webContents.send("oReceivedAddr", oRaddr, oRargs);
-            win.webContents.send('loginfo', 'oscBundle : ' + JSON.stringify(oscBundle));
-      //      win.webContents.send('loginfo', "OSC Address received" + oRaddr);
+      //     win.webContents.send('loginfo', 'oscBundle : ' + JSON.stringify(oscBundle));
+            win.webContents.send('loginfo', "OSC-->" + oRaddr.replace(/["\\]/g, '') + " : " + oRargs.toString());
       //      win.webContents.send('loginfo', "oRargs: " + oRargs);
     });
   }
   
 
   win.webContents.on("did-finish-load", () => {
+     win.webContents.send("appVersion", app.getVersion());
     async function main() {
       oscListening();
+      oscGet.on("error", (error) => {
+        msg = error.message;
+        win.webContents.send("udpportKO", msg);
+        win.webContents.send("resolveError", msg);
+        oscGet.close();
+      });
         oscToTable();
       try {
         
@@ -680,10 +687,10 @@ channelAccess(OID_to_OSC);
               } else if (parameter_type == "BOOLEAN") {
                 let bool_description = initialReq.contents.description;
                 win.webContents.send("choosen_type", 1, myRow);
-                win.webContents.send(
-                  "loginfo",
-                  "parameter : " + bool_description
-                );
+              //  win.webContents.send(
+              //    "loginfo",
+              //    "parameter : " + bool_description
+              //  );
               } else if (parameter_type == "STRING") {
                 win.webContents.send("choosen_type", 0, myRow);
               }
@@ -773,8 +780,8 @@ channelAccess(OID_to_OSC);
                   JSON.stringify(state) === JSON.stringify(["first", myRow])
                 ) {
                   //            direction = "ET";
-                  win.webContents.send("loginfo", "subscribed to " + ePath);
-                  win.webContents.send("loginfo", contents);
+                  win.webContents.send("loginfo", "connected to : " + ePath);
+                  //win.webContents.send("loginfo", contents);
                   emberValue = initialReq.contents.value;
                   directions[myRow] = "-";
                   event.sender.send(
@@ -833,7 +840,7 @@ channelAccess(OID_to_OSC);
                           );
                           win.webContents.send(
                             "loginfo",
-                            "EMBER+ -lin-> OSC : " + value
+                            "EMBER+ --> " + ePath+" : " + value
                           );
                         } else if (
                           eVarType == "Integer" &&
@@ -861,7 +868,7 @@ channelAccess(OID_to_OSC);
                           );
                           win.webContents.send(
                             "loginfo",
-                            "EMBER+ -log-> OSC : " + value
+                            "EMBER+ --> " + ePath+" : " + value
                           );
                         } else if (eVarType == "Real" || eVarType == "Enum") {
                           oscGet.send(
@@ -879,7 +886,7 @@ channelAccess(OID_to_OSC);
                           );
                           win.webContents.send(
                             "loginfo",
-                            "EMBER+ -Real-> OSC : " + emberValue
+                            "EMBER+ --> " + ePath+" : " + emberValue
                           );
                         } else if (eVarType == "String") {
                           win.webContents.send(
@@ -901,7 +908,7 @@ channelAccess(OID_to_OSC);
                           );
                           win.webContents.send(
                             "loginfo",
-                            "EMBER+ -string-> OSC : " + emberValue
+                            "EMBER+ --> " + ePath+" : " + emberValue
                           );
                         } else if (
                           eVarType == "Boolean" &&
@@ -922,7 +929,7 @@ channelAccess(OID_to_OSC);
                           );
                           win.webContents.send(
                             "loginfo",
-                            "EMBER+ -bool-> OSC : " + emberValue
+                            "EMBER+ --> " + ePath+" : "+ emberValue
                           );
                         } else if (
                           eVarType == "Boolean" &&
@@ -943,7 +950,7 @@ channelAccess(OID_to_OSC);
                           );
                           win.webContents.send(
                             "loginfo",
-                            "EMBER+ -bool-> OSC : " + emberValue
+                            "EMBER+ --> " + ePath+" : " + emberValue
                           );
                         }
 
@@ -971,7 +978,7 @@ channelAccess(OID_to_OSC);
                               oMax,
                               oMin
                             );
-                            win.webContents.send("loginfo", "waiting");
+                            //win.webContents.send("loginfo", "waiting");
                           },
                           500,
                           myRow
@@ -1009,7 +1016,7 @@ channelAccess(OID_to_OSC);
           async (event, ePath, oAddr, myRow, eVarType, sFactor) => {
             let req = await eGet.getElementByPath(ePath);
             eGet.unsubscribe(req);
-            win.webContents.send("loginfo", "unsuscribe to " + ePath);
+            win.webContents.send("loginfo", "disconnected from : " + ePath);
           }
         );
 
@@ -1057,7 +1064,7 @@ channelAccess(OID_to_OSC);
                     state = ["first", myRow];
                     win.webContents.send(
                       "loginfo",
-                      "eGet unsuscribe to " + rereq
+                      "temporary disconnected from : " + rEaddr
                     );
                   }
                   if (eVarType == "Integer" && eVarCurve == "lin") {
@@ -1070,7 +1077,7 @@ channelAccess(OID_to_OSC);
                     eGet.setValue(rereq, Number(value.toFixed(0)));
                     win.webContents.send(
                       "loginfo",
-                      "OSC -lin-> EMBER+ : " + value.toFixed(0)
+                      "--> EMBER+  " + rEaddr + " : " + value.toFixed(0)
                     );
                   } else if (eVarType == "Integer" && eVarCurve == "log") {
                     let value = mainFunctions.mapToScale(
@@ -1084,13 +1091,13 @@ channelAccess(OID_to_OSC);
                     eGet.setValue(rereq, Number(value.toFixed(0)));
                     win.webContents.send(
                       "loginfo",
-                      "OSC -log-> EMBER+ : " + value.toFixed(0)
+                      "--> EMBER+  " + rEaddr + " : " + value.toFixed(0)
                     );
                   } else if (eVarType == "Boolean" && rOrArgs == "1") {
                     eGet.setValue(rereq, true);
                     win.webContents.send(
                       "loginfo",
-                      ("OSC -bool-> EMBER+", rOrArgs)
+                      "--> EMBER+ " + rEaddr + " : " + rOrArgs
                     );
                   } else if (eVarType == "Boolean" && rOrArgs == "0") {
                     eGet.setValue(rereq, false);
@@ -1102,18 +1109,18 @@ channelAccess(OID_to_OSC);
                     eGet.setValue(rereq, rOrArgs.toString());
                     win.webContents.send(
                       "loginfo",
-                      ("OSC -string-> EMBER+", rOrArgs)
+                      "--> EMBER+ " + rEaddr + " : " + rOrArgs
                     );
                   } else {
                     eGet.setValue(rereq, rOrArgs);
                     win.webContents.send(
                       "loginfo",
-                      ("OSC -string-> EMBER+", rOrArgs)
+                      "--> EMBER+ " + rEaddr + " : " + rOrArgs
                     );
                   }
                   gateDelayOUT[myRow] = setTimeout(
                     () => {
-                      win.webContents.send("loginfo", "waiting");
+                      //win.webContents.send("loginfo", "waiting");
                       win.webContents.send("resubscribe", myRow);
                       directions[myRow] = "-";
                       win.webContents.send(
@@ -1264,15 +1271,10 @@ channelAccess(OID_to_OSC);
       });
     }
   });
-  oscGet.on("error", (error) => {
-    msg = error.message;
-    win.webContents.send("udpportKO", msg);
-    win.webContents.send("resolveError", msg);
-    oscGet.close();
-  });
+  
   win.autoHideMenuBar = "true";
   win.menuBarVisible = "false";
-  win.webContents.send("appVersion", app.getVersion());
+ 
   win.on("close", (e) => {
     if (win) {
       e.preventDefault();
