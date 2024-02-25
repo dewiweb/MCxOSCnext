@@ -63,7 +63,7 @@ function createWindow() {
   win.setMenu(null);
   win.loadFile("src/index.html");
   win.on("ready-to-show", () => {
-    //win.webContents.openDevTools({ mode: "detach" });
+    win.webContents.openDevTools({ mode: "detach" });
     win.webContents.send("ready");
   });
   ipcMain.on("sendAutoSave", function (event, content) {
@@ -505,24 +505,28 @@ function createWindow() {
       //      })
     });
   }
-  oscListening();
+  
 
   function oscToTable() {
     oscGet.on("message", (oscBundle) => {
+      console.log("OSC incoming bundle", oscBundle);
       let oRaddr = JSON.stringify(oscBundle.address);
       let oRargs = mainFunctions.oscToEmber(oscBundle);
 
       win.webContents.send("oReceivedAddr", oRaddr, oRargs);
-            win.webContents.send('loginfo', 'oscBundle : ' + oscBundle);
+            win.webContents.send('loginfo', 'oscBundle : ' + JSON.stringify(oscBundle));
       //      win.webContents.send('loginfo', "OSC Address received" + oRaddr);
       //      win.webContents.send('loginfo', "oRargs: " + oRargs);
     });
   }
-  oscToTable();
+  
 
   win.webContents.on("did-finish-load", () => {
     async function main() {
+      oscListening();
+        oscToTable();
       try {
+        
         const eAddress = preferences.value("network_settings.ember_provider");
         const err = await eGet.connect();
         if (err) {

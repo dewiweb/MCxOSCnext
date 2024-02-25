@@ -180,7 +180,7 @@ ipcRenderer.on("loginfo", (e, msg) => {
   if (document.getElementById("logging")) {
     document
       .getElementById("logging")
-      .insertAdjacentHTML("beforeend", date + JSON.stringify(msg) + "<br>");
+      .insertAdjacentHTML("beforeend",  "<pre>"+date +JSON.stringify(msg) + "</pre>");
     scrollToBottom();
   }
 });
@@ -571,7 +571,7 @@ ipcRenderer.on("sendFileContent", (e, content) => {
       let btnGo = document.createElement("BUTTON");
       btnDel.innerHTML = "X";
       btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
-      btnGo.innerHTML = "Go!";
+      btnGo.innerHTML = "Go &#10003;";
       btnGo.setAttribute("onClick", "sendConnection(this)");
       let row = table.insertRow(-1);
       row.style.fontSize = "smaller";
@@ -808,7 +808,7 @@ function addemptyrow(event) {
   let oscAddr = "";
   btnDel.innerHTML = "X";
   btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
-  btnGo.innerHTML = "Go!";
+  btnGo.innerHTML = "Go &#10003;";
   btnGo.setAttribute("onClick", "sendConnection(this)");
   let table = document.getElementById("tableOfConnection");
   let row = table.insertRow(-1);
@@ -909,7 +909,7 @@ function submitPath(event) {
     let OSCpath = "/" + stringPath.replaceAll(".", "/").replaceAll(" ", "_");
     btnDel.innerHTML = "X";
     btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
-    btnGo.innerHTML = "Go!";
+    btnGo.innerHTML = "Go &#10003;";
     btnGo.setAttribute("onClick", "sendConnection(this)");
     let table = document.getElementById("tableOfConnection");
     let row = table.insertRow(-1);
@@ -1021,7 +1021,7 @@ function submitPath(event) {
     let btnGo = document.createElement("BUTTON");
     btnDel.innerHTML = "X";
     btnDel.setAttribute("onClick", "SomeDeleteRowFunction(this)");
-    btnGo.innerHTML = "Go!";
+    btnGo.innerHTML = "Go &#10003;";
     btnGo.setAttribute("onClick", "sendConnection(this)");
     let table = document.getElementById("tableOfConnection");
     let row = table.insertRow(-1);
@@ -1402,7 +1402,7 @@ ipcRenderer.on("ready", (e) => {
 
 function reactivity_add() {
   tableData.push({
-    go_x: '<button type="button" onclick="sendConnection(this)">GO!</button><button type="button" onclick="SomeDeleteRowFunction(this)">X</button>',
+    go_x: '<button type="button" onclick="sendConnection(this)">GO &#10003;</button><button type="button" onclick="SomeDeleteRowFunction(this)">X</button>',
   });
 }
 
@@ -1417,206 +1417,123 @@ function getNodePathToRoot(node) {
 }
 
 async function createMatrixView(mtx_path, targets, sources, connections) {
-  await targets;
-  await sources;
-  await connections;
   let matrixView = document.createElement("table");
   matrixView.style.overflow = "auto";
   matrixView.style.tableLayout = "fixed";
   matrixView.style.width = "100%";
   matrixView.style.whiteSpace = "nowrap";
-  matrixView.style.border = "1px";
+  matrixView.style.border = "1px solid black";
   matrixView.id = "mtx_table";
+
   let headerRow = matrixView.insertRow(-1);
   let cross = document.createElement("th");
   cross.style.position = "sticky";
-  cross.style.rotate = "-45deg";
+  cross.style.transform = "rotate(-45deg)";
   cross.style.top = "-5px";
   cross.style.left = "0px";
   cross.style.height = "30px";
   cross.style.width = "30px";
   cross.innerHTML = "&#x269E;";
   headerRow.appendChild(cross);
-  let lastConnection =
-    Object.keys(connections)[Object.keys(connections).length - 1];
-  console.log("🚀 : file: renderer.js:1441 : lastConnection:", lastConnection);
 
-  try {
-    for (i = 0; i < lastConnection && i < 201; i++) {
-      //   if (i.toString() in connections) {
-      //    for (i in connections) {
-      //      i = Number(i);
-      //      if (i < 201) {
-      console.log("🚀 : file: renderer.js:1442 : createMatrixView : i:", i);
-      let horHeaderCell = document.createElement("th");
-      horHeaderCell.innerHTML =
-        '<span style="-webkit-transform: rotate(-90deg);display: inline-block;">' +
-        "t-" +
-        i.toString() +
-        "</span>";
-      //horHeaderCell.style.transform = "rotate(-45deg)";
-      horHeaderCell.style.height = "20px";
-      horHeaderCell.style.width = "20px";
-      horHeaderCell.firstChild.style.color = "black";
-      horHeaderCell.style.background = "grey";
-      //horHeaderCell.style.borderRadius = "5px";
-      //horHeaderCell.addEventListener("contextmenu", (e) => {
-      //  e.preventDefault();
-      //});
-      headerRow.appendChild(horHeaderCell);
-      //      }
-    }
-  } catch (error) {
-    console.log(
-      "🚀 : file: renderer.js:1457 : createMatrixView : error:",
-      error
-    );
+  let lastConnection = Object.keys(connections)[Object.keys(connections).length - 1];
+
+  for (let i = 0; i < targets && i < 201; i++) {
+    let horHeaderCell = document.createElement("th");
+    horHeaderCell.innerHTML = '<span style="-webkit-transform: rotate(-90deg);display: inline-block;">' + "t-" + i.toString() + "</span>";
+    horHeaderCell.style.height = "20px";
+    horHeaderCell.style.width = "20px";
+    horHeaderCell.style.color = "black";
+    horHeaderCell.style.background = "grey";
+    headerRow.appendChild(horHeaderCell);
   }
-  try {
-    for (j = 0; j < sources && j < 201; j++) {
-      console.log("🚀 : file: renderer.js:1465 : createMatrixView : j:", j);
-      let vertHeaderCell = document.createElement("th");
-      let newRow = matrixView.insertRow(-1);
-      vertHeaderCell.innerHTML = "s-" + j.toString();
-      vertHeaderCell.style.width = "20px";
-      vertHeaderCell.style.height = "20px";
-      vertHeaderCell.style.color = "black";
-      vertHeaderCell.style.background = "grey";
-      newRow.appendChild(vertHeaderCell);
-      newRow.firstChild.style.position = "sticky";
-      newRow.firstChild.style.left = "0px";
 
-      //let otherCell = document.createElement("td");
-      //otherCell.style.width = "20px";
-      //otherCell.innerHTML =
-      //  "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
-      try {
-        for (k = 0; k < lastConnection && k < 201; k++) {
-          //  if (k.toString() in connections) {
-          //for (k in connections) {
-          //  k = Number(k);
-          //  if (k < 201) {
-          console.log("🚀 : file: renderer.js:1477 : createMatrixView : k:", k);
-          let otherCell = newRow.insertCell(k + 1);
-          otherCell.style.width = "20px";
-          //
-          if (k in connections) {
-            otherCell.innerHTML =
-              "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' unchecked >";
-            ////
-            //onclick = 'check_uncheck(this,`" +
-            //  mtx_path +
-            //  "`)'>";
-            //otherCell.firstChild.style.zIndex = "-1";
-            //newRow.appendChild(otherCell);
-          }
-        }
-      } catch (error) {
-        console.log(
-          "🚀 : file: renderer.js:1500 : createMatrixView : error:",
-          error
-        );
+  for (let j = 0; j < sources && j < 201; j++) {
+    let vertHeaderCell = document.createElement("th");
+    let newRow = matrixView.insertRow(-1);
+    vertHeaderCell.innerHTML = "s-" + j.toString();
+    vertHeaderCell.style.width = "20px";
+    vertHeaderCell.style.height = "20px";
+    vertHeaderCell.style.color = "black";
+    vertHeaderCell.style.background = "grey";
+    newRow.appendChild(vertHeaderCell);
+    newRow.firstChild.style.position = "sticky";
+    newRow.firstChild.style.left = "0px";
+
+    for (let k = 0; k < lastConnection+1 && k < 201; k++) {
+      let otherCell = newRow.insertCell(k + 1);
+      otherCell.style.width = "20px";
+
+      if (k in connections) {
+        otherCell.innerHTML = "<input type='checkbox' style='width:100%;height:100%;z-index:-1;' >";
       }
     }
-  } catch (error) {
-    console.log(
-      "🚀 : file: renderer.js:1487 : createMatrixView : error:",
-      error
-    );
   }
+
   headerRow.style.position = "sticky";
   headerRow.style.top = "0px";
-  try {
-    for (t in connections) {
-      console.log(
-        "🚀 : file: renderer.js:1375 : createMatrixView : item:",
-        connections[t]
-      );
-      if (connections[t].sources !== []) {
-        for (s in connections[t].sources) {
-          console.log(
-            "🚀 : file: renderer.js:1381 : createMatrixView : s :",
-            s
-          );
-          if (
-            matrixView.rows[connections[t].sources[s] + 1] != undefined &&
-            matrixView.rows[connections[t].sources[s] + 1].cells[
-              connections[t].target + 1
-            ] != undefined
-          ) {
-            let xcell =
-              matrixView.rows[connections[t].sources[s] + 1].cells[
-                connections[t].target + 1
-              ];
-            xcell.style.textAlign = "center";
-            xcell.innerHTML =
-              "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
-            //onclick = 'check_uncheck(this,`" +
-            //  mtx_path +
-            //  "`)'>";
-          }
+
+  for (let t in connections) {
+    if (connections[t].sources !== []) {
+      for (let s in connections[t].sources) {
+        if (matrixView.rows[connections[t].sources[s] + 1] != undefined &&
+          matrixView.rows[connections[t].sources[s] + 1].cells[connections[t].target + 1] != undefined) {
+          let xcell = matrixView.rows[connections[t].sources[s] + 1].cells[connections[t].target + 1];
+          xcell.style.textAlign = "center";
+          xcell.innerHTML = "<input type='checkbox' style='width:100%;height:100%;z-index=-1' checked >";
         }
       }
     }
-  } catch (error) {
-    console.log(
-      "🚀 : file: renderer.js:1518 : createMatrixView : error:",
-      error
-    );
   }
+
   matrixView.onclick = function (event) {
     let clicked = event.target.closest("td");
-    if (clicked.firstChild.checked) {
+    if (!clicked) return;
       let checkbox = clicked.firstChild;
-      if (checkbox.checked == true) {
-        checkbox.checked == false;
+      console.log("checkbox.checked", checkbox.checked)
+      if (checkbox.checked ) {
+        !checkbox.checked
+      
         check_uncheck(checkbox, mtx_path);
       } else {
-        checkbox.checked == true;
+        checkbox.checked;
         check_uncheck(checkbox, mtx_path);
       }
-    }
+    
   };
   let matrix_container = document.getElementById("central_view");
-  try {
-    matrix_container.appendChild(matrixView);
-  } catch (error) {
-    console.log(
-      "🚀 : file: renderer.js:1544 : createMatrixView : error:",
-      error
-    );
-  }
+  matrix_container.appendChild(matrixView);
 }
 
 function check_uncheck(checkbox, mtx_path) {
   let m_table = document.getElementById("mtx_table");
   console.log("mtx-table-length: ", m_table.rows.length);
   let checkbox_cell = checkbox.parentNode.cellIndex;
-  console.log(
-    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_cell:",
-    checkbox_cell
-  );
+//  console.log(
+//    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_cell:",
+//    checkbox_cell
+//  );
   let checkbox_row = checkbox.parentNode.parentNode.rowIndex;
-  console.log(
-    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_row:",
-    checkbox_row
-  );
-  console.log(
-    "🚀 : file: renderer.js:1485 : check_uncheck : this:",
-    checkbox.checked
-  );
+//  console.log(
+//    "🚀 : file: renderer.js:1486 : check_uncheck : checkbox_row:",
+//    checkbox_row
+//  );
+//  console.log(
+//    "🚀 : file: renderer.js:1485 : check_uncheck : this:",
+//    checkbox.checked
+//  );
   let check_t = checkbox_cell - 1;
   let check_s = [];
 
   for (i = 1; i < m_table.rows.length; i++) {
-    console.log("🚀 : file: renderer.js:1505 : check_uncheck : row:", i);
+//    console.log("🚀 : file: renderer.js:1505 : check_uncheck : row:", i);
     if (m_table.rows[i].cells[checkbox_cell].firstChild.checked == true) {
       check_s.push(i - 1);
     }
   }
-  console.log(
-    "🚀 : file: renderer.js:1503 : check_uncheck : check_s :",
-    check_s
-  );
+//  console.log(
+//    "🚀 : file: renderer.js:1503 : check_uncheck : check_s :",
+//    check_s
+//  );
   ipcRenderer.send("mtx_connect", mtx_path, check_t, check_s);
 }
