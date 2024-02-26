@@ -682,7 +682,7 @@ channelAccess(OID_to_OSC);
                     sFactor = initialReq.contents.factor;
                   }
                 } else {
-                  sFactor = 1;
+                  sFactor = "*";
                 }
               } else if (parameter_type == "BOOLEAN") {
                 let bool_description = initialReq.contents.description;
