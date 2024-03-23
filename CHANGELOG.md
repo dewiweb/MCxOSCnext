@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.2.1-3](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.1-1...v2.2.1-3) (2024-03-23)
+
+
+### Bug Fixes
+
+* :bug: holo specific v2.2.1-2 ([c14bc7f](https://github.com/dewiweb/MCxOSCnext/commit/c14bc7fc045bc1f3dfd6b2e0171451950441c30c))
+
 ### [2.2.1-2](https://github.com/dewiweb/MCxOSCnext/compare/v2.2.0-beta.1...v2.2.1-2) (2024-02-09)
 
 
