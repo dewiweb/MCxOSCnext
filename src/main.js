@@ -20,6 +20,14 @@ if (!fs.existsSync(defaultDir)) {
 const log = require("electron-log");
 const { fail } = require("assert");
 const ip = require("ip");
+const { DATABASE } = require("./db");
+const jsonProxy = new Proxy(DATABASE, {
+  set(target, property, value) {
+    const result = Reflect.set(target, property, value);
+    console.log(`Property ${property} changed to ${value}`);
+    return result;
+  },
+});
 
 const stream = [];
 let directions = [];
@@ -577,53 +585,75 @@ function createWindow() {
                 o2o_address,
                 Number(o2o_port)
               );
-              oscGet.send({
-                address: "/get",
-                args: [
-                  {
-                    type: "s",
-                    value: "/track/"+init_CA_OID.contents.description.match((/\d+/g))+"/gain",
-                  },
-                ],
-              },
-              oServerIP,
-              oServerPort
+              oscGet.send(
+                {
+                  address: "/get",
+                  args: [
+                    {
+                      type: "s",
+                      value:
+                        "/track/" +
+                        init_CA_OID.contents.description.match(/\d+/g) +
+                        "/gain",
+                    },
+                  ],
+                },
+                oServerIP,
+                oServerPort
               );
-              oscGet.send({
-                address: "/get",
-                args: [
-                  {
-                    type: "s",
-                    value: "/track/"+(init_CA_OID.contents.description.match((/\d+/g))).toString()+"/aed",
-                  },
-                ],
-              },
-              oServerIP,
-              oServerPort
+              oscGet.send(
+                {
+                  address: "/get",
+                  args: [
+                    {
+                      type: "s",
+                      value:
+                        "/track/" +
+                        init_CA_OID.contents.description
+                          .match(/\d+/g)
+                          .toString() +
+                        "/aed",
+                    },
+                  ],
+                },
+                oServerIP,
+                oServerPort
               );
-              oscGet.send({
-                address: "/get",
-                args: [
-                  {
-                    type: "s",
-                    value: "/track/"+(init_CA_OID.contents.description.match((/\d+/g))).toString()+"/mute",
-                  },
-                ],
-              },
-              oServerIP,
-              oServerPort
+              oscGet.send(
+                {
+                  address: "/get",
+                  args: [
+                    {
+                      type: "s",
+                      value:
+                        "/track/" +
+                        init_CA_OID.contents.description
+                          .match(/\d+/g)
+                          .toString() +
+                        "/mute",
+                    },
+                  ],
+                },
+                oServerIP,
+                oServerPort
               );
-              oscGet.send({
-                address: "/get",
-                args: [
-                  {
-                    type: "s",
-                    value: "/track/"+(init_CA_OID.contents.description.match((/\d+/g))).toString()+"/lfe/send",
-                  },
-                ],
-              },
-              oServerIP,
-              oServerPort
+              oscGet.send(
+                {
+                  address: "/get",
+                  args: [
+                    {
+                      type: "s",
+                      value:
+                        "/track/" +
+                        init_CA_OID.contents.description
+                          .match(/\d+/g)
+                          .toString() +
+                        "/lfe/send",
+                    },
+                  ],
+                },
+                oServerIP,
+                oServerPort
               );
               eGet.subscribe(init_oid2osc, () => {
                 async function bip() {
@@ -646,53 +676,75 @@ function createWindow() {
                     o2o_address,
                     Number(o2o_port)
                   );
-                  oscGet.send({
-                    address: "/get",
-                    args: [
-                      {
-                        type: "s",
-                        value: "/track/"+CA_OID.contents.description.match((/\d+/g))+"/gain",
-                      },
-                    ],
-                  },
-                  oServerIP,
-                  oServerPort
+                  oscGet.send(
+                    {
+                      address: "/get",
+                      args: [
+                        {
+                          type: "s",
+                          value:
+                            "/track/" +
+                            CA_OID.contents.description.match(/\d+/g) +
+                            "/gain",
+                        },
+                      ],
+                    },
+                    oServerIP,
+                    oServerPort
                   );
-                  oscGet.send({
-                    address: "/get",
-                    args: [
-                      {
-                        type: "s",
-                        value: "/track/"+(CA_OID.contents.description.match((/\d+/g))).toString()+"/aed",
-                      },
-                    ],
-                  },
-                  oServerIP,
-                  oServerPort
+                  oscGet.send(
+                    {
+                      address: "/get",
+                      args: [
+                        {
+                          type: "s",
+                          value:
+                            "/track/" +
+                            CA_OID.contents.description
+                              .match(/\d+/g)
+                              .toString() +
+                            "/aed",
+                        },
+                      ],
+                    },
+                    oServerIP,
+                    oServerPort
                   );
-                  oscGet.send({
-                    address: "/get",
-                    args: [
-                      {
-                        type: "s",
-                        value: "/track/"+(CA_OID.contents.description.match((/\d+/g))).toString()+"/mute",
-                      },
-                    ],
-                  },
-                  oServerIP,
-                  oServerPort
+                  oscGet.send(
+                    {
+                      address: "/get",
+                      args: [
+                        {
+                          type: "s",
+                          value:
+                            "/track/" +
+                            CA_OID.contents.description
+                              .match(/\d+/g)
+                              .toString() +
+                            "/mute",
+                        },
+                      ],
+                    },
+                    oServerIP,
+                    oServerPort
                   );
-                  oscGet.send({
-                    address: "/get",
-                    args: [
-                      {
-                        type: "s",
-                        value: "/track/"+(CA_OID.contents.description.match((/\d+/g))).toString()+"/lfe/send",
-                      },
-                    ],
-                  },
-                  oServerIP,
-                  oServerPort
+                  oscGet.send(
+                    {
+                      address: "/get",
+                      args: [
+                        {
+                          type: "s",
+                          value:
+                            "/track/" +
+                            CA_OID.contents.description
+                              .match(/\d+/g)
+                              .toString() +
+                            "/lfe/send",
+                        },
+                      ],
+                    },
+                    oServerIP,
+                    oServerPort
                   );
                 }
                 bip();
@@ -733,6 +785,24 @@ function createWindow() {
             direction,
             tableLength
           ) => {
+            DATABASE.push({
+              ePath: ePath,
+              oAddr: oAddr,
+              myRow: myRow,
+              eVarType: eVarType,
+              sFactor: sFactor,
+              eMin: eMin,
+              eMax: eMax,
+              oMin: oMin,
+              oMax: oMax,
+              eVarCurve: eVarCurve,
+              direction: direction,
+              tableLength: tableLength,
+            });
+            console.log(
+              "🚀 : file: main.js:783 : main : DATABASE:",
+              JSON.stringify(DATABASE)
+            );
             directions[myRow] = direction;
 
             sFactor = Number(sFactor);
@@ -823,9 +893,8 @@ function createWindow() {
             } else if (contents_type == "FUNCTION") {
               let fct_description = initialReq.contents.description;
               if (!initialReq.contents.args) {
-                let function_cb = await (
-                  await eGet.invoke(initialReq)
-                ).response;
+                let function_cb = await (await eGet.invoke(initialReq))
+                  .response;
                 console.log(
                   "🚀 : file: main.js:727 : main : function_cb.result[0]:",
                   function_cb

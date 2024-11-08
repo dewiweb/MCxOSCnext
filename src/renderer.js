@@ -6,6 +6,7 @@ const { TreeView, TreeNode, TreeUtil, TreeConfig } = require("./tree");
 const log = require("electron-log");
 const { prettyPrintJson } = require("pretty-print-json");
 const osc = require("osc/src/osc-transports");
+const { DATABASE } = require("./db");
 function logDefinition() {
   console.log = log.log;
   Object.assign(console, log.functions);
@@ -16,8 +17,9 @@ logDefinition();
 log.transports.div = log.transports.console;
 
 function scrollToBottom() {
-  document.getElementById("logging").scrollTop =
-    document.getElementById("logging").scrollHeight;
+  document.getElementById("logging").scrollTop = document.getElementById(
+    "logging"
+  ).scrollHeight;
 }
 //---VARIABLES declaration--//
 //const oscAddr = new Array("/Channels");
@@ -235,23 +237,36 @@ ipcRenderer.on("expandedNode", (event, parentPath, childrenArray) => {
     let nodeType = childrenArray[i].contents.type;
     if (!nodes[parentPath + "." + childrenArray[i].number.toString()]) {
       if (nodeType == "NODE") {
-        nodes[parentPath + "." + childrenArray[i].number.toString()] =
-          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText, {
+        nodes[
+          parentPath + "." + childrenArray[i].number.toString()
+        ] = new TreeNode(
+          childrenArray[i].number.toString() + " - " + nodeText,
+          {
             icon: TreeUtil.default_parent_icon,
-          });
+          }
+        );
       } else if (nodeType == "PARAMETER") {
-        nodes[parentPath + "." + childrenArray[i].number.toString()] =
-          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText);
+        nodes[
+          parentPath + "." + childrenArray[i].number.toString()
+        ] = new TreeNode(childrenArray[i].number.toString() + " - " + nodeText);
       } else if (nodeType == "MATRIX") {
-        nodes[parentPath + "." + childrenArray[i].number.toString()] =
-          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText, {
+        nodes[
+          parentPath + "." + childrenArray[i].number.toString()
+        ] = new TreeNode(
+          childrenArray[i].number.toString() + " - " + nodeText,
+          {
             icon: TreeUtil.default_matrix_icon,
-          });
+          }
+        );
       } else if (nodeType == "FUNCTION") {
-        nodes[parentPath + "." + childrenArray[i].number.toString()] =
-          new TreeNode(childrenArray[i].number.toString() + " - " + nodeText, {
+        nodes[
+          parentPath + "." + childrenArray[i].number.toString()
+        ] = new TreeNode(
+          childrenArray[i].number.toString() + " - " + nodeText,
+          {
             icon: TreeUtil.default_fx_icon,
-          });
+          }
+        );
       }
       nodes[parentPath].addChild(
         nodes[parentPath + "." + childrenArray[i].number.toString()]
@@ -630,42 +645,37 @@ ipcRenderer.on("sendFileContent", (e, content) => {
       </select>`;
       }
       if (element.factor !== "") {
-        if (element.factor !== "*"){
-        cell9.innerHTML =
-          element.min.split("/")[0] +
-          "/" +
-          `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-          (Number(element.min.split("/")[0]) / Number(element.factor)).toFixed(
-            0
-          ) +
-          `>`;
-        cell11.innerHTML =
-          element.max.split("/")[0] +
-          "/" +
-          `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-          (Number(element.max.split("/")[0]) / Number(element.factor)).toFixed(
-            0
-          ) +
-          `>`;
-      }else{
-        cell9.innerHTML =
-          element.min.split("/")[0] +
-          "/" +
-          `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-          (Number(element.min.split("/")[1])).toFixed(
-            0
-          )+
-          `>`;
-        cell11.innerHTML =
-          element.max.split("/")[0] +
-          "/" +
-          `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
-          (Number(element.max.split("/")[1])).toFixed(
-            0
-          )+
-          `>`;
-
-      }
+        if (element.factor !== "*") {
+          cell9.innerHTML =
+            element.min.split("/")[0] +
+            "/" +
+            `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+            (
+              Number(element.min.split("/")[0]) / Number(element.factor)
+            ).toFixed(0) +
+            `>`;
+          cell11.innerHTML =
+            element.max.split("/")[0] +
+            "/" +
+            `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+            (
+              Number(element.max.split("/")[0]) / Number(element.factor)
+            ).toFixed(0) +
+            `>`;
+        } else {
+          cell9.innerHTML =
+            element.min.split("/")[0] +
+            "/" +
+            `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+            Number(element.min.split("/")[1]).toFixed(0) +
+            `>`;
+          cell11.innerHTML =
+            element.max.split("/")[0] +
+            "/" +
+            `<input onChange="changed(this.parentNode.parentNode.rowIndex)" type="number" value=` +
+            Number(element.max.split("/")[1]).toFixed(0) +
+            `>`;
+        }
       } else {
         //cell3.innerHTML = "*"
         cell9.innerHTML =
@@ -884,10 +894,10 @@ function addemptyrow(event) {
 }
 
 function submitPath(event) {
-  console.log(
-    "🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():",
-    tree.getSelectedNodes()
-  );
+  // console.log(
+  //   "🚀 : file: renderer.js:838 : submitPath : tree.getSelectedNodes():",
+  //   tree.getSelectedNodes()
+  // );
   console.log("stringPath : line813 : ", stringPath);
   let thisType = innerPath.contents.type;
   if (thisType == "PARAMETER") {
@@ -1423,7 +1433,8 @@ ipcRenderer.on("ready", (e) => {
 
 function reactivity_add() {
   tableData.push({
-    go_x: '<button type="button" onclick="sendConnection(this)">GO!</button><button type="button" onclick="SomeDeleteRowFunction(this)">X</button>',
+    go_x:
+      '<button type="button" onclick="sendConnection(this)">GO!</button><button type="button" onclick="SomeDeleteRowFunction(this)">X</button>',
   });
 }
 
@@ -1458,8 +1469,9 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
   cross.style.width = "30px";
   cross.innerHTML = "&#x269E;";
   headerRow.appendChild(cross);
-  let lastConnection =
-    Object.keys(connections)[Object.keys(connections).length - 1];
+  let lastConnection = Object.keys(connections)[
+    Object.keys(connections).length - 1
+  ];
   console.log("🚀 : file: renderer.js:1441 : lastConnection:", lastConnection);
 
   try {
@@ -1553,7 +1565,10 @@ async function createMatrixView(mtx_path, targets, sources, connections) {
         "🚀 : file: renderer.js:1375 : createMatrixView : item:",
         connections[t]
       );
-      if (connections[t].sources !== []) {
+      if (
+        Array.isArray(connections[t].sources) &&
+        connections[t].sources.length > 0
+      ) {
         for (s in connections[t].sources) {
           console.log(
             "🚀 : file: renderer.js:1381 : createMatrixView : s :",
