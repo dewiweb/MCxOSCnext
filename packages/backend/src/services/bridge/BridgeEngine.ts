@@ -59,7 +59,9 @@ export class BridgeEngine extends EventEmitter {
       return;
     }
 
-    if (conn.direction === 'osc-to-ember') {
+    // Check RateLimiter direction, not ConnectionManager (which doesn't auto-reset)
+    const direction = this.rateLimiter.getDirection(conn.id);
+    if (direction === 'osc-to-ember') {
       return;
     }
 
@@ -95,7 +97,9 @@ export class BridgeEngine extends EventEmitter {
 
       if (!this.rateLimiter.canProcess(conn.id, 'osc')) continue;
 
-      if (conn.direction === 'ember-to-osc') continue;
+      // Check RateLimiter direction, not ConnectionManager (which doesn't auto-reset)
+      const direction = this.rateLimiter.getDirection(conn.id);
+      if (direction === 'ember-to-osc') continue;
 
       this.connectionManager.updateRuntimeState(conn.id, {
         currentOscValue: value,
