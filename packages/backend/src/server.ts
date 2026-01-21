@@ -78,7 +78,7 @@ export async function createApp(): Promise<AppContext> {
     { directionResetDelay: defaultConfig.bridge.directionResetDelay }
   );
 
-  app.use('/api/v1/connections', createConnectionsRouter(connectionManager, bridgeEngine));
+  app.use('/api/v1/connections', createConnectionsRouter(connectionManager, bridgeEngine, emberService));
   app.use('/api/v1/status', createStatusRouter(emberService, oscService, connectionManager));
   app.use('/api/v1/sessions', createSessionsRouter(connectionManager, bridgeEngine));
   app.use('/api/v1/tree', createTreeRouter(emberService));

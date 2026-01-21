@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import type { ConnectionManager } from '../../core/ConnectionManager.js';
 import type { BridgeEngine } from '../../services/bridge/BridgeEngine.js';
+import type { EmberService } from '../../services/ember/EmberService.js';
 import type { ConnectionConfig } from '../../types/index.js';
 import { createLogger } from '../../utils/logger.js';
 
@@ -8,7 +9,8 @@ const logger = createLogger('api:connections');
 
 export function createConnectionsRouter(
   connectionManager: ConnectionManager,
-  bridgeEngine: BridgeEngine
+  bridgeEngine: BridgeEngine,
+  emberService: EmberService
 ): Router {
   const router = Router();
 
@@ -55,7 +57,7 @@ export function createConnectionsRouter(
     }
   });
 
-  router.post('/', (req: Request, res: Response) => {
+  router.post('/', async (req: Request, res: Response) => {
     try {
       const config: ConnectionConfig = req.body;
       
@@ -65,6 +67,20 @@ export function createConnectionsRouter(
           error: { code: 'VALIDATION_ERROR', message: 'emberPath and oscAddress are required' },
           timestamp: new Date().toISOString(),
         });
+      }
+
+      // Auto-detect parameterType from Ember+ element if not provided
+      if (!config.parameterType && emberService.getConnectionStatus().connected) {
+        try {
+          await emberService.expandPath(config.emberPath);
+          const element = await emberService.getElementByPath(config.emberPath);
+          if (element?.contents?.parameterType) {
+            config.parameterType = element.contents.parameterType as ConnectionConfig['parameterType'];
+            logger.info(`Auto-detected parameterType: ${config.parameterType} for ${config.emberPath}`);
+          }
+        } catch (err) {
+          logger.debug(`Could not auto-detect parameterType: ${err}`);
+        }
       }
 
       const conn = connectionManager.create(config);
