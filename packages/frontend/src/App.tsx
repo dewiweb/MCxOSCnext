@@ -8,6 +8,7 @@ import { SessionManager } from './components/SessionManager';
 import { StatusBar } from './components/StatusBar';
 import { ConfigPanel } from './components/ConfigPanel';
 import { LogViewer } from './components/LogViewer';
+import { ResizablePanel } from './components/ResizablePanel';
 import { useLogStore } from './stores/logStore';
 import { Plus, X } from 'lucide-react';
 import type { TreeNode, ConnectionConfig } from './types';
@@ -20,10 +21,14 @@ function App() {
   
   const [showForm, setShowForm] = useState(false);
   const [selectedPath, setSelectedPath] = useState('');
+  const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
+  const [hierarchyPath, setHierarchyPath] = useState('');
   const [activeTab, setActiveTab] = useState<'connections' | 'tree'>('connections');
 
-  const handleSelectPath = (path: string, _node: TreeNode) => {
+  const handleSelectPath = (path: string, node: TreeNode, hierarchy: string) => {
     setSelectedPath(path);
+    setSelectedNode(node);
+    setHierarchyPath(hierarchy);
     setShowForm(true);
     setActiveTab('connections');
   };
@@ -32,6 +37,8 @@ function App() {
     await createConnection(config);
     setShowForm(false);
     setSelectedPath('');
+    setSelectedNode(null);
+    setHierarchyPath('');
     loadConnections();
   };
 
@@ -51,14 +58,14 @@ function App() {
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-80 bg-gray-850 border-r border-gray-700 p-4 space-y-4 min-h-[calc(100vh-73px)]">
+        {/* Resizable Sidebar */}
+        <ResizablePanel defaultWidth={320} minWidth={200} maxWidth={800}>
           <SessionManager />
           <TreeViewer onSelectPath={handleSelectPath} />
-        </aside>
+        </ResizablePanel>
 
         {/* Main content */}
-        <main className="flex-1 p-6 space-y-4">
+        <main className="flex-1 p-6 space-y-4 overflow-auto">
           {/* Tabs */}
           <div className="flex items-center justify-between">
             <div className="flex gap-2">
@@ -90,10 +97,14 @@ function App() {
           {showForm && (
             <ConnectionForm
               initialPath={selectedPath}
+              selectedNode={selectedNode}
+              hierarchyPath={hierarchyPath}
               onSubmit={handleCreateConnection}
               onCancel={() => {
                 setShowForm(false);
                 setSelectedPath('');
+                setSelectedNode(null);
+                setHierarchyPath('');
               }}
             />
           )}

@@ -1,24 +1,72 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Plus } from 'lucide-react';
-import type { ConnectionConfig, ParameterType, CurveType } from '../types';
+import type { ConnectionConfig, ParameterType, CurveType, TreeNode } from '../types';
 
 interface ConnectionFormProps {
   onSubmit: (config: ConnectionConfig) => Promise<void>;
   onCancel: () => void;
   initialPath?: string;
+  selectedNode?: TreeNode | null;
+  hierarchyPath?: string;
 }
 
-export function ConnectionForm({ onSubmit, onCancel, initialPath = '' }: ConnectionFormProps) {
+function getDefaultsFromNode(node?: TreeNode | null) {
+  if (!node) return {};
+  
+  const paramType = (node.parameterType as ParameterType) || 'INTEGER';
+  
+  // Default OSC address from node description or path
+  const oscAddr = node.description 
+    ? '/' + node.description.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_/]/g, '')
+    : '/' + node.path.replace(/\./g, '/');
+  
+  // Default ranges based on parameter type
+  let emberMin = node.minimum ?? 0;
+  let emberMax = node.maximum ?? 100;
+  let oscMin = 0;
+  let oscMax = 1;
+  
+  if (paramType === 'BOOLEAN') {
+    emberMin = 0;
+    emberMax = 1;
+    oscMin = 0;
+    oscMax = 1;
+  } else if (paramType === 'REAL') {
+    oscMin = 0;
+    oscMax = 1;
+  }
+  
+  return { paramType, oscAddr, emberMin, emberMax, oscMin, oscMax };
+}
+
+export function ConnectionForm({ onSubmit, onCancel, initialPath = '', selectedNode, hierarchyPath = '' }: ConnectionFormProps) {
+  const defaults = getDefaultsFromNode(selectedNode);
+  
   const [emberPath, setEmberPath] = useState(initialPath);
-  const [oscAddress, setOscAddress] = useState('');
-  const [parameterType, setParameterType] = useState<ParameterType>('INTEGER');
+  const [oscAddress, setOscAddress] = useState(defaults.oscAddr || '');
+  const [parameterType, setParameterType] = useState<ParameterType>(defaults.paramType || 'INTEGER');
   const [curve, setCurve] = useState<CurveType>('lin');
-  const [emberMin, setEmberMin] = useState('0');
-  const [emberMax, setEmberMax] = useState('100');
-  const [oscMin, setOscMin] = useState('0');
-  const [oscMax, setOscMax] = useState('1');
+  const [emberMin, setEmberMin] = useState(String(defaults.emberMin ?? 0));
+  const [emberMax, setEmberMax] = useState(String(defaults.emberMax ?? 100));
+  const [oscMin, setOscMin] = useState(String(defaults.oscMin ?? 0));
+  const [oscMax, setOscMax] = useState(String(defaults.oscMax ?? 1));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Update form when selectedNode changes
+  useEffect(() => {
+    if (selectedNode) {
+      const d = getDefaultsFromNode(selectedNode);
+      setEmberPath(selectedNode.path);
+      // Use hierarchyPath if available, otherwise fall back to simple oscAddr
+      setOscAddress(hierarchyPath || d.oscAddr || '');
+      setParameterType(d.paramType || 'INTEGER');
+      setEmberMin(String(d.emberMin ?? 0));
+      setEmberMax(String(d.emberMax ?? 100));
+      setOscMin(String(d.oscMin ?? 0));
+      setOscMax(String(d.oscMax ?? 1));
+    }
+  }, [selectedNode, hierarchyPath]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
