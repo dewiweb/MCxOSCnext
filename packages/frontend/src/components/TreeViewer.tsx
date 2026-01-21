@@ -4,7 +4,35 @@ import { api } from '../services/api';
 import type { TreeNode } from '../types';
 
 interface TreeViewerProps {
-  onSelectPath: (path: string, node: TreeNode) => void;
+  onSelectPath: (path: string, node: TreeNode, hierarchyPath: string) => void;
+}
+
+// Store node descriptions by path for building hierarchy
+const nodeDescriptions = new Map<string, string>();
+
+function buildHierarchyPath(path: string): string {
+  const segments = path.split('.');
+  const names: string[] = [];
+  
+  // Build cumulative path and get description for each segment
+  for (let i = 0; i < segments.length; i++) {
+    const partialPath = segments.slice(0, i + 1).join('.');
+    const description = nodeDescriptions.get(partialPath);
+    if (description) {
+      // Convert to OSC-friendly format: lowercase, replace spaces with underscores
+      names.push(description.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''));
+    }
+  }
+  
+  return '/' + names.join('/');
+}
+
+function storeNodeDescriptions(nodes: TreeNode[]): void {
+  for (const node of nodes) {
+    if (node.description || node.identifier) {
+      nodeDescriptions.set(node.path, node.description || node.identifier || `node${node.number}`);
+    }
+  }
 }
 
 export function TreeViewer({ onSelectPath }: TreeViewerProps) {
@@ -18,6 +46,7 @@ export function TreeViewer({ onSelectPath }: TreeViewerProps) {
     setError(null);
     try {
       const nodes = await api.getTree();
+      storeNodeDescriptions(nodes);
       setRootNodes(nodes);
       setIsConnected(true);
     } catch (err) {
@@ -75,15 +104,18 @@ export function TreeViewer({ onSelectPath }: TreeViewerProps) {
           <Loader2 className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
       </div>
-      <div className="max-h-96 overflow-y-auto">
-        {rootNodes.map((node) => (
-          <TreeNodeItem
-            key={node.path || node.number}
-            node={node}
-            depth={0}
-            onSelect={onSelectPath}
-          />
-        ))}
+      <div className="max-h-[60vh] overflow-y-auto overflow-x-auto">
+        <div className="min-w-max">
+          {rootNodes.map((node) => (
+            <TreeNodeItem
+              key={node.path || node.number}
+              node={node}
+              depth={0}
+              onSelect={onSelectPath}
+              onChildrenLoaded={storeNodeDescriptions}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -93,10 +125,12 @@ function TreeNodeItem({
   node,
   depth,
   onSelect,
+  onChildrenLoaded,
 }: {
   node: TreeNode;
   depth: number;
-  onSelect: (path: string, node: TreeNode) => void;
+  onSelect: (path: string, node: TreeNode, hierarchyPath: string) => void;
+  onChildrenLoaded: (nodes: TreeNode[]) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [children, setChildren] = useState<TreeNode[]>([]);
@@ -112,6 +146,7 @@ function TreeNodeItem({
       setIsLoading(true);
       try {
         const nodes = await api.expandNode(node.path);
+        onChildrenLoaded(nodes);
         setChildren(nodes);
       } catch (err) {
         console.error('Failed to expand node:', err);
@@ -124,7 +159,8 @@ function TreeNodeItem({
 
   const handleSelect = () => {
     if (node.type === 'PARAMETER') {
-      onSelect(node.path, node);
+      const hierarchyPath = buildHierarchyPath(node.path);
+      onSelect(node.path, node, hierarchyPath);
     }
   };
 
@@ -158,8 +194,16 @@ function TreeNodeItem({
         <span
           className={`flex-1 truncate ${isSelectable ? 'text-blue-400' : 'text-gray-300'}`}
           onClick={handleSelect}
+          title={`Path: ${node.path}`}
         >
-          {node.description || `[${node.number}]`}
+          {node.description ? (
+            <>
+              <span>{node.description}</span>
+              <span className="text-gray-500 ml-1 text-xs">({node.number})</span>
+            </>
+          ) : (
+            <span className="text-gray-400">[{node.number}]</span>
+          )}
         </span>
 
         {node.value !== undefined && (
@@ -187,6 +231,7 @@ function TreeNodeItem({
               node={child}
               depth={depth + 1}
               onSelect={onSelect}
+              onChildrenLoaded={onChildrenLoaded}
             />
           ))}
         </div>

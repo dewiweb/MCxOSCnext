@@ -70,6 +70,7 @@ export interface TreeNode {
   number?: number;
   type: string;
   description?: string;
+  identifier?: string;
   value?: unknown;
   parameterType?: string;
   minimum?: number;
