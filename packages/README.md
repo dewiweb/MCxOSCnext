@@ -117,6 +117,54 @@ docker run -d \
   mcxosc-frontend
 ```
 
+### Changing Ports
+
+If default ports are already used by other services on your server, modify the port mappings:
+
+**1. Edit `docker-compose.yml`** (host:container mapping)
+
+```yaml
+services:
+  backend:
+    ports:
+      - "3050:3000"      # API on port 3050 instead of 3000
+      - "8050:8000/udp"  # OSC RX on port 8050 instead of 8000
+
+  frontend:
+    ports:
+      - "8080:80"        # Frontend on port 8080 instead of 80
+```
+
+**2. Or use environment variables with docker run**
+
+```bash
+docker run -d \
+  --name mcxosc-backend \
+  -p 3050:3000 \          # Host port 3050 → Container port 3000
+  -p 8050:8000/udp \      # Host port 8050 → Container port 8000
+  mcxosc-backend
+```
+
+**3. Check which ports are in use**
+
+```bash
+# Linux
+sudo lsof -i -P -n | grep LISTEN
+# or
+netstat -tulpn | grep LISTEN
+
+# macOS
+lsof -iTCP -sTCP:LISTEN -n -P
+```
+
+**Access with custom ports:**
+
+| Service | Default | Custom Example |
+|---------|---------|----------------|
+| Frontend | `http://server:80` | `http://server:8080` |
+| API | `http://server:3000` | `http://server:3050` |
+| OSC RX | UDP `8000` | UDP `8050` |
+
 ### Network Considerations
 
 For Docker to communicate with external devices:
