@@ -21,6 +21,7 @@ export interface EmberElement {
     maximum?: number;
     factor?: number;
     description?: string;
+    identifier?: string;
     enumeration?: string;
     targetCount?: number;
     sourceCount?: number;
@@ -53,7 +54,7 @@ export class EmberService extends EventEmitter {
   constructor(config: EmberConfig) {
     super();
     this.config = {
-      timeout: 10000,
+      timeout: 30000,  // Increased timeout for large trees (Lawo consoles)
       autoReconnect: true,
       reconnectInterval: 5000,
       ...config,
@@ -114,8 +115,33 @@ export class EmberService extends EventEmitter {
   async getTree(): Promise<EmberElement[]> {
     this.ensureConnected();
     
-    await (await this.client!.getDirectory(this.client!.tree)).response;
-    return this.client!.tree.flat(0) as EmberElement[];
+    // Request root directory first
+    try {
+      await (await this.client!.getDirectory(this.client!.tree)).response;
+    } catch (err) {
+      logger.warn('getDirectory timeout, using cached tree');
+    }
+    
+    // Return root level nodes
+    const rootElements: EmberElement[] = [];
+    const tree = this.client!.tree;
+    
+    if (tree && typeof tree === 'object') {
+      for (const key of Object.keys(tree)) {
+        if (key !== 'path' && key !== 'contents' && !isNaN(Number(key))) {
+          const element = tree[key];
+          if (element && typeof element === 'object') {
+            rootElements.push({
+              ...element,
+              number: element.number ?? Number(key),
+              path: String(element.number ?? key),
+            } as EmberElement);
+          }
+        }
+      }
+    }
+    
+    return rootElements;
   }
 
   async getElementByPath(path: string): Promise<EmberElement> {
@@ -126,6 +152,36 @@ export class EmberService extends EventEmitter {
       throw new Error(`Element not found at path: ${path}`);
     }
     return element as EmberElement;
+  }
+
+  /**
+   * Expand path step by step to ensure element is accessible.
+   * Required after reconnection when tree cache is empty.
+   */
+  async expandPath(path: string): Promise<void> {
+    this.ensureConnected();
+    
+    // First, ensure root directory is loaded
+    try {
+      await (await this.client!.getDirectory(this.client!.tree)).response;
+    } catch (err) {
+      logger.debug(`Could not get root directory: ${err}`);
+    }
+    
+    const parts = path.split('.');
+    let currentPath = '';
+    
+    for (let i = 0; i < parts.length - 1; i++) {
+      currentPath = currentPath ? `${currentPath}.${parts[i]}` : parts[i];
+      try {
+        const element = await this.client!.getElementByPath(currentPath);
+        if (element && element.contents.type === 'NODE') {
+          await (await this.client!.getDirectory(element)).response;
+        }
+      } catch (err) {
+        logger.debug(`Could not expand ${currentPath}: ${err}`);
+      }
+    }
   }
 
   async getDirectory(element: EmberElement): Promise<EmberElement[]> {
@@ -169,6 +225,9 @@ export class EmberService extends EventEmitter {
       return;
     }
 
+    // Expand path first to ensure element is accessible after reconnect
+    await this.expandPath(path);
+    
     const element = await this.getElementByPath(path);
     
     const wrappedCallback = () => {
