@@ -96,3 +96,6 @@ settings.json
 
 release-builds/
 packages/backend/data/
+
+# Build outputs
+dist/
