@@ -16,11 +16,25 @@ A web-based microservice that bridges **Ember+** protocol devices (LAWO, Riedel,
 
 ## Quick Start
 
+### One-Liner Deployment
+
+Deploy directly from GitHub without cloning:
+
+```bash
+# Download and run with default settings
+curl -fsSL https://raw.githubusercontent.com/dewiweb/MCxOSCnext/develop/docker-compose.yml | \
+  docker compose -f - up -d
+
+# Or with custom Ember+ device IP
+curl -fsSL https://raw.githubusercontent.com/dewiweb/MCxOSCnext/develop/docker-compose.yml | \
+  EMBER_HOST=192.168.1.100 docker compose -f - up -d
+```
+
 ### Option 1: Docker (Recommended for Production)
 
 ```bash
 # Clone and configure
-git clone https://github.com/your-repo/MCxOSCnext.git
+git clone https://github.com/dewiweb/MCxOSCnext.git
 cd MCxOSCnext
 cp .env.example .env
 
