@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    container_name: mcxosc-backend
+    ports:
+      - "3000:3000"        # REST API + WebSocket
+      - "8000:8000/udp"    # OSC RX
+    volumes:
+      - ./data:/app/data
+      - ./sessions:/app/sessions
+    environment:
+      - NODE_ENV=production
+      - EMBER_HOST=${EMBER_HOST:-192.168.1.100}
+      - EMBER_PORT=${EMBER_PORT:-9000}
+      - OSC_RX_PORT=${OSC_RX_PORT:-8000}
+      - OSC_TX_HOST=${OSC_TX_HOST:-192.168.1.200}
+      - OSC_TX_PORT=${OSC_TX_PORT:-9000}
+      - AUTO_CONNECT=${AUTO_CONNECT:-true}
+      - PERSIST_PATH=/app/data/state.json
+      - SESSIONS_DIR=/app/sessions
+    restart: unless-stopped
+    networks:
+      - mcxosc-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    container_name: mcxosc-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mcxosc-net
+
+networks:
+  mcxosc-net:
+    driver: bridge
+
+volumes:
+  data:
+  sessions:
