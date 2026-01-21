@@ -19,7 +19,7 @@ export function createTreeRouter(emberService: EmberService): Router {
       }
 
       const tree = await emberService.getTree();
-      const nodes = tree.map(formatElement);
+      const nodes = tree.map((el) => formatElement(el, String(el.number)));
 
       res.json({
         success: true,
@@ -51,9 +51,19 @@ export function createTreeRouter(emberService: EmberService): Router {
       const path = req.params.path.replace(/\//g, '.');
       const element = await emberService.getElementByPath(path);
 
+      // Debug: log raw element to see what's available
+      if (req.query.debug === 'true') {
+        logger.info(`Raw element at ${path}: ${JSON.stringify(element, null, 2)}`);
+        return res.json({
+          success: true,
+          data: element,
+          timestamp: new Date().toISOString(),
+        });
+      }
+
       res.json({
         success: true,
-        data: formatElement(element),
+        data: formatElement(element, path),
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
@@ -87,7 +97,7 @@ export function createTreeRouter(emberService: EmberService): Router {
 
       const path = req.params.path.replace(/\//g, '.');
       const children = await emberService.expandNode(path);
-      const nodes = children.map(formatElement);
+      const nodes = children.map((el) => formatElement(el, `${path}.${el.number}`));
 
       res.json({
         success: true,
@@ -108,23 +118,31 @@ export function createTreeRouter(emberService: EmberService): Router {
   return router;
 }
 
-function formatElement(element: EmberElement): unknown {
+function formatElement(element: EmberElement, path: string): unknown {
   const contents = element.contents || {};
+  const type = contents.type || 'NODE';
+  
+  // NODE types can have children, PARAMETER types cannot
+  const hasChildren = type === 'NODE' || type === 'MATRIX';
+  
+  // Use description, fallback to identifier (like old Electron app)
+  const description = contents.description || contents.identifier;
   
   return {
-    path: element.path || '',
+    path,
     number: element.number,
-    type: contents.type,
-    description: contents.description,
+    type,
+    description,
+    identifier: contents.identifier,
     value: contents.value,
     parameterType: contents.parameterType,
     minimum: contents.minimum,
     maximum: contents.maximum,
     factor: contents.factor,
     enumeration: contents.enumeration,
-    hasChildren: !!element.children && Object.keys(element.children).length > 0,
-    isMatrix: contents.type === 'MATRIX',
-    isFunction: contents.type === 'FUNCTION',
+    hasChildren,
+    isMatrix: type === 'MATRIX',
+    isFunction: type === 'FUNCTION',
     targetCount: contents.targetCount,
     sourceCount: contents.sourceCount,
   };

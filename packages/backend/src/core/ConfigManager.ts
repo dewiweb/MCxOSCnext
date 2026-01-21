@@ -70,10 +70,33 @@ export class ConfigManager {
       // Merge with defaults to ensure all fields exist
       this.config = this.mergeConfig(DEFAULT_CONFIG, loaded);
       logger.info(`Loaded configuration from ${this.configPath}`);
-    } catch (error) {
+    } catch {
       // File doesn't exist or is invalid - use defaults
       logger.info('No config file found, using defaults');
       await this.save();
+    }
+
+    // Override with environment variables if present
+    this.applyEnvOverrides();
+  }
+
+  private applyEnvOverrides(): void {
+    if (process.env.EMBER_HOST) {
+      this.config.network.ember.host = process.env.EMBER_HOST;
+      logger.info(`Ember host overridden by env: ${process.env.EMBER_HOST}`);
+    }
+    if (process.env.EMBER_PORT) {
+      this.config.network.ember.port = parseInt(process.env.EMBER_PORT, 10);
+      logger.info(`Ember port overridden by env: ${process.env.EMBER_PORT}`);
+    }
+    if (process.env.OSC_RX_PORT) {
+      this.config.network.osc.rxPort = parseInt(process.env.OSC_RX_PORT, 10);
+    }
+    if (process.env.OSC_TX_HOST) {
+      this.config.network.osc.txHost = process.env.OSC_TX_HOST;
+    }
+    if (process.env.OSC_TX_PORT) {
+      this.config.network.osc.txPort = parseInt(process.env.OSC_TX_PORT, 10);
     }
   }
 
