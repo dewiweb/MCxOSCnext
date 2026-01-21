@@ -95,3 +95,4 @@ out/
 settings.json
 
 release-builds/
+packages/backend/data/
