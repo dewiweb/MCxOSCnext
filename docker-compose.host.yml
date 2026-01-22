@@ -1,0 +1,50 @@
+# MCxOSC Stack avec network_mode: host pour UDP
+# Utilisez ce fichier si les messages OSC ne sont pas reçus avec le mode bridge
+
+services:
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    container_name: mcxosc-backend
+    network_mode: host
+    volumes:
+      - mcxosc-data:/app/data
+      - mcxosc-sessions:/app/sessions
+    environment:
+      - NODE_ENV=production
+      - EMBER_HOST=${EMBER_HOST:-192.168.100.199}
+      - EMBER_PORT=${EMBER_PORT:-9000}
+      - OSC_RX_PORT=${OSC_RX_PORT:-8000}
+      - OSC_TX_HOST=${OSC_TX_HOST:-127.0.0.1}
+      - OSC_TX_PORT=${OSC_TX_PORT:-9000}
+      - AUTO_CONNECT=${AUTO_CONNECT:-true}
+      - PERSIST_PATH=/app/data/state.json
+      - SESSIONS_DIR=/app/sessions
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/v1/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    container_name: mcxosc-frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    extra_hosts:
+      - "backend:host-gateway"
+    environment:
+      - API_URL=http://localhost:3000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mcxosc-data:
+  mcxosc-sessions:
