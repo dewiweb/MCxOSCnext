@@ -3,8 +3,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install build tools for native modules (emberplus-connection)
-RUN apk add --no-cache python3 make g++
+# Install build tools for native modules and git for nightly packages
+RUN apk add --no-cache python3 make g++ git
 
 # Install dependencies
 COPY package.json ./
