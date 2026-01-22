@@ -17,9 +17,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install build tools for native modules (emberplus-connection)
+RUN apk add --no-cache python3 make g++
+
 # Install production dependencies only
 COPY package*.json ./
 RUN npm ci --omit=dev
+
+# Remove build tools to reduce image size
+RUN apk del python3 make g++
 
 # Copy built files
 COPY --from=builder /app/dist ./dist
