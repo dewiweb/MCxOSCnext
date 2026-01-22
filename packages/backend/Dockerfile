@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Install build tools for native modules (emberplus-connection)
+RUN apk add --no-cache python3 make g++
+
 # Install dependencies
 COPY package.json ./
 RUN npm install
@@ -12,23 +15,18 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 RUN npm run build
 
+# Prune dev dependencies
+RUN npm prune --omit=dev
+
 # Production image
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Install build tools for native modules (emberplus-connection)
-RUN apk add --no-cache python3 make g++
-
-# Install production dependencies only
-COPY package.json ./
-RUN npm install --omit=dev
-
-# Remove build tools to reduce image size
-RUN apk del python3 make g++
-
-# Copy built files
+# Copy built files and production node_modules from builder
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
 
 # Create directories for volumes
 RUN mkdir -p /app/data /app/sessions
