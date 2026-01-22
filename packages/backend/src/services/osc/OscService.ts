@@ -130,7 +130,7 @@ export class OscService extends EventEmitter {
     const address = oscMsg.address;
     const args = oscMsg.args || [];
 
-    logger.debug(`OSC received: ${address} = ${JSON.stringify(args)}`);
+    logger.info(`OSC RX: ${address} = ${JSON.stringify(args)}`);
     
     this.emit('message', address, args);
   }
