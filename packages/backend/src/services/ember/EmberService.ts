@@ -202,6 +202,12 @@ export class EmberService extends EventEmitter {
     this.ensureConnected();
     
     const element = await this.getElementByPath(path);
+    
+    // Matrices and parameters don't have children to navigate
+    if (element.contents.type === 'MATRIX' || element.contents.type === 'PARAMETER') {
+      return [];
+    }
+    
     if (element.contents.type !== 'NODE') {
       throw new Error(`Element at ${path} is not a NODE`);
     }
