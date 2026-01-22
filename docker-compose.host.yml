@@ -1,5 +1,9 @@
 # MCxOSC Stack avec network_mode: host pour UDP
 # Utilisez ce fichier si les messages OSC ne sont pas reçus avec le mode bridge
+#
+# Variables d'environnement:
+#   API_PORT: Port de l'API REST (defaut: 3000)
+#   OSC_RX_PORT: Port UDP réception OSC (defaut: 8000)
 
 services:
   backend:
@@ -13,6 +17,7 @@ services:
       - mcxosc-sessions:/app/sessions
     environment:
       - NODE_ENV=production
+      - PORT=${API_PORT:-3000}
       - EMBER_HOST=${EMBER_HOST:-192.168.100.199}
       - EMBER_PORT=${EMBER_PORT:-9000}
       - OSC_RX_PORT=${OSC_RX_PORT:-8000}
@@ -23,7 +28,7 @@ services:
       - SESSIONS_DIR=/app/sessions
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/v1/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://localhost:${API_PORT:-3000}/api/v1/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
