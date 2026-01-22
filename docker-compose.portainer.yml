@@ -1,0 +1,66 @@
+version: '3.8'
+
+# MCxOSC Stack pour Portainer
+# 
+# Configuration Portainer Repository:
+#   - Repository URL: https://github.com/dewiweb/MCxOSCnext
+#   - Reference: refs/heads/develop
+#   - Compose path: docker-compose.portainer.yml
+#
+# Adaptez les ports et variables selon votre environnement
+
+services:
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    container_name: mcxosc-backend
+    ports:
+      - "${API_PORT:-3000}:3000"           # REST API + WebSocket
+      - "${OSC_RX_PORT:-8000}:8000/udp"    # OSC RX
+    volumes:
+      - mcxosc-data:/app/data
+      - mcxosc-sessions:/app/sessions
+    environment:
+      - NODE_ENV=production
+      - EMBER_HOST=${EMBER_HOST:-192.168.100.199}
+      - EMBER_PORT=${EMBER_PORT:-9000}
+      - OSC_RX_PORT=8000
+      - OSC_TX_HOST=${OSC_TX_HOST:-127.0.0.1}
+      - OSC_TX_PORT=${OSC_TX_PORT:-9000}
+      - AUTO_CONNECT=${AUTO_CONNECT:-true}
+      - PERSIST_PATH=/app/data/state.json
+      - SESSIONS_DIR=/app/sessions
+    restart: unless-stopped
+    networks:
+      - mcxosc-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+      args:
+        - API_URL=http://backend:3000
+    container_name: mcxosc-frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mcxosc-net
+
+networks:
+  mcxosc-net:
+    driver: bridge
+
+volumes:
+  mcxosc-data:
+  mcxosc-sessions:
