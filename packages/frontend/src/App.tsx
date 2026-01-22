@@ -9,8 +9,9 @@ import { StatusBar } from './components/StatusBar';
 import { ConfigPanel } from './components/ConfigPanel';
 import { LogViewer } from './components/LogViewer';
 import { ResizablePanel } from './components/ResizablePanel';
+import { MatrixView } from './components/MatrixView';
 import { useLogStore } from './stores/logStore';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Grid } from 'lucide-react';
 import type { TreeNode, ConnectionConfig } from './types';
 
 function App() {
@@ -24,6 +25,8 @@ function App() {
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [hierarchyPath, setHierarchyPath] = useState('');
   const [activeTab, setActiveTab] = useState<'connections' | 'tree'>('connections');
+  const [matrixPath, setMatrixPath] = useState<string | null>(null);
+  const [matrixNode, setMatrixNode] = useState<TreeNode | null>(null);
 
   const handleSelectPath = (path: string, node: TreeNode, hierarchy: string) => {
     setSelectedPath(path);
@@ -31,6 +34,13 @@ function App() {
     setHierarchyPath(hierarchy);
     setShowForm(true);
     setActiveTab('connections');
+    setMatrixPath(null);
+  };
+
+  const handleSelectMatrix = (path: string, node: TreeNode) => {
+    setMatrixPath(path);
+    setMatrixNode(node);
+    setShowForm(false);
   };
 
   const handleCreateConnection = async (config: ConnectionConfig) => {
@@ -61,7 +71,7 @@ function App() {
         {/* Resizable Sidebar */}
         <ResizablePanel defaultWidth={320} minWidth={200} maxWidth={800}>
           <SessionManager />
-          <TreeViewer onSelectPath={handleSelectPath} />
+          <TreeViewer onSelectPath={handleSelectPath} onSelectMatrix={handleSelectMatrix} />
         </ResizablePanel>
 
         {/* Main content */}
@@ -111,6 +121,31 @@ function App() {
 
           {/* Content */}
           {activeTab === 'connections' && <ConnectionTable />}
+
+          {/* Matrix View Modal */}
+          {matrixPath && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-800 rounded-lg max-w-[90vw] max-h-[90vh] overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                  <div className="flex items-center gap-2">
+                    <Grid className="w-5 h-5 text-blue-400" />
+                    <h2 className="text-lg font-semibold">
+                      Matrix: {matrixNode?.description || matrixPath}
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => setMatrixPath(null)}
+                    className="p-1 hover:bg-gray-700 rounded"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="overflow-auto flex-1 p-4">
+                  <MatrixView path={matrixPath} />
+                </div>
+              </div>
+            </div>
+          )}
 
         </main>
       </div>

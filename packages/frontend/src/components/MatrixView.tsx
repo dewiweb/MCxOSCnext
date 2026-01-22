@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { X, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Loader2 } from 'lucide-react';
 import type { MatrixInfo, MatrixConnectionsPage } from '../types';
 
 interface MatrixViewProps {
   path: string;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const VIEWPORT_SIZE = 25;
@@ -95,47 +95,34 @@ export function MatrixView({ path, onClose }: MatrixViewProps) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-gray-800 rounded-lg p-8">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-        </div>
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
   if (error || !matrix) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-gray-800 rounded-lg p-6 max-w-md">
-          <div className="text-red-400 mb-4">{error || 'Matrix not found'}</div>
+      <div className="p-6">
+        <div className="text-red-400 mb-4">{error || 'Matrix not found'}</div>
+        {onClose && (
           <button onClick={onClose} className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600">
             Close
           </button>
-        </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-lg shadow-xl max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <div>
-            <h2 className="text-lg font-semibold text-white">
-              {matrix.description || matrix.identifier || 'Matrix'}
-            </h2>
-            <p className="text-sm text-gray-400">
-              {matrix.targetCount} targets × {matrix.sourceCount} sources | Path: {path}
-            </p>
-          </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-700 rounded">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <div className="flex flex-col min-w-[400px]">
+      {/* Info */}
+      <div className="text-sm text-gray-400 mb-2">
+        {matrix.targetCount} targets × {matrix.sourceCount} sources
+      </div>
 
-        {/* Navigation */}
-        <div className="flex items-center justify-between px-4 py-2 bg-gray-750 border-b border-gray-700">
+      {/* Navigation */}
+      <div className="flex items-center justify-between py-2 mb-2 bg-gray-700 rounded px-2">
           <div className="flex items-center gap-2">
             <button 
               onClick={() => setTargetOffset(Math.max(0, targetOffset - VIEWPORT_SIZE))}
@@ -176,9 +163,9 @@ export function MatrixView({ path, onClose }: MatrixViewProps) {
           </div>
         </div>
 
-        {/* Matrix Grid */}
-        <div className="overflow-auto flex-1 p-2">
-          <table className="border-collapse text-xs">
+      {/* Matrix Grid */}
+      <div className="overflow-auto max-h-[60vh]">
+        <table className="border-collapse text-xs">
             <thead>
               <tr>
                 <th className="sticky left-0 top-0 z-20 bg-gray-800 p-1 min-w-[40px]">S\T</th>
@@ -217,8 +204,7 @@ export function MatrixView({ path, onClose }: MatrixViewProps) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </table>
       </div>
     </div>
   );

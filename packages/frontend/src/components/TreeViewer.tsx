@@ -5,6 +5,7 @@ import type { TreeNode } from '../types';
 
 interface TreeViewerProps {
   onSelectPath: (path: string, node: TreeNode, hierarchyPath: string) => void;
+  onSelectMatrix?: (path: string, node: TreeNode) => void;
 }
 
 // Store node descriptions by path for building hierarchy
@@ -35,7 +36,7 @@ function storeNodeDescriptions(nodes: TreeNode[]): void {
   }
 }
 
-export function TreeViewer({ onSelectPath }: TreeViewerProps) {
+export function TreeViewer({ onSelectPath, onSelectMatrix }: TreeViewerProps) {
   const [rootNodes, setRootNodes] = useState<TreeNode[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +113,7 @@ export function TreeViewer({ onSelectPath }: TreeViewerProps) {
               node={node}
               depth={0}
               onSelect={onSelectPath}
+              onSelectMatrix={onSelectMatrix}
               onChildrenLoaded={storeNodeDescriptions}
             />
           ))}
@@ -125,11 +127,13 @@ function TreeNodeItem({
   node,
   depth,
   onSelect,
+  onSelectMatrix,
   onChildrenLoaded,
 }: {
   node: TreeNode;
   depth: number;
   onSelect: (path: string, node: TreeNode, hierarchyPath: string) => void;
+  onSelectMatrix?: (path: string, node: TreeNode) => void;
   onChildrenLoaded: (nodes: TreeNode[]) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -161,11 +165,13 @@ function TreeNodeItem({
     if (node.type === 'PARAMETER') {
       const hierarchyPath = buildHierarchyPath(node.path);
       onSelect(node.path, node, hierarchyPath);
+    } else if (node.isMatrix && onSelectMatrix) {
+      onSelectMatrix(node.path, node);
     }
   };
 
   const icon = getNodeIcon(node);
-  const isSelectable = node.type === 'PARAMETER';
+  const isSelectable = node.type === 'PARAMETER' || node.isMatrix;
 
   return (
     <div>
@@ -231,6 +237,7 @@ function TreeNodeItem({
               node={child}
               depth={depth + 1}
               onSelect={onSelect}
+              onSelectMatrix={onSelectMatrix}
               onChildrenLoaded={onChildrenLoaded}
             />
           ))}
