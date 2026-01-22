@@ -11,6 +11,11 @@ type EmberClientType = any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EmberElementRaw = any;
 
+export interface MatrixConnectionRaw {
+  target: number;
+  sources: number[];
+}
+
 export interface EmberElement {
   path: string;
   contents: {
@@ -25,6 +30,8 @@ export interface EmberElement {
     enumeration?: string;
     targetCount?: number;
     sourceCount?: number;
+    mode?: number;
+    connections?: Record<number, MatrixConnectionRaw>;
     args?: unknown[];
   };
   children?: Record<string, unknown>;
@@ -217,7 +224,7 @@ export class EmberService extends EventEmitter {
     return children;
   }
 
-  async subscribe(path: string, callback: ValueCallback): Promise<void> {
+  async subscribe(path: string, callback: ValueCallback, skipExpand = false): Promise<void> {
     this.ensureConnected();
 
     if (this.subscriptions.has(path)) {
@@ -226,7 +233,10 @@ export class EmberService extends EventEmitter {
     }
 
     // Expand path first to ensure element is accessible after reconnect
-    await this.expandPath(path);
+    // Skip if already expanded by activateAllConnections
+    if (!skipExpand) {
+      await this.expandPath(path);
+    }
     
     const element = await this.getElementByPath(path);
     

@@ -181,7 +181,7 @@ export class BridgeEngine extends EventEmitter {
     return mapped;
   }
 
-  async activateConnection(id: string): Promise<void> {
+  async activateConnection(id: string, skipExpand = false): Promise<void> {
     const conn = this.connectionManager.get(id);
     if (!conn) {
       throw new Error(`Connection ${id} not found`);
@@ -190,7 +190,7 @@ export class BridgeEngine extends EventEmitter {
     try {
       await this.emberService.subscribe(conn.emberPath, (value) => {
         this.handleEmberUpdate(conn.emberPath, value);
-      });
+      }, skipExpand);
 
       this.connectionManager.updateRuntimeState(id, {
         isSubscribed: true,
@@ -235,13 +235,44 @@ export class BridgeEngine extends EventEmitter {
     let success = 0;
     let failed = 0;
 
+    // Group connections by path prefix for efficient tree expansion
+    const pathPrefixes = new Set<string>();
     for (const conn of connections) {
+      const parts = conn.emberPath.split('.');
+      let prefix = '';
+      for (const part of parts.slice(0, -1)) {
+        prefix = prefix ? `${prefix}.${part}` : part;
+        pathPrefixes.add(prefix);
+      }
+    }
+
+    // Pre-expand common path prefixes (sequential to avoid overwhelming the device)
+    logger.info(`Pre-expanding ${pathPrefixes.size} path prefixes...`);
+    for (const prefix of Array.from(pathPrefixes).sort()) {
       try {
-        await this.activateConnection(conn.id);
-        success++;
-      } catch (error) {
-        failed++;
-        logger.error(`Failed to activate ${conn.emberPath}: ${error}`);
+        await this.emberService.expandPath(prefix);
+      } catch {
+        // Ignore expansion errors
+      }
+    }
+
+    // Activate connections in parallel batches
+    const BATCH_SIZE = 10;
+    logger.info(`Activating ${connections.length} connections in batches of ${BATCH_SIZE}...`);
+    
+    for (let i = 0; i < connections.length; i += BATCH_SIZE) {
+      const batch = connections.slice(i, i + BATCH_SIZE);
+      const results = await Promise.allSettled(
+        batch.map(conn => this.activateConnection(conn.id, true)) // skipExpand=true since paths are pre-expanded
+      );
+      
+      for (let j = 0; j < results.length; j++) {
+        if (results[j].status === 'fulfilled') {
+          success++;
+        } else {
+          failed++;
+          logger.error(`Failed to activate ${batch[j].emberPath}: ${(results[j] as PromiseRejectedResult).reason}`);
+        }
       }
     }
 

@@ -117,3 +117,32 @@ export interface AppConfig {
     port: number;
   };
 }
+
+// Matrix types
+export interface MatrixConnection {
+  target: number;
+  sources: number[];
+}
+
+export interface MatrixInfo {
+  path: string;
+  identifier?: string;
+  description?: string;
+  targetCount: number;
+  sourceCount: number;
+  mode?: 'linear' | 'nonLinear';
+}
+
+export interface MatrixState extends MatrixInfo {
+  connections: MatrixConnection[];
+}
+
+export interface MatrixConnectionsPage {
+  matrix: MatrixInfo;
+  connections: MatrixConnection[];
+  pagination: {
+    targetOffset: number;
+    targetLimit: number;
+    totalTargets: number;
+  };
+}
