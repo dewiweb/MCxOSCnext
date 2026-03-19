@@ -8,9 +8,15 @@ export type Direction = 'idle' | 'ember-to-osc' | 'osc-to-ember';
 
 /**
  * Connection configuration (user-defined settings)
+ *
+ * emberIdentifierPath is the stable reference (e.g. "_2._1._3._682._683").
+ * It is persisted in sessions and resolved to a numeric emberPath at activation time.
+ * emberPath is a runtime cache — never persisted. For legacy connections without
+ * identifiers, emberPath is used directly as-is.
  */
 export interface ConnectionConfig {
-  emberPath: string;
+  emberPath?: string;
+  emberIdentifierPath?: string;
   oscAddress: string;
   parameterType?: ParameterType;
   emberMin?: number;
@@ -40,6 +46,7 @@ export interface ConnectionRuntimeState {
  */
 export interface Connection extends ConnectionConfig, ConnectionRuntimeState {
   id: string;
+  emberPath: string;
   parameterType: ParameterType;
   emberMin: number;
   emberMax: number;
@@ -179,6 +186,8 @@ export interface MatrixInfo {
   targetCount: number;
   sourceCount: number;
   mode?: 'linear' | 'nonLinear';
+  targets?: number[];
+  sources?: number[];
 }
 
 export interface MatrixState extends MatrixInfo {

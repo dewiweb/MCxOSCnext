@@ -32,7 +32,7 @@ export function ConnectionTable() {
             <thead className="bg-gray-900 text-gray-400">
               <tr>
                 <th className="px-3 py-2 text-left">Status</th>
-                <th className="px-3 py-2 text-left">Ember+ Path</th>
+                <th className="px-3 py-2 text-left">Ember+ Ref</th>
                 <th className="px-3 py-2 text-left">OSC Address</th>
                 <th className="px-3 py-2 text-left">Type</th>
                 <th className="px-3 py-2 text-left">Value</th>
@@ -69,14 +69,19 @@ const ConnectionRow = memo(function ConnectionRow({
   onDeactivate: () => void;
   onDelete: () => void;
 }) {
-  const { isActive, error, direction, currentEmberValue, emberPath, oscAddress, parameterType } = connection;
+  const { isActive, error, direction, currentEmberValue, emberPath, emberIdentifierPath, oscAddress, parameterType } = connection;
+  const displayRef = emberIdentifierPath || emberPath;
+  const tooltip = emberIdentifierPath && emberPath ? `Numeric: ${emberPath}` : undefined;
 
   return (
     <tr className="border-t border-gray-700 hover:bg-gray-750">
       <td className="px-3 py-2">
         <StatusIndicator isActive={isActive} error={error} />
       </td>
-      <td className="px-3 py-2 font-mono text-xs">{emberPath}</td>
+      <td className="px-3 py-2 font-mono text-xs" title={tooltip}>
+        {emberIdentifierPath && <span className="text-green-400 mr-1">🔒</span>}
+        {displayRef}
+      </td>
       <td className="px-3 py-2 font-mono text-xs">{oscAddress}</td>
       <td className="px-3 py-2">
         <TypeBadge type={parameterType} />

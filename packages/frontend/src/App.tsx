@@ -10,8 +10,9 @@ import { ConfigPanel } from './components/ConfigPanel';
 import { LogViewer } from './components/LogViewer';
 import { ResizablePanel } from './components/ResizablePanel';
 import { MatrixView } from './components/MatrixView';
+import { MixerView } from './components/MixerView';
 import { useLogStore } from './stores/logStore';
-import { Plus, X, Grid } from 'lucide-react';
+import { Plus, X, Grid, Sliders } from 'lucide-react';
 import type { TreeNode, ConnectionConfig } from './types';
 
 function App() {
@@ -24,14 +25,17 @@ function App() {
   const [selectedPath, setSelectedPath] = useState('');
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [hierarchyPath, setHierarchyPath] = useState('');
+  const [selectedIdentifierPath, setSelectedIdentifierPath] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<'connections' | 'tree'>('connections');
   const [matrixPath, setMatrixPath] = useState<string | null>(null);
   const [matrixNode, setMatrixNode] = useState<TreeNode | null>(null);
+  const [showMixer, setShowMixer] = useState(false);
 
-  const handleSelectPath = (path: string, node: TreeNode, hierarchy: string) => {
+  const handleSelectPath = (path: string, node: TreeNode, hierarchy: string, identifierPath?: string) => {
     setSelectedPath(path);
     setSelectedNode(node);
     setHierarchyPath(hierarchy);
+    setSelectedIdentifierPath(identifierPath);
     setShowForm(true);
     setActiveTab('connections');
     setMatrixPath(null);
@@ -49,6 +53,7 @@ function App() {
     setSelectedPath('');
     setSelectedNode(null);
     setHierarchyPath('');
+    setSelectedIdentifierPath(undefined);
     loadConnections();
   };
 
@@ -61,6 +66,13 @@ function App() {
             <p className="text-sm text-gray-400">Ember+ to OSC Bridge</p>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowMixer(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded text-sm"
+            >
+              <Sliders className="w-4 h-4" />
+              Mixer
+            </button>
             <StatusBar />
             <ConfigPanel />
           </div>
@@ -109,12 +121,14 @@ function App() {
               initialPath={selectedPath}
               selectedNode={selectedNode}
               hierarchyPath={hierarchyPath}
+              initialIdentifierPath={selectedIdentifierPath}
               onSubmit={handleCreateConnection}
               onCancel={() => {
                 setShowForm(false);
                 setSelectedPath('');
                 setSelectedNode(null);
                 setHierarchyPath('');
+                setSelectedIdentifierPath(undefined);
               }}
             />
           )}
@@ -149,6 +163,13 @@ function App() {
 
         </main>
       </div>
+
+      {/* Mixer View Modal */}
+      <MixerView
+        isOpen={showMixer}
+        onClose={() => setShowMixer(false)}
+        initialChannels={[]}
+      />
 
       {/* Fixed bottom log viewer */}
       <LogViewer logs={logs} onClear={clearLogs} />

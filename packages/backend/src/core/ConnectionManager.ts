@@ -33,7 +33,8 @@ export class ConnectionManager extends EventEmitter {
 
     const connection: Connection = {
       id,
-      emberPath: config.emberPath,
+      emberPath: config.emberPath ?? '',
+      emberIdentifierPath: config.emberIdentifierPath,
       oscAddress: config.oscAddress,
       parameterType: config.parameterType ?? 'INTEGER',
       emberMin: config.emberMin ?? 0,
@@ -72,9 +73,9 @@ export class ConnectionManager extends EventEmitter {
 
     Object.assign(conn, changes, { updatedAt: new Date() });
 
-    if (changes.emberPath && changes.emberPath !== oldEmberPath) {
+    if (changes.emberPath !== undefined && changes.emberPath !== oldEmberPath) {
       this.byEmberPath.delete(oldEmberPath);
-      this.byEmberPath.set(changes.emberPath, id);
+      if (changes.emberPath) this.byEmberPath.set(changes.emberPath, id);
     }
     if (changes.oscAddress && changes.oscAddress !== oldOscAddress) {
       this.removeFromOscIndex(oldOscAddress, id);
@@ -148,7 +149,10 @@ export class ConnectionManager extends EventEmitter {
         updatedAt: new Date().toISOString(),
       },
       connections: this.getAll().map((c) => ({
-        emberPath: c.emberPath,
+        // emberIdentifierPath is the stable reference — persisted always if present.
+        // emberPath is only persisted for legacy connections without an identifierPath.
+        emberPath: c.emberIdentifierPath ? undefined : c.emberPath,
+        emberIdentifierPath: c.emberIdentifierPath,
         oscAddress: c.oscAddress,
         parameterType: c.parameterType,
         emberMin: c.emberMin,

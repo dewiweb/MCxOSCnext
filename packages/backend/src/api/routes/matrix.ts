@@ -20,9 +20,33 @@ export function createMatrixRouter(emberService: EmberService): Router {
       const targetOffset = Math.max(0, parseInt(req.query.targetOffset as string) || 0);
       const targetLimit = Math.min(200, Math.max(1, parseInt(req.query.targetLimit as string) || 50));
 
-      logger.info(`Getting matrix at path: ${path} (offset=${targetOffset}, limit=${targetLimit})`);
+      const startTime = Date.now();
+      logger.info(`Getting matrix at path: ${path}`);
 
-      const element = await emberService.getElementByPath(path);
+      // Try to get element directly first (faster if already cached)
+      let element;
+      const t1 = Date.now();
+      try {
+        element = await emberService.getElementByPath(path);
+        logger.debug(`[TIMING] getElementByPath (cached): ${Date.now() - t1}ms`);
+      } catch {
+        // Not cached, need to expand path first
+        const t2 = Date.now();
+        await emberService.expandPath(path);
+        logger.debug(`[TIMING] expandPath: ${Date.now() - t2}ms`);
+        element = await emberService.getElementByPath(path);
+      }
+      
+      // Call getDirectory to load full matrix details
+      const t3 = Date.now();
+      try {
+        await emberService.getDirectory(element);
+      } catch (err) {
+        logger.warn(`getDirectory timeout after ${Date.now() - t3}ms`);
+      }
+      logger.debug(`[TIMING] getDirectory: ${Date.now() - t3}ms`);
+      
+      // Access matrix properties via element (updated by getDirectory)
       
       if (!element || !element.contents || element.contents.type !== 'MATRIX') {
         return res.status(404).json({
@@ -32,19 +56,32 @@ export function createMatrixRouter(emberService: EmberService): Router {
         });
       }
 
-      const contents = element.contents;
+      const contents = element.contents as Record<string, unknown>;
+      
+      // Get target/source counts - use array length as fallback for non-linear matrices
+      const targets = contents.targets as number[] | undefined;
+      const sources = contents.sources as number[] | undefined;
+      const targetCount = (contents.targetCount as number) || targets?.length || 0;
+      const sourceCount = (contents.sourceCount as number) || sources?.length || 0;
+      
+      logger.debug(`Matrix: ${targetCount}x${sourceCount}, mode=${contents.addressingMode}`);
+      
       const matrixInfo: MatrixInfo = {
         path,
-        identifier: contents.identifier,
-        description: contents.description,
-        targetCount: contents.targetCount || 0,
-        sourceCount: contents.sourceCount || 0,
-        mode: contents.mode === 1 ? 'nonLinear' : 'linear'
+        identifier: contents.identifier as string,
+        description: contents.description as string | undefined,
+        targetCount,
+        sourceCount,
+        mode: contents.addressingMode === 'NON_LINEAR' ? 'nonLinear' : 'linear',
+        targets: targets || [],
+        sources: sources || []
       };
 
       // Get connections for the requested page of targets
       const connections: MatrixConnection[] = [];
-      const allConnections = contents.connections || {};
+      const allConnections = (contents.connections || {}) as Record<number, { sources?: number[] }>;
+      
+      // Debug logging removed for production
       
       const targetIds = Object.keys(allConnections)
         .map(Number)
@@ -52,15 +89,20 @@ export function createMatrixRouter(emberService: EmberService): Router {
       
       const pagedTargetIds = targetIds.slice(targetOffset, targetOffset + targetLimit);
       
-      for (const targetId of pagedTargetIds) {
+      // Return ALL connections, not just paged ones (pagination was for large matrices but causes issues)
+      for (const targetId of targetIds) {
         const conn = allConnections[targetId];
         if (conn) {
+          const sources = Array.isArray(conn.sources) ? conn.sources : 
+                         (conn as unknown as { target: number; sources: number[] }).sources || [];
           connections.push({
             target: targetId,
-            sources: Array.isArray(conn.sources) ? conn.sources : []
+            sources
           });
         }
       }
+      
+      logger.info(`Matrix ${path}: ${matrixInfo.targetCount}x${matrixInfo.sourceCount}, ${connections.length} connections in ${Date.now() - startTime}ms`);
 
       const response: MatrixConnectionsPage = {
         matrix: matrixInfo,

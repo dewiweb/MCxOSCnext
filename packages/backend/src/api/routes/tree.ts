@@ -7,7 +7,7 @@ const logger = createLogger('api:tree');
 export function createTreeRouter(emberService: EmberService): Router {
   const router = Router();
 
-  router.get('/', async (_req: Request, res: Response) => {
+  router.get('/', async (req: Request, res: Response) => {
     try {
       const status = emberService.getConnectionStatus();
       if (!status.connected) {
@@ -18,8 +18,10 @@ export function createTreeRouter(emberService: EmberService): Router {
         });
       }
 
-      const tree = await emberService.getTree();
-      const nodes = tree.map((el) => formatElement(el, String(el.number)));
+      // Use ?refresh=true to force reload from Ember+ (slower)
+      const forceRefresh = req.query.refresh === 'true';
+      const tree = await emberService.getTree(forceRefresh);
+      const nodes = tree.map((el) => formatElement(el, String(el.number), undefined));
 
       res.json({
         success: true,
@@ -61,9 +63,10 @@ export function createTreeRouter(emberService: EmberService): Router {
         });
       }
 
+      const parentIdentifierPath = req.query.parentIdentifierPath as string | undefined;
       res.json({
         success: true,
-        data: formatElement(element, path),
+        data: formatElement(element, path, parentIdentifierPath),
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
@@ -97,7 +100,8 @@ export function createTreeRouter(emberService: EmberService): Router {
 
       const path = req.params.path.replace(/\//g, '.');
       const children = await emberService.expandNode(path);
-      const nodes = children.map((el) => formatElement(el, `${path}.${el.number}`));
+      const parentIdentifierPath = req.query.parentIdentifierPath as string | undefined;
+      const nodes = children.map((el) => formatElement(el, `${path}.${el.number}`, parentIdentifierPath));
 
       res.json({
         success: true,
@@ -118,7 +122,7 @@ export function createTreeRouter(emberService: EmberService): Router {
   return router;
 }
 
-function formatElement(element: EmberElement, path: string): unknown {
+function formatElement(element: EmberElement, path: string, parentIdentifierPath: string | undefined): unknown {
   const contents = element.contents || {};
   const type = contents.type || 'NODE';
   
@@ -127,13 +131,20 @@ function formatElement(element: EmberElement, path: string): unknown {
   
   // Use description, fallback to identifier (like old Electron app)
   const description = contents.description || contents.identifier;
+
+  // Build cumulative identifier path (stable across production file reloads)
+  const ownIdentifier = contents.identifier as string | undefined;
+  const identifierPath = ownIdentifier
+    ? (parentIdentifierPath ? `${parentIdentifierPath}.${ownIdentifier}` : ownIdentifier)
+    : undefined;
   
   return {
     path,
     number: element.number,
     type,
     description,
-    identifier: contents.identifier,
+    identifier: ownIdentifier,
+    identifierPath,
     value: contents.value,
     parameterType: contents.parameterType,
     minimum: contents.minimum,

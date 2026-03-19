@@ -61,16 +61,16 @@ export function createConnectionsRouter(
     try {
       const config: ConnectionConfig = req.body;
       
-      if (!config.emberPath || !config.oscAddress) {
+      if ((!config.emberPath && !config.emberIdentifierPath) || !config.oscAddress) {
         return res.status(400).json({
           success: false,
-          error: { code: 'VALIDATION_ERROR', message: 'emberPath and oscAddress are required' },
+          error: { code: 'VALIDATION_ERROR', message: 'emberPath or emberIdentifierPath, and oscAddress are required' },
           timestamp: new Date().toISOString(),
         });
       }
 
-      // Auto-detect parameterType from Ember+ element if not provided
-      if (!config.parameterType && emberService.getConnectionStatus().connected) {
+      // Auto-detect parameterType from Ember+ element if not provided (only for numeric paths)
+      if (!config.parameterType && config.emberPath && emberService.getConnectionStatus().connected) {
         try {
           await emberService.expandPath(config.emberPath);
           const element = await emberService.getElementByPath(config.emberPath);

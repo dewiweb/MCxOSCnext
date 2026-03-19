@@ -93,9 +93,10 @@ export const api = {
     return request<TreeNode>(`/tree/${urlPath}`);
   },
 
-  async expandNode(path: string): Promise<TreeNode[]> {
+  async expandNode(path: string, parentIdentifierPath?: string): Promise<TreeNode[]> {
     const urlPath = path.replace(/\./g, '/');
-    return request<TreeNode[]>(`/tree/${urlPath}/expand`, { method: 'POST' });
+    const query = parentIdentifierPath ? `?parentIdentifierPath=${encodeURIComponent(parentIdentifierPath)}` : '';
+    return request<TreeNode[]>(`/tree/${urlPath}/expand${query}`, { method: 'POST' });
   },
 
   // Config

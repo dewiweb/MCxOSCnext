@@ -19,10 +19,12 @@ export function MatrixView({ path, onClose }: MatrixViewProps) {
   const [targetOffset, setTargetOffset] = useState(0);
   const [sourceOffset, setSourceOffset] = useState(0);
 
-  const fetchMatrix = useCallback(async () => {
+  const fetchMatrix = useCallback(async (retryCount = 0): Promise<void> => {
     try {
-      setLoading(true);
-      setError(null);
+      if (retryCount === 0) {
+        setLoading(true);
+        setError(null);
+      }
       
       const res = await fetch(`/api/v1/matrix/${path}?targetOffset=0&targetLimit=200`);
       const data = await res.json();
@@ -30,6 +32,13 @@ export function MatrixView({ path, onClose }: MatrixViewProps) {
       if (!data.success) throw new Error(data.error?.message || 'Failed to load matrix');
       
       const page: MatrixConnectionsPage = data.data;
+      
+      // If data not yet loaded (0x0), retry after delay (max 5 retries)
+      if (page.matrix.targetCount === 0 && retryCount < 5) {
+        setTimeout(() => fetchMatrix(retryCount + 1), 2000);
+        return; // Don't setLoading(false) yet - still retrying
+      }
+      
       setMatrix(page.matrix);
       
       const connMap = new Map<number, number[]>();
@@ -37,9 +46,10 @@ export function MatrixView({ path, onClose }: MatrixViewProps) {
         connMap.set(conn.target, conn.sources);
       }
       setConnections(connMap);
+      console.log(`Matrix loaded: ${page.matrix.targetCount}x${page.matrix.sourceCount}, ${page.connections.length} connections`);
+      setLoading(false); // Only set loading false when we have real data
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
       setLoading(false);
     }
   }, [path]);
@@ -77,15 +87,21 @@ export function MatrixView({ path, onClose }: MatrixViewProps) {
   }, [matrix, connections, path, updating]);
 
   const visibleTargets = useMemo(() => {
-    if (!matrix) return [];
-    const end = Math.min(targetOffset + VIEWPORT_SIZE, matrix.targetCount);
-    return Array.from({ length: end - targetOffset }, (_, i) => targetOffset + i);
+    if (!matrix || matrix.targetCount === 0) return [];
+    // Use actual target IDs if available, otherwise generate sequential indices
+    const allTargets = (matrix.targets && matrix.targets.length > 0) 
+      ? matrix.targets 
+      : Array.from({ length: matrix.targetCount }, (_, i) => i);
+    return allTargets.slice(targetOffset, targetOffset + VIEWPORT_SIZE);
   }, [matrix, targetOffset]);
 
   const visibleSources = useMemo(() => {
-    if (!matrix) return [];
-    const end = Math.min(sourceOffset + VIEWPORT_SIZE, matrix.sourceCount);
-    return Array.from({ length: end - sourceOffset }, (_, i) => sourceOffset + i);
+    if (!matrix || matrix.sourceCount === 0) return [];
+    // Use actual source IDs if available, otherwise generate sequential indices
+    const allSources = (matrix.sources && matrix.sources.length > 0)
+      ? matrix.sources
+      : Array.from({ length: matrix.sourceCount }, (_, i) => i);
+    return allSources.slice(sourceOffset, sourceOffset + VIEWPORT_SIZE);
   }, [matrix, sourceOffset]);
 
   const canScrollLeft = targetOffset > 0;

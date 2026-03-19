@@ -1,9 +1,7 @@
 name: 
-  Build/release
-on: 
-    push:
-      paths:
-        - 'CHANGELOG.md'
+  Build/release (legacy Electron - disabled)
+on:
+  workflow_dispatch:
 
 env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

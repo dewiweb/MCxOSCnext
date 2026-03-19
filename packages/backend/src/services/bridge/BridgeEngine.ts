@@ -188,6 +188,38 @@ export class BridgeEngine extends EventEmitter {
     }
 
     try {
+      // Trim any accidental whitespace in stored path
+      const trimmedPath = conn.emberPath.trim();
+      if (trimmedPath !== conn.emberPath) {
+        this.connectionManager.update(id, { emberPath: trimmedPath });
+        Object.assign(conn, { emberPath: trimmedPath });
+      }
+
+      // Determine the identifier path to resolve:
+      // - explicit emberIdentifierPath takes priority
+      // - fallback: auto-detect if emberPath looks like an identifier path (segments starting with _)
+      const isIdentifierPath = (p: string) => p.trim().split('.').every(seg => /^_/.test(seg) || /^[a-zA-Z]/.test(seg));
+      const identPathToResolve = conn.emberIdentifierPath
+        || (isIdentifierPath(conn.emberPath) ? conn.emberPath : undefined);
+
+      if (identPathToResolve) {
+        try {
+          const resolvedPath = await this.emberService.resolveIdentifierPath(identPathToResolve);
+          if (resolvedPath !== conn.emberPath) {
+            logger.info(`Resolved identifier path "${identPathToResolve}" → "${resolvedPath}" (was "${conn.emberPath}")`);
+            this.connectionManager.update(id, {
+              emberPath: resolvedPath,
+              emberIdentifierPath: conn.emberIdentifierPath ?? identPathToResolve,
+            });
+            const updated = this.connectionManager.get(id);
+            if (updated) Object.assign(conn, updated);
+          }
+        } catch (resolveError) {
+          const msg = resolveError instanceof Error ? resolveError.message : String(resolveError);
+          logger.warn(`Could not resolve identifier path "${identPathToResolve}", falling back to "${conn.emberPath}": ${msg}`);
+        }
+      }
+
       await this.emberService.subscribe(conn.emberPath, (value) => {
         this.handleEmberUpdate(conn.emberPath, value);
       }, skipExpand);
@@ -235,9 +267,12 @@ export class BridgeEngine extends EventEmitter {
     let success = 0;
     let failed = 0;
 
-    // Group connections by path prefix for efficient tree expansion
+    const isIdentifierPath = (p: string) => p.trim().split('.').every(seg => /^_/.test(seg) || /^[a-zA-Z]/.test(seg));
+
+    // Pre-expand only numeric paths (identifier paths resolve themselves during activation)
+    const numericConnections = connections.filter(c => !isIdentifierPath(c.emberPath) && !c.emberIdentifierPath);
     const pathPrefixes = new Set<string>();
-    for (const conn of connections) {
+    for (const conn of numericConnections) {
       const parts = conn.emberPath.split('.');
       let prefix = '';
       for (const part of parts.slice(0, -1)) {
@@ -246,24 +281,30 @@ export class BridgeEngine extends EventEmitter {
       }
     }
 
-    // Pre-expand common path prefixes (sequential to avoid overwhelming the device)
-    logger.info(`Pre-expanding ${pathPrefixes.size} path prefixes...`);
-    for (const prefix of Array.from(pathPrefixes).sort()) {
-      try {
-        await this.emberService.expandPath(prefix);
-      } catch {
-        // Ignore expansion errors
+    if (pathPrefixes.size > 0) {
+      logger.info(`Pre-expanding ${pathPrefixes.size} numeric path prefixes...`);
+      for (const prefix of Array.from(pathPrefixes).sort()) {
+        try {
+          await this.emberService.expandPath(prefix);
+        } catch {
+          // Ignore expansion errors
+        }
       }
     }
 
     // Activate connections in parallel batches
+    // - numeric connections: skipExpand=true (already pre-expanded above)
+    // - identifier connections: skipExpand=false (resolveIdentifierPath does its own expansion)
     const BATCH_SIZE = 10;
     logger.info(`Activating ${connections.length} connections in batches of ${BATCH_SIZE}...`);
     
     for (let i = 0; i < connections.length; i += BATCH_SIZE) {
       const batch = connections.slice(i, i + BATCH_SIZE);
       const results = await Promise.allSettled(
-        batch.map(conn => this.activateConnection(conn.id, true)) // skipExpand=true since paths are pre-expanded
+        batch.map(conn => {
+          const skipExpand = !isIdentifierPath(conn.emberPath) && !conn.emberIdentifierPath;
+          return this.activateConnection(conn.id, skipExpand);
+        })
       );
       
       for (let j = 0; j < results.length; j++) {

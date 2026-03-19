@@ -6,6 +6,7 @@ interface ConnectionFormProps {
   onSubmit: (config: ConnectionConfig) => Promise<void>;
   onCancel: () => void;
   initialPath?: string;
+  initialIdentifierPath?: string;
   selectedNode?: TreeNode | null;
   hierarchyPath?: string;
 }
@@ -39,10 +40,13 @@ function getDefaultsFromNode(node?: TreeNode | null) {
   return { paramType, oscAddr, emberMin, emberMax, oscMin, oscMax };
 }
 
-export function ConnectionForm({ onSubmit, onCancel, initialPath = '', selectedNode, hierarchyPath = '' }: ConnectionFormProps) {
+export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialIdentifierPath, selectedNode, hierarchyPath = '' }: ConnectionFormProps) {
   const defaults = getDefaultsFromNode(selectedNode);
   
   const [emberPath, setEmberPath] = useState(initialPath);
+  const [emberIdentifierPath, setEmberIdentifierPath] = useState(initialIdentifierPath || '');
+  // If identifierPath is set, emberPath is the resolved numeric cache (read-only, set by backend)
+  const hasIdentifierPath = emberIdentifierPath.trim().length > 0;
   const [oscAddress, setOscAddress] = useState(defaults.oscAddr || '');
   const [parameterType, setParameterType] = useState<ParameterType>(defaults.paramType || 'INTEGER');
   const [curve, setCurve] = useState<CurveType>('lin');
@@ -58,6 +62,7 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', selectedN
     if (selectedNode) {
       const d = getDefaultsFromNode(selectedNode);
       setEmberPath(selectedNode.path);
+      setEmberIdentifierPath(selectedNode.identifierPath || initialIdentifierPath || '');
       // Use hierarchyPath if available, otherwise fall back to simple oscAddr
       setOscAddress(hierarchyPath || d.oscAddr || '');
       setParameterType(d.paramType || 'INTEGER');
@@ -66,7 +71,7 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', selectedN
       setOscMin(String(d.oscMin ?? 0));
       setOscMax(String(d.oscMax ?? 1));
     }
-  }, [selectedNode, hierarchyPath]);
+  }, [selectedNode, hierarchyPath, initialIdentifierPath]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +80,9 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', selectedN
 
     try {
       await onSubmit({
-        emberPath,
+        // If identifierPath is set, don't send emberPath (backend resolves it)
+        emberPath: hasIdentifierPath ? undefined : emberPath,
+        emberIdentifierPath: emberIdentifierPath.trim() || undefined,
         oscAddress: oscAddress.startsWith('/') ? oscAddress : `/${oscAddress}`,
         parameterType,
         curve,
@@ -103,15 +110,36 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', selectedN
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Ember+ Path</label>
-            <input
-              type="text"
-              value={emberPath}
-              onChange={(e) => setEmberPath(e.target.value)}
-              placeholder="1.2.3.4"
-              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-              required
-            />
+            {hasIdentifierPath ? (
+              <>
+                <label className="block text-sm text-gray-400 mb-1">Ember+ Identifier <span className="text-green-400">🔒</span></label>
+                <input
+                  type="text"
+                  value={emberIdentifierPath}
+                  onChange={(e) => setEmberIdentifierPath(e.target.value)}
+                  placeholder="_2._1._3._682._683"
+                  className="w-full bg-gray-700 border border-green-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-green-400 font-mono"
+                />
+                {emberPath && (
+                  <p className="mt-1 text-xs text-gray-500 font-mono" title="Numeric path resolved at activation">
+                    ↳ {emberPath}
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <label className="block text-sm text-gray-400 mb-1">Ember+ Path</label>
+                <input
+                  type="text"
+                  value={emberPath}
+                  onChange={(e) => setEmberPath(e.target.value)}
+                  placeholder="1.2.3.4"
+                  className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500">No stable identifier — path may change on production reload.</p>
+              </>
+            )}
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">OSC Address</label>

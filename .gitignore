@@ -99,3 +99,13 @@ packages/backend/data/
 
 # Build outputs
 dist/
+
+# Debug/test JSON dumps at root
+channels_root.json
+console.json
+debug_channel.json
+devices.json
+monitoring_units.json
+signals.json
+tree_root.json
+docs/

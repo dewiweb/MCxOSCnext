@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import type { TreeNode } from '../types';
 
 interface TreeViewerProps {
-  onSelectPath: (path: string, node: TreeNode, hierarchyPath: string) => void;
+  onSelectPath: (path: string, node: TreeNode, hierarchyPath: string, identifierPath?: string) => void;
   onSelectMatrix?: (path: string, node: TreeNode) => void;
 }
 
@@ -132,7 +132,7 @@ function TreeNodeItem({
 }: {
   node: TreeNode;
   depth: number;
-  onSelect: (path: string, node: TreeNode, hierarchyPath: string) => void;
+  onSelect: (path: string, node: TreeNode, hierarchyPath: string, identifierPath?: string) => void;
   onSelectMatrix?: (path: string, node: TreeNode) => void;
   onChildrenLoaded: (nodes: TreeNode[]) => void;
 }) {
@@ -149,7 +149,7 @@ function TreeNodeItem({
     if (children.length === 0 && node.hasChildren) {
       setIsLoading(true);
       try {
-        const nodes = await api.expandNode(node.path);
+        const nodes = await api.expandNode(node.path, node.identifierPath);
         onChildrenLoaded(nodes);
         setChildren(nodes);
       } catch (err) {
@@ -164,7 +164,7 @@ function TreeNodeItem({
   const handleSelect = () => {
     if (node.type === 'PARAMETER') {
       const hierarchyPath = buildHierarchyPath(node.path);
-      onSelect(node.path, node, hierarchyPath);
+      onSelect(node.path, node, hierarchyPath, node.identifierPath);
     } else if (node.isMatrix && onSelectMatrix) {
       onSelectMatrix(node.path, node);
     }
@@ -200,7 +200,7 @@ function TreeNodeItem({
         <span
           className={`flex-1 truncate ${isSelectable ? 'text-blue-400' : 'text-gray-300'}`}
           onClick={handleSelect}
-          title={`Path: ${node.path}`}
+          title={node.identifierPath ? `Path: ${node.path}\nIdentifier: ${node.identifierPath}` : `Path: ${node.path}`}
         >
           {node.description ? (
             <>

@@ -15,6 +15,7 @@ import { createSessionsRouter } from './api/routes/sessions.js';
 import { createTreeRouter } from './api/routes/tree.js';
 import { createConfigRouter } from './api/routes/config.js';
 import { createMatrixRouter } from './api/routes/matrix.js';
+import { createChannelRouter } from './api/routes/channel.js';
 import { defaultConfig } from './config/defaults.js';
 import { createLogger } from './utils/logger.js';
 
@@ -84,6 +85,7 @@ export async function createApp(): Promise<AppContext> {
   app.use('/api/v1/sessions', createSessionsRouter(connectionManager, bridgeEngine));
   app.use('/api/v1/tree', createTreeRouter(emberService));
   app.use('/api/v1/matrix', createMatrixRouter(emberService));
+  app.use('/api/v1/channel', createChannelRouter(emberService));
   app.use('/api/v1/config', createConfigRouter({
     configManager,
     onEmberReconnect: async (host: string, port: number) => {

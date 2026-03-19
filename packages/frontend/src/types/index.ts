@@ -5,6 +5,7 @@ export type Direction = 'idle' | 'ember-to-osc' | 'osc-to-ember';
 export interface Connection {
   id: string;
   emberPath: string;
+  emberIdentifierPath?: string;
   oscAddress: string;
   parameterType: ParameterType;
   emberMin: number;
@@ -26,7 +27,8 @@ export interface Connection {
 }
 
 export interface ConnectionConfig {
-  emberPath: string;
+  emberPath?: string;
+  emberIdentifierPath?: string;
   oscAddress: string;
   parameterType?: ParameterType;
   emberMin?: number;
@@ -71,6 +73,7 @@ export interface TreeNode {
   type: string;
   description?: string;
   identifier?: string;
+  identifierPath?: string;
   value?: unknown;
   parameterType?: string;
   minimum?: number;
@@ -131,6 +134,8 @@ export interface MatrixInfo {
   targetCount: number;
   sourceCount: number;
   mode?: 'linear' | 'nonLinear';
+  targets?: number[];
+  sources?: number[];
 }
 
 export interface MatrixState extends MatrixInfo {

@@ -17,6 +17,13 @@ interface WsClient {
 interface WsMessage {
   type: string;
   topics?: string[];
+  channelPath?: string;
+  params?: string[];
+}
+
+interface ChannelSubscription {
+  channelPath: string;
+  params: Map<string, string>; // paramPath -> description
 }
 
 /**
@@ -27,7 +34,12 @@ export class WebSocketManager {
   private wss: WSServer | null = null;
   private clients: Map<WebSocket, WsClient> = new Map();
   private pingInterval: NodeJS.Timeout | null = null;
+  private meteringInterval: NodeJS.Timeout | null = null;
   private readonly PING_INTERVAL = 30000;
+  private readonly METERING_POLL_INTERVAL = 100; // Poll metering at 10Hz
+  private channelSubscriptions: Map<WebSocket, ChannelSubscription> = new Map();
+  private paramToClients: Map<string, Set<WebSocket>> = new Map(); // paramPath -> clients
+  private meteringPaths: Set<string> = new Set(); // Paths that need polling (metering)
 
   constructor(
     private updateBatcher: UpdateBatcher,
@@ -46,8 +58,27 @@ export class WebSocketManager {
     this.setupBatcherListener();
     this.setupServiceListeners();
     this.startPingInterval();
+    this.startMeteringPolling();
 
     logger.info('WebSocket server attached');
+  }
+
+  private startMeteringPolling(): void {
+    this.meteringInterval = setInterval(async () => {
+      if (this.meteringPaths.size === 0) return;
+
+      for (const path of this.meteringPaths) {
+        try {
+          const element = await this.emberService.getElementByPath(path);
+          const value = element?.contents?.value;
+          if (value !== undefined) {
+            this.broadcastParamUpdate(path, value);
+          }
+        } catch {
+          // Ignore errors during polling
+        }
+      }
+    }, this.METERING_POLL_INTERVAL);
   }
 
   private handleConnection(ws: WebSocket): void {
@@ -72,6 +103,7 @@ export class WebSocketManager {
     });
 
     ws.on('close', () => {
+      this.unsubscribeFromChannel(ws);
       this.clients.delete(ws);
       logger.info(`Client disconnected (${this.clients.size} remaining)`);
     });
@@ -99,6 +131,111 @@ export class WebSocketManager {
       case 'ping':
         this.send(client.ws, { type: 'pong' });
         break;
+
+      case 'channel:subscribe':
+        if (message.params && message.params.length > 0) {
+          this.subscribeToParams(client.ws, message.params);
+        }
+        break;
+
+      case 'channel:unsubscribe':
+        this.unsubscribeFromChannel(client.ws);
+        break;
+    }
+  }
+
+  private async subscribeToParams(ws: WebSocket, paramPaths: string[]): Promise<void> {
+    // Unsubscribe from previous params
+    this.unsubscribeFromChannel(ws);
+
+    const subscription: ChannelSubscription = {
+      channelPath: '',
+      params: new Map()
+    };
+
+    const initialValues: Array<{ path: string; value: unknown }> = [];
+
+    for (const paramPath of paramPaths) {
+      if (!paramPath) continue;
+      
+      try {
+        // Get current value first
+        const element = await this.emberService.getElementByPath(paramPath);
+        const currentValue = (element.contents as any)?.value;
+        const description = (element.contents as any)?.description || '';
+
+        // Track which clients are subscribed to this param
+        // We listen to valueChange events instead of subscribing directly
+        // because BridgeEngine may already have subscribed
+        if (!this.paramToClients.has(paramPath)) {
+          this.paramToClients.set(paramPath, new Set());
+        }
+        this.paramToClients.get(paramPath)!.add(ws);
+
+        // If this is a metering parameter, add to polling set
+        if (description.includes('Level')) {
+          this.meteringPaths.add(paramPath);
+          logger.debug(`Added metering path to polling: ${paramPath}`);
+        }
+
+        subscription.params.set(paramPath, paramPath);
+
+        // Store initial value to send
+        if (currentValue !== undefined) {
+          initialValues.push({ path: paramPath, value: currentValue });
+        }
+
+        logger.debug(`WS client subscribed to param: ${paramPath}`);
+      } catch (error) {
+        logger.error(`Failed to subscribe to ${paramPath}:`, error);
+      }
+    }
+
+    this.channelSubscriptions.set(ws, subscription);
+    
+    // Send confirmation with initial values
+    this.send(ws, { 
+      type: 'channel:subscribed', 
+      params: paramPaths,
+      initialValues 
+    });
+  }
+
+  private unsubscribeFromChannel(ws: WebSocket): void {
+    const subscription = this.channelSubscriptions.get(ws);
+    if (!subscription) return;
+
+    for (const paramPath of subscription.params.keys()) {
+      const clients = this.paramToClients.get(paramPath);
+      if (clients) {
+        clients.delete(ws);
+        // If no more clients, stop polling/subscribing
+        if (clients.size === 0) {
+          this.emberService.unsubscribeByPath(paramPath).catch(() => {});
+          this.paramToClients.delete(paramPath);
+          // Remove from metering polling if present
+          this.meteringPaths.delete(paramPath);
+        }
+      }
+    }
+
+    this.channelSubscriptions.delete(ws);
+  }
+
+  private broadcastParamUpdate(paramPath: string, value: unknown): void {
+    const clients = this.paramToClients.get(paramPath);
+    if (!clients) return;
+
+    const message = {
+      type: 'param:update',
+      data: { path: paramPath, value },
+      timestamp: Date.now()
+    };
+
+    for (const ws of clients) {
+      if (ws.readyState === WebSocket.OPEN) {
+        this.send(ws, message);
+      }
     }
   }
 
@@ -146,6 +283,11 @@ export class WebSocketManager {
 
     this.emberService.on('disconnected', () => {
       this.broadcastStatus();
+    });
+
+    // Listen to all value changes from Ember+ and broadcast to interested WS clients
+    this.emberService.on('valueChange', (path: string, value: unknown) => {
+      this.broadcastParamUpdate(path, value);
     });
 
     this.connectionManager.on('created', (conn) => {

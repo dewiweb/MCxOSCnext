@@ -119,19 +119,23 @@ export class EmberService extends EventEmitter {
     this.isConnected = false;
   }
 
-  async getTree(): Promise<EmberElement[]> {
+  async getTree(forceRefresh = false): Promise<EmberElement[]> {
     this.ensureConnected();
     
-    // Request root directory first
-    try {
-      await (await this.client!.getDirectory(this.client!.tree)).response;
-    } catch (err) {
-      logger.warn('getDirectory timeout, using cached tree');
+    const tree = this.client!.tree;
+    
+    // Only request directory if tree is empty or force refresh
+    const hasChildren = tree && Object.keys(tree).some(k => !isNaN(Number(k)));
+    if (forceRefresh || !hasChildren) {
+      try {
+        await (await this.client!.getDirectory(tree)).response;
+      } catch (err) {
+        logger.debug('getDirectory timeout, using cached tree');
+      }
     }
     
     // Return root level nodes
     const rootElements: EmberElement[] = [];
-    const tree = this.client!.tree;
     
     if (tree && typeof tree === 'object') {
       for (const key of Object.keys(tree)) {
@@ -168,11 +172,15 @@ export class EmberService extends EventEmitter {
   async expandPath(path: string): Promise<void> {
     this.ensureConnected();
     
-    // First, ensure root directory is loaded
-    try {
-      await (await this.client!.getDirectory(this.client!.tree)).response;
-    } catch (err) {
-      logger.debug(`Could not get root directory: ${err}`);
+    // Ensure root directory is loaded only if not already populated
+    const tree = this.client!.tree;
+    const rootHasChildren = tree && Object.keys(tree).some((k: string) => !isNaN(Number(k)));
+    if (!rootHasChildren) {
+      try {
+        await (await this.client!.getDirectory(tree)).response;
+      } catch (err) {
+        logger.debug(`Could not get root directory: ${err}`);
+      }
     }
     
     const parts = path.split('.');
@@ -246,14 +254,17 @@ export class EmberService extends EventEmitter {
     
     const element = await this.getElementByPath(path);
     
-    const wrappedCallback = () => {
-      const value = element.contents.value;
+    // The emberplus-connection library passes the updated node to the callback
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const wrappedCallback = (updatedNode: any) => {
+      const value = updatedNode?.contents?.value ?? element.contents.value;
+      logger.debug(`Value update received for ${path}: ${value}`);
       callback(value);
       this.emit('valueChange', path, value);
     };
 
     this.client!.subscribe(element, wrappedCallback);
-    this.subscriptions.set(path, { element, callback: wrappedCallback });
+    this.subscriptions.set(path, { element, callback: wrappedCallback as ValueCallback });
     
     logger.debug(`Subscribed to ${path}`);
   }
@@ -291,6 +302,75 @@ export class EmberService extends EventEmitter {
 
     await this.client!.matrixSetConnection(element, target, sources);
     logger.debug(`Matrix connection set at ${path}: target=${target}, sources=${sources}`);
+  }
+
+  /**
+   * Resolves an identifier-based path (e.g. "_2._1._3ee") to a numeric path (e.g. "28548.28549.56889").
+   * Identifiers are stable across production file reloads, unlike numeric paths.
+   * Each segment is matched against the `identifier` field of Ember+ nodes.
+   */
+  async resolveIdentifierPath(identifierPath: string): Promise<string> {
+    this.ensureConnected();
+
+    const segments = identifierPath.split('.');
+    const resolvedParts: string[] = [];
+
+    // Ensure root is loaded
+    const tree = this.client!.tree;
+    const hasChildren = tree && Object.keys(tree).some((k: string) => !isNaN(Number(k)));
+    if (!hasChildren) {
+      try {
+        await (await this.client!.getDirectory(tree)).response;
+      } catch {
+        logger.debug('resolveIdentifierPath: root getDirectory timeout');
+      }
+    }
+
+    for (let i = 0; i < segments.length; i++) {
+      const targetIdentifier = segments[i];
+      const currentNumericPath = resolvedParts.join('.');
+
+      // Get children of current level
+      let currentNode: EmberElementRaw;
+      if (currentNumericPath === '') {
+        currentNode = this.client!.tree;
+      } else {
+        currentNode = await this.client!.getElementByPath(currentNumericPath);
+        if (!currentNode) {
+          throw new Error(`resolveIdentifierPath: node not found at "${currentNumericPath}" while resolving "${identifierPath}"`);
+        }
+        // Expand to load children
+        try {
+          await (await this.client!.getDirectory(currentNode)).response;
+        } catch {
+          logger.debug(`resolveIdentifierPath: getDirectory timeout at ${currentNumericPath}`);
+        }
+      }
+
+      // Search children for matching identifier
+      // Children may be in currentNode directly (numeric keys) or in currentNode.children
+      const nodeToSearch = currentNode.children ?? currentNode;
+      const childKeys = Object.keys(nodeToSearch).filter(k => !isNaN(Number(k)));
+
+      let found = false;
+      for (const key of childKeys) {
+        const child = nodeToSearch[key];
+        if (child?.contents?.identifier === targetIdentifier) {
+          const childNumber = child.number ?? Number(key);
+          resolvedParts.push(String(childNumber));
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        throw new Error(`resolveIdentifierPath: identifier "${targetIdentifier}" not found at level ${i} of "${identifierPath}"`);
+      }
+    }
+
+    const resolved = resolvedParts.join('.');
+    logger.debug(`Resolved identifier path "${identifierPath}" → "${resolved}"`);
+    return resolved;
   }
 
   async invoke(path: string): Promise<unknown> {
