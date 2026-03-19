@@ -11,9 +11,7 @@ version: '3.8'
 
 services:
   backend:
-    build:
-      context: ./packages/backend
-      dockerfile: Dockerfile
+    image: ghcr.io/dewiweb/mcxosc-backend:develop
     container_name: mcxosc-backend
     ports:
       - "${API_PORT:-3000}:3000"           # REST API + WebSocket
@@ -42,11 +40,7 @@ services:
       start_period: 15s
 
   frontend:
-    build:
-      context: ./packages/frontend
-      dockerfile: Dockerfile
-      args:
-        - API_URL=http://backend:3000
+    image: ghcr.io/dewiweb/mcxosc-frontend:develop
     container_name: mcxosc-frontend
     ports:
       - "${FRONTEND_PORT:-8697}:80"
