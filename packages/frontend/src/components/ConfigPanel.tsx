@@ -184,7 +184,14 @@ export function ConfigPanel() {
                     placeholder="8000"
                     className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Port on which MCxOSC listens for OSC messages</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Port on which MCxOSC listens for OSC messages (UDP).
+                  </p>
+                  <p className="text-xs text-yellow-500 mt-1">
+                    ⚠️ In Docker: the internal port can be changed here, but the host port
+                    mapped in your compose (<code className="bg-gray-700 px-1 rounded">OSC_RX_PORT:8000/udp</code>) must match.
+                    If they differ, UDP packets won't reach the container.
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

@@ -136,7 +136,7 @@ export class ConnectionManager extends EventEmitter {
 
     const connections = Array.isArray(session)
       ? this.migrateLegacySession(session)
-      : session.connections;
+      : session.connections.map(c => this.migrateConnectionConfig(c));
 
     for (const config of connections) {
       this.create(config);
@@ -161,7 +161,7 @@ export class ConnectionManager extends EventEmitter {
         oscMin: c.oscMin,
         oscMax: c.oscMax,
         factor: c.factor,
-        curve: c.curve,
+        scaleMode: c.scaleMode,
         enumValues: c.enumValues,
       })),
     };
@@ -175,7 +175,7 @@ export class ConnectionManager extends EventEmitter {
             c.parameterType === 'REAL' ? 'Real' :
             c.parameterType === 'BOOLEAN' ? 'Boolean' :
             c.parameterType === 'STRING' ? 'String' : 'Enum',
-      math: c.curve,
+      math: c.scaleMode?.startsWith('log') ? 'log' : 'lin',
       min: `${c.emberMin}/${c.oscMin}`,
       max: `${c.emberMax}/${c.oscMax}`,
       factor: String(c.factor),
@@ -237,19 +237,27 @@ export class ConnectionManager extends EventEmitter {
     return legacy.map((conn) => {
       const [emberMin, oscMin] = conn.min.split('/').map(Number);
       const [emberMax, oscMax] = conn.max.split('/').map(Number);
+      const curve = (conn.math as 'lin' | 'log') || 'lin';
 
       return {
         emberPath: conn.path,
         oscAddress: conn.address,
         parameterType: this.normalizeType(conn.type),
         factor: conn.factor ? Number(conn.factor) : 1,
-        curve: (conn.math as 'lin' | 'log') || 'lin',
+        scaleMode: curve === 'log' ? 'log-lin' : 'lin-lin',
         emberMin: isNaN(emberMin) ? 0 : emberMin,
         emberMax: isNaN(emberMax) ? 100 : emberMax,
         oscMin: isNaN(oscMin) ? 0 : oscMin,
         oscMax: isNaN(oscMax) ? 1 : oscMax,
       };
     });
+  }
+
+  private migrateConnectionConfig(config: ConnectionConfig): ConnectionConfig {
+    if (!config.scaleMode && config.curve) {
+      return { ...config, scaleMode: config.curve === 'log' ? 'log-lin' : 'lin-lin' };
+    }
+    return config;
   }
 
   private normalizeType(type: string): ParameterType {
