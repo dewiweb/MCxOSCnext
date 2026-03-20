@@ -43,6 +43,7 @@ export class ConnectionManager extends EventEmitter {
       oscMax: config.oscMax ?? 1,
       factor: config.factor ?? 1,
       curve: config.curve ?? 'lin',
+      scaleMode: config.scaleMode ?? 'lin-lin',
       enumValues: config.enumValues,
       currentEmberValue: null,
       currentOscValue: null,

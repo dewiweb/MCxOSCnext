@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import type { Connection } from '../types';
 import { useConnections } from '../hooks/useConnections';
-import { Activity, Pause, Play, Trash2, AlertCircle } from 'lucide-react';
+import { Activity, Pause, Play, Trash2, AlertCircle, Pencil } from 'lucide-react';
 
-export function ConnectionTable() {
+export function ConnectionTable({ onEdit }: { onEdit?: (conn: Connection) => void }) {
   const { connections, isLoading, activateConnection, deactivateConnection, deleteConnection, activateAll } = useConnections();
 
   if (isLoading && connections.length === 0) {
@@ -48,6 +48,7 @@ export function ConnectionTable() {
                   onActivate={() => activateConnection(conn.id)}
                   onDeactivate={() => deactivateConnection(conn.id)}
                   onDelete={() => deleteConnection(conn.id)}
+                  onEdit={onEdit ? () => onEdit(conn) : undefined}
                 />
               ))}
             </tbody>
@@ -63,13 +64,15 @@ const ConnectionRow = memo(function ConnectionRow({
   onActivate,
   onDeactivate,
   onDelete,
+  onEdit,
 }: {
   connection: Connection;
   onActivate: () => void;
   onDeactivate: () => void;
   onDelete: () => void;
+  onEdit?: () => void;
 }) {
-  const { isActive, error, direction, currentEmberValue, emberPath, emberIdentifierPath, oscAddress, parameterType } = connection;
+  const { isActive, error, direction, currentEmberValue, emberPath, emberIdentifierPath, oscAddress, parameterType, scaleMode } = connection;
   const displayRef = emberIdentifierPath || emberPath;
   const tooltip = emberIdentifierPath && emberPath ? `Numeric: ${emberPath}` : undefined;
 
@@ -86,7 +89,7 @@ const ConnectionRow = memo(function ConnectionRow({
       <td className="px-3 py-2">
         <TypeBadge type={parameterType} />
       </td>
-      <td className="px-3 py-2 font-mono">
+      <td className="px-3 py-2 font-mono" title={`Scale: ${scaleMode ?? 'lin-lin'}`}>
         {formatValue(currentEmberValue)}
       </td>
       <td className="px-3 py-2">
@@ -95,27 +98,20 @@ const ConnectionRow = memo(function ConnectionRow({
       <td className="px-3 py-2 text-right">
         <div className="flex items-center justify-end gap-1">
           {isActive ? (
-            <button
-              onClick={onDeactivate}
-              className="p-1 hover:bg-gray-700 rounded"
-              title="Deactivate"
-            >
+            <button onClick={onDeactivate} className="p-1 hover:bg-gray-700 rounded" title="Deactivate">
               <Pause className="w-4 h-4 text-yellow-500" />
             </button>
           ) : (
-            <button
-              onClick={onActivate}
-              className="p-1 hover:bg-gray-700 rounded"
-              title="Activate"
-            >
+            <button onClick={onActivate} className="p-1 hover:bg-gray-700 rounded" title="Activate">
               <Play className="w-4 h-4 text-green-500" />
             </button>
           )}
-          <button
-            onClick={onDelete}
-            className="p-1 hover:bg-gray-700 rounded"
-            title="Delete"
-          >
+          {onEdit && (
+            <button onClick={onEdit} className="p-1 hover:bg-gray-700 rounded" title="Edit">
+              <Pencil className="w-4 h-4 text-blue-400" />
+            </button>
+          )}
+          <button onClick={onDelete} className="p-1 hover:bg-gray-700 rounded" title="Delete">
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>
         </div>

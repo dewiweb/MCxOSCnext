@@ -4,6 +4,7 @@
 
 export type ParameterType = 'INTEGER' | 'REAL' | 'BOOLEAN' | 'STRING' | 'ENUM';
 export type CurveType = 'lin' | 'log';
+export type ScaleMode = 'lin-lin' | 'lin-log' | 'log-lin' | 'log-log';
 export type Direction = 'idle' | 'ember-to-osc' | 'osc-to-ember';
 
 /**
@@ -25,6 +26,7 @@ export interface ConnectionConfig {
   oscMax?: number;
   factor?: number;
   curve?: CurveType;
+  scaleMode?: ScaleMode;
   enumValues?: string[];
 }
 
@@ -54,6 +56,7 @@ export interface Connection extends ConnectionConfig, ConnectionRuntimeState {
   oscMax: number;
   factor: number;
   curve: CurveType;
+  scaleMode: ScaleMode;
   createdAt: Date;
   updatedAt: Date;
 }

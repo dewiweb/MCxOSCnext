@@ -31,6 +31,15 @@ export function useConnections() {
     }
   }, [loadConnections]);
 
+  const updateConnection = useCallback(async (id: string, changes: Partial<ConnectionConfig>) => {
+    try {
+      await api.updateConnection(id, changes);
+      await loadConnections();
+    } catch (err) {
+      throw err;
+    }
+  }, [loadConnections]);
+
   const deleteConnection = useCallback(async (id: string) => {
     try {
       await api.deleteConnection(id);
@@ -65,6 +74,7 @@ export function useConnections() {
     error,
     loadConnections,
     createConnection,
+    updateConnection,
     deleteConnection,
     activateConnection,
     deactivateConnection,

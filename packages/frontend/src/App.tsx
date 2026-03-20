@@ -13,11 +13,11 @@ import { MatrixView } from './components/MatrixView';
 import { MixerView } from './components/MixerView';
 import { useLogStore } from './stores/logStore';
 import { Plus, X, Grid, Sliders } from 'lucide-react';
-import type { TreeNode, ConnectionConfig } from './types';
+import type { TreeNode, Connection, ConnectionConfig } from './types';
 
 function App() {
   useWebSocket();
-  const { createConnection, loadConnections } = useConnections();
+  const { createConnection, updateConnection, loadConnections } = useConnections();
   const logs = useLogStore((s) => s.logs);
   const clearLogs = useLogStore((s) => s.clear);
   
@@ -26,6 +26,7 @@ function App() {
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [hierarchyPath, setHierarchyPath] = useState('');
   const [selectedIdentifierPath, setSelectedIdentifierPath] = useState<string | undefined>(undefined);
+  const [editingConnection, setEditingConnection] = useState<Connection | null>(null);
   const [activeTab, setActiveTab] = useState<'connections' | 'tree'>('connections');
   const [matrixPath, setMatrixPath] = useState<string | null>(null);
   const [matrixNode, setMatrixNode] = useState<TreeNode | null>(null);
@@ -47,8 +48,19 @@ function App() {
     setShowForm(false);
   };
 
+  const handleEditConnection = (conn: Connection) => {
+    setEditingConnection(conn);
+    setSelectedNode(null);
+    setShowForm(true);
+  };
+
   const handleCreateConnection = async (config: ConnectionConfig) => {
-    await createConnection(config);
+    if (editingConnection) {
+      await updateConnection(editingConnection.id, config);
+      setEditingConnection(null);
+    } else {
+      await createConnection(config);
+    }
     setShowForm(false);
     setSelectedPath('');
     setSelectedNode(null);
@@ -122,6 +134,7 @@ function App() {
               selectedNode={selectedNode}
               hierarchyPath={hierarchyPath}
               initialIdentifierPath={selectedIdentifierPath}
+              editingConnection={editingConnection}
               onSubmit={handleCreateConnection}
               onCancel={() => {
                 setShowForm(false);
@@ -129,12 +142,13 @@ function App() {
                 setSelectedNode(null);
                 setHierarchyPath('');
                 setSelectedIdentifierPath(undefined);
+                setEditingConnection(null);
               }}
             />
           )}
 
           {/* Content */}
-          {activeTab === 'connections' && <ConnectionTable />}
+          {activeTab === 'connections' && <ConnectionTable onEdit={handleEditConnection} />}
 
           {/* Matrix View Modal */}
           {matrixPath && (

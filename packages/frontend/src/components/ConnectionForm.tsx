@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, Plus } from 'lucide-react';
-import type { ConnectionConfig, ParameterType, CurveType, TreeNode } from '../types';
+import { X, Plus, Save } from 'lucide-react';
+import type { Connection, ConnectionConfig, ParameterType, ScaleMode, TreeNode } from '../types';
 
 interface ConnectionFormProps {
   onSubmit: (config: ConnectionConfig) => Promise<void>;
@@ -9,61 +9,61 @@ interface ConnectionFormProps {
   initialIdentifierPath?: string;
   selectedNode?: TreeNode | null;
   hierarchyPath?: string;
+  editingConnection?: Connection | null;
 }
+
+const SCALE_MODE_LABELS: Record<ScaleMode, string> = {
+  'lin-lin': 'Linear → Linear',
+  'log-lin': 'Logarithmic → Linear  (e.g. dB fader → 0..1)',
+  'lin-log': 'Linear → Logarithmic',
+  'log-log': 'Logarithmic → Logarithmic',
+};
 
 function getDefaultsFromNode(node?: TreeNode | null) {
   if (!node) return {};
-  
   const paramType = (node.parameterType as ParameterType) || 'INTEGER';
-  
-  // Default OSC address from node description or path
-  const oscAddr = node.description 
+  const oscAddr = node.description
     ? '/' + node.description.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_/]/g, '')
     : '/' + node.path.replace(/\./g, '/');
-  
-  // Default ranges based on parameter type
   let emberMin = node.minimum ?? 0;
   let emberMax = node.maximum ?? 100;
   let oscMin = 0;
   let oscMax = 1;
-  
-  if (paramType === 'BOOLEAN') {
-    emberMin = 0;
-    emberMax = 1;
-    oscMin = 0;
-    oscMax = 1;
-  } else if (paramType === 'REAL') {
-    oscMin = 0;
-    oscMax = 1;
-  }
-  
+  if (paramType === 'BOOLEAN') { emberMin = 0; emberMax = 1; oscMin = 0; oscMax = 1; }
+  else if (paramType === 'REAL') { oscMin = 0; oscMax = 1; }
   return { paramType, oscAddr, emberMin, emberMax, oscMin, oscMax };
 }
 
-export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialIdentifierPath, selectedNode, hierarchyPath = '' }: ConnectionFormProps) {
+export function ConnectionForm({
+  onSubmit, onCancel, initialPath = '', initialIdentifierPath,
+  selectedNode, hierarchyPath = '', editingConnection,
+}: ConnectionFormProps) {
+  const isEditing = !!editingConnection;
   const defaults = getDefaultsFromNode(selectedNode);
-  
-  const [emberPath, setEmberPath] = useState(initialPath);
-  const [emberIdentifierPath, setEmberIdentifierPath] = useState(initialIdentifierPath || '');
-  // If identifierPath is set, emberPath is the resolved numeric cache (read-only, set by backend)
+
+  const [emberPath, setEmberPath] = useState(editingConnection?.emberPath ?? initialPath);
+  const [emberIdentifierPath, setEmberIdentifierPath] = useState(
+    editingConnection?.emberIdentifierPath ?? initialIdentifierPath ?? ''
+  );
   const hasIdentifierPath = emberIdentifierPath.trim().length > 0;
-  const [oscAddress, setOscAddress] = useState(defaults.oscAddr || '');
-  const [parameterType, setParameterType] = useState<ParameterType>(defaults.paramType || 'INTEGER');
-  const [curve, setCurve] = useState<CurveType>('lin');
-  const [emberMin, setEmberMin] = useState(String(defaults.emberMin ?? 0));
-  const [emberMax, setEmberMax] = useState(String(defaults.emberMax ?? 100));
-  const [oscMin, setOscMin] = useState(String(defaults.oscMin ?? 0));
-  const [oscMax, setOscMax] = useState(String(defaults.oscMax ?? 1));
+  const [oscAddress, setOscAddress] = useState(editingConnection?.oscAddress ?? defaults.oscAddr ?? '');
+  const [parameterType, setParameterType] = useState<ParameterType>(
+    editingConnection?.parameterType ?? defaults.paramType ?? 'INTEGER'
+  );
+  const [scaleMode, setScaleMode] = useState<ScaleMode>(editingConnection?.scaleMode ?? 'lin-lin');
+  const [emberMin, setEmberMin] = useState(String(editingConnection?.emberMin ?? defaults.emberMin ?? 0));
+  const [emberMax, setEmberMax] = useState(String(editingConnection?.emberMax ?? defaults.emberMax ?? 100));
+  const [oscMin, setOscMin] = useState(String(editingConnection?.oscMin ?? defaults.oscMin ?? 0));
+  const [oscMax, setOscMax] = useState(String(editingConnection?.oscMax ?? defaults.oscMax ?? 1));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Update form when selectedNode changes
   useEffect(() => {
+    if (editingConnection) return;
     if (selectedNode) {
       const d = getDefaultsFromNode(selectedNode);
       setEmberPath(selectedNode.path);
       setEmberIdentifierPath(selectedNode.identifierPath || initialIdentifierPath || '');
-      // Use hierarchyPath if available, otherwise fall back to simple oscAddr
       setOscAddress(hierarchyPath || d.oscAddr || '');
       setParameterType(d.paramType || 'INTEGER');
       setEmberMin(String(d.emberMin ?? 0));
@@ -71,28 +71,26 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialId
       setOscMin(String(d.oscMin ?? 0));
       setOscMax(String(d.oscMax ?? 1));
     }
-  }, [selectedNode, hierarchyPath, initialIdentifierPath]);
+  }, [selectedNode, hierarchyPath, initialIdentifierPath, editingConnection]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-
     try {
       await onSubmit({
-        // If identifierPath is set, don't send emberPath (backend resolves it)
         emberPath: hasIdentifierPath ? undefined : emberPath,
         emberIdentifierPath: emberIdentifierPath.trim() || undefined,
         oscAddress: oscAddress.startsWith('/') ? oscAddress : `/${oscAddress}`,
         parameterType,
-        curve,
+        scaleMode,
         emberMin: Number(emberMin),
         emberMax: Number(emberMax),
         oscMin: Number(oscMin),
         oscMax: Number(oscMax),
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create connection');
+      setError(err instanceof Error ? err.message : 'Failed to save connection');
     } finally {
       setIsSubmitting(false);
     }
@@ -101,7 +99,9 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialId
   return (
     <div className="bg-gray-800 rounded-lg p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">New Connection</h3>
+        <h3 className="text-lg font-semibold">
+          {isEditing ? 'Edit Connection' : 'New Connection'}
+        </h3>
         <button onClick={onCancel} className="p-1 hover:bg-gray-700 rounded">
           <X className="w-5 h-5" />
         </button>
@@ -112,7 +112,9 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialId
           <div>
             {hasIdentifierPath ? (
               <>
-                <label className="block text-sm text-gray-400 mb-1">Ember+ Identifier <span className="text-green-400">🔒</span></label>
+                <label className="block text-sm text-gray-400 mb-1">
+                  Ember+ Identifier <span className="text-green-400">🔒</span>
+                </label>
                 <input
                   type="text"
                   value={emberIdentifierPath}
@@ -137,7 +139,7 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialId
                   className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
                   required
                 />
-                <p className="mt-1 text-xs text-gray-500">No stable identifier — path may change on production reload.</p>
+                <p className="mt-1 text-xs text-gray-500">No stable identifier — path may change on reload.</p>
               </>
             )}
           </div>
@@ -156,7 +158,7 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialId
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Type</label>
+            <label className="block text-sm text-gray-400 mb-1">Parameter Type</label>
             <select
               value={parameterType}
               onChange={(e) => setParameterType(e.target.value as ParameterType)}
@@ -170,14 +172,17 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialId
             </select>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Curve</label>
+            <label className="block text-sm text-gray-400 mb-1">
+              Scale Mode <span className="text-gray-500 text-xs">(Ember+ → OSC)</span>
+            </label>
             <select
-              value={curve}
-              onChange={(e) => setCurve(e.target.value as CurveType)}
+              value={scaleMode}
+              onChange={(e) => setScaleMode(e.target.value as ScaleMode)}
               className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
             >
-              <option value="lin">Linear</option>
-              <option value="log">Logarithmic</option>
+              {(Object.keys(SCALE_MODE_LABELS) as ScaleMode[]).map((mode) => (
+                <option key={mode} value={mode}>{SCALE_MODE_LABELS[mode]}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -185,63 +190,37 @@ export function ConnectionForm({ onSubmit, onCancel, initialPath = '', initialId
         <div className="grid grid-cols-4 gap-4">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Ember Min</label>
-            <input
-              type="number"
-              value={emberMin}
-              onChange={(e) => setEmberMin(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-            />
+            <input type="number" value={emberMin} onChange={(e) => setEmberMin(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">Ember Max</label>
-            <input
-              type="number"
-              value={emberMax}
-              onChange={(e) => setEmberMax(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-            />
+            <input type="number" value={emberMax} onChange={(e) => setEmberMax(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">OSC Min</label>
-            <input
-              type="number"
-              step="0.01"
-              value={oscMin}
-              onChange={(e) => setOscMin(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-            />
+            <input type="number" step="0.01" value={oscMin} onChange={(e) => setOscMin(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">OSC Max</label>
-            <input
-              type="number"
-              step="0.01"
-              value={oscMax}
-              onChange={(e) => setOscMax(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
-            />
+            <input type="number" step="0.01" value={oscMax} onChange={(e) => setOscMax(e.target.value)}
+              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
           </div>
         </div>
 
-        {error && (
-          <div className="text-red-400 text-sm">{error}</div>
-        )}
+        {error && <div className="text-red-400 text-sm">{error}</div>}
 
         <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 rounded"
-          >
+          <button type="button" onClick={onCancel}
+            className="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 rounded">
             Cancel
           </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1 disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4" />
-            {isSubmitting ? 'Creating...' : 'Create Connection'}
+          <button type="submit" disabled={isSubmitting}
+            className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1 disabled:opacity-50">
+            {isEditing ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            {isSubmitting ? (isEditing ? 'Saving...' : 'Creating...') : (isEditing ? 'Save Changes' : 'Create Connection')}
           </button>
         </div>
       </form>
