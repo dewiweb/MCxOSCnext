@@ -83,6 +83,9 @@ export function ConnectionForm({
       setEmberMax(String(d.emberMax ?? 100));
       setOscMin(String(d.oscMin ?? 0));
       setOscMax(String(d.oscMax ?? 1));
+      if (selectedNode.factor && selectedNode.factor !== 1) {
+        setFactor(String(selectedNode.factor));
+      }
     }
   }, [selectedNode, hierarchyPath, initialIdentifierPath, editingConnection]);
 
