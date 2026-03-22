@@ -3,6 +3,7 @@ import { useWebSocket } from './hooks/useWebSocket';
 import { useConnections } from './hooks/useConnections';
 import { ConnectionTable } from './components/ConnectionTable';
 import { ConnectionForm } from './components/ConnectionForm';
+import { BatchConnectionForm } from './components/BatchConnectionForm';
 import { TreeViewer } from './components/TreeViewer';
 import { SessionManager } from './components/SessionManager';
 import { StatusBar } from './components/StatusBar';
@@ -12,7 +13,7 @@ import { ResizablePanel } from './components/ResizablePanel';
 import { MatrixView } from './components/MatrixView';
 import { MixerView } from './components/MixerView';
 import { useLogStore } from './stores/logStore';
-import { Plus, X, Grid, Sliders } from 'lucide-react';
+import { Plus, X, Grid, Sliders, Layers } from 'lucide-react';
 import type { TreeNode, Connection, ConnectionConfig } from './types';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
   const clearLogs = useLogStore((s) => s.clear);
   
   const [showForm, setShowForm] = useState(false);
+  const [showBatchForm, setShowBatchForm] = useState(false);
   const [selectedPath, setSelectedPath] = useState('');
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [hierarchyPath, setHierarchyPath] = useState('');
@@ -51,7 +53,16 @@ function App() {
   const handleEditConnection = (conn: Connection) => {
     setEditingConnection(conn);
     setSelectedNode(null);
+    setShowBatchForm(false);
     setShowForm(true);
+  };
+
+  const handleBatchCreate = async (configs: ConnectionConfig[]) => {
+    for (const config of configs) {
+      await createConnection(config);
+    }
+    setShowBatchForm(false);
+    loadConnections();
   };
 
   const handleCreateConnection = async (config: ConnectionConfig) => {
@@ -114,18 +125,35 @@ function App() {
                 Connections
               </button>
             </div>
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className={`px-3 py-1.5 rounded text-sm flex items-center gap-1 ${
-                showForm
-                  ? 'bg-gray-600 hover:bg-gray-500'
-                  : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-              {showForm ? 'Cancel' : 'New Connection'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setShowBatchForm(!showBatchForm); setShowForm(false); setEditingConnection(null); }}
+                className={`px-3 py-1.5 rounded text-sm flex items-center gap-1 ${
+                  showBatchForm ? 'bg-gray-600 hover:bg-gray-500' : 'bg-indigo-600 hover:bg-indigo-700'
+                }`}
+              >
+                {showBatchForm ? <X className="w-4 h-4" /> : <Layers className="w-4 h-4" />}
+                {showBatchForm ? 'Cancel' : 'Batch'}
+              </button>
+              <button
+                onClick={() => { setShowForm(!showForm); setShowBatchForm(false); setEditingConnection(null); }}
+                className={`px-3 py-1.5 rounded text-sm flex items-center gap-1 ${
+                  showForm ? 'bg-gray-600 hover:bg-gray-500' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                {showForm ? 'Cancel' : 'New Connection'}
+              </button>
+            </div>
           </div>
+
+          {/* Batch Form */}
+          {showBatchForm && (
+            <BatchConnectionForm
+              onSubmitBatch={handleBatchCreate}
+              onCancel={() => setShowBatchForm(false)}
+            />
+          )}
 
           {/* Form */}
           {showForm && (
