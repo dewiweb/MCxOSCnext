@@ -4,7 +4,7 @@ import type { UpdateBatcher } from '../core/UpdateBatcher.js';
 import type { EmberService } from '../services/ember/EmberService.js';
 import type { OscService } from '../services/osc/OscService.js';
 import type { ConnectionManager } from '../core/ConnectionManager.js';
-import { createLogger } from '../utils/logger.js';
+import { createLogger, logBus, type LogEntry } from '../utils/logger.js';
 
 const logger = createLogger('WebSocket');
 
@@ -35,6 +35,9 @@ export class WebSocketManager {
   private clients: Map<WebSocket, WsClient> = new Map();
   private pingInterval: NodeJS.Timeout | null = null;
   private meteringInterval: NodeJS.Timeout | null = null;
+  private logBatchInterval: NodeJS.Timeout | null = null;
+  private pendingLogs: LogEntry[] = [];
+  private readonly LOG_BATCH_INTERVAL = 200;
   private readonly PING_INTERVAL = 30000;
   private readonly METERING_POLL_INTERVAL = 100; // Poll metering at 10Hz
   private channelSubscriptions: Map<WebSocket, ChannelSubscription> = new Map();
@@ -57,6 +60,7 @@ export class WebSocketManager {
 
     this.setupBatcherListener();
     this.setupServiceListeners();
+    this.setupLogForwarding();
     this.startPingInterval();
     this.startMeteringPolling();
 
@@ -266,6 +270,28 @@ export class WebSocketManager {
     });
   }
 
+  private setupLogForwarding(): void {
+    logBus.on('log', (entry: LogEntry) => {
+      this.pendingLogs.push(entry);
+      if (!this.logBatchInterval) {
+        this.logBatchInterval = setTimeout(() => {
+          this.flushLogs();
+        }, this.LOG_BATCH_INTERVAL);
+      }
+    });
+  }
+
+  private flushLogs(): void {
+    this.logBatchInterval = null;
+    if (this.pendingLogs.length === 0) return;
+    const batch = this.pendingLogs.splice(0);
+    this.broadcast('logs', {
+      type: 'logs:batch',
+      data: batch,
+      timestamp: Date.now(),
+    });
+  }
+
   private setupBatcherListener(): void {
     this.updateBatcher.on('batch', (batch) => {
       this.broadcast('connections', {
@@ -360,12 +386,11 @@ export class WebSocketManager {
   }
 
   close(): void {
-    if (this.pingInterval) {
-      clearInterval(this.pingInterval);
-    }
-    if (this.wss) {
-      this.wss.close();
-    }
+    if (this.pingInterval) clearInterval(this.pingInterval);
+    if (this.meteringInterval) clearInterval(this.meteringInterval);
+    if (this.logBatchInterval) clearTimeout(this.logBatchInterval);
+    logBus.removeAllListeners('log');
+    if (this.wss) this.wss.close();
     this.clients.clear();
   }
 }

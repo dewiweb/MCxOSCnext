@@ -63,8 +63,8 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
         if (conn) {
           newMap.set(id, {
             ...conn,
-            currentEmberValue: changes.emberValue ?? conn.currentEmberValue,
-            currentOscValue: changes.oscValue ?? conn.currentOscValue,
+            currentEmberValue: changes.currentEmberValue ?? conn.currentEmberValue,
+            currentOscValue: changes.currentOscValue ?? conn.currentOscValue,
             direction: changes.direction ?? conn.direction,
             isActive: changes.isActive ?? conn.isActive,
             error: changes.error ?? conn.error,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 
 export interface LogEntry {
@@ -27,11 +27,19 @@ export function LogViewer({ logs, onClear }: LogViewerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const [minLevel, setMinLevel] = useState<LogLevel>('info');
+  const [sourceFilter, setSourceFilter] = useState<string>('all');
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredLogs = logs.filter(
-    (log) => LOG_LEVEL_PRIORITY[log.level] >= LOG_LEVEL_PRIORITY[minLevel]
-  );
+  const sources = useMemo(() => {
+    const s = new Set(logs.map((l) => l.source).filter(Boolean) as string[]);
+    return Array.from(s).sort();
+  }, [logs]);
+
+  const filteredLogs = useMemo(() => logs.filter(
+    (log) =>
+      LOG_LEVEL_PRIORITY[log.level] >= LOG_LEVEL_PRIORITY[minLevel] &&
+      (sourceFilter === 'all' || log.source === sourceFilter)
+  ), [logs, minLevel, sourceFilter]);
 
   useEffect(() => {
     if (autoScroll && containerRef.current) {
@@ -41,11 +49,9 @@ export function LogViewer({ logs, onClear }: LogViewerProps) {
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('fr-FR', { 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    });
+    const hms = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const ms = String(date.getMilliseconds()).padStart(3, '0');
+    return `${hms}.${ms}`;
   };
 
   const getLevelColor = (level: LogEntry['level']) => {
@@ -81,8 +87,8 @@ export function LogViewer({ logs, onClear }: LogViewerProps) {
             <span className="text-xs text-gray-500">({filteredLogs.length}/{logs.length})</span>
           </div>
           
-          {/* Log level filter */}
-          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          {/* Filters */}
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <span className="text-xs text-gray-400">Level:</span>
             <select
               value={minLevel}
@@ -90,11 +96,24 @@ export function LogViewer({ logs, onClear }: LogViewerProps) {
               className="bg-gray-700 border border-gray-600 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500"
             >
               {LOG_LEVELS.map((level) => (
-                <option key={level} value={level}>
-                  {level.toUpperCase()}
-                </option>
+                <option key={level} value={level}>{level.toUpperCase()}</option>
               ))}
             </select>
+            {sources.length > 0 && (
+              <>
+                <span className="text-xs text-gray-400">Source:</span>
+                <select
+                  value={sourceFilter}
+                  onChange={(e) => setSourceFilter(e.target.value)}
+                  className="bg-gray-700 border border-gray-600 rounded px-2 py-0.5 text-xs focus:outline-none focus:border-blue-500"
+                >
+                  <option value="all">All</option>
+                  {sources.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </>
+            )}
           </div>
         </div>
 

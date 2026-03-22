@@ -43,8 +43,8 @@ export interface ConnectionConfig {
 }
 
 export interface ConnectionRuntimeState {
-  emberValue?: unknown;
-  oscValue?: unknown;
+  currentEmberValue?: unknown;
+  currentOscValue?: unknown;
   direction?: Direction;
   isActive?: boolean;
   error?: string;
