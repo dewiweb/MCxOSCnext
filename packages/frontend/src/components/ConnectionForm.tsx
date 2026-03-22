@@ -12,11 +12,23 @@ interface ConnectionFormProps {
   editingConnection?: Connection | null;
 }
 
-const SCALE_MODE_LABELS: Record<ScaleMode, string> = {
-  'lin-lin': 'Linear → Linear',
-  'log-lin': 'Logarithmic → Linear  (e.g. dB fader → 0..1)',
-  'lin-log': 'Linear → Logarithmic',
-  'log-log': 'Logarithmic → Logarithmic',
+const SCALE_MODE_LABELS: Record<ScaleMode, { label: string; hint: string }> = {
+  'lin-lin': {
+    label: 'Lin → Lin  (proportional remap)',
+    hint: 'Default. Use for dB↔dB, integers↔floats, or any proportional ranges.',
+  },
+  'log-lin': {
+    label: 'Log → Lin  (amplitude → dB / 0..1)',
+    hint: 'Ember+ is a linear amplitude (≥ 0, e.g. 0..32767). OSC receives a perceptual/dB value.',
+  },
+  'lin-log': {
+    label: 'Lin → Log  (dB / 0..1 → amplitude)',
+    hint: 'Ember+ is in dB or 0..1. OSC expects a linear amplitude value.',
+  },
+  'log-log': {
+    label: 'Log → Log  (amplitude → amplitude)',
+    hint: 'Both sides are linear amplitudes. Same log curve, different ranges.',
+  },
 };
 
 function getDefaultsFromNode(node?: TreeNode | null) {
@@ -181,9 +193,10 @@ export function ConnectionForm({
               className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500"
             >
               {(Object.keys(SCALE_MODE_LABELS) as ScaleMode[]).map((mode) => (
-                <option key={mode} value={mode}>{SCALE_MODE_LABELS[mode]}</option>
+                <option key={mode} value={mode}>{SCALE_MODE_LABELS[mode].label}</option>
               ))}
             </select>
+            <p className="mt-1 text-xs text-gray-500">{SCALE_MODE_LABELS[scaleMode].hint}</p>
           </div>
         </div>
 

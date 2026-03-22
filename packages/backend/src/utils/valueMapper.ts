@@ -10,11 +10,16 @@ function normalizeLinear(value: number, min: number, max: number): number {
 
 /**
  * Normalize a value from a logarithmic [min, max] to [0, 1] linear.
- * Assumes the scale is perceptually log (e.g. dB faders).
- * Uses log10(x*9+1) mapping so that log(0)=0 and log(1)=1.
+ * Intended for scales where the physical quantity is an amplitude (>= 0).
+ * Uses log10(x*9+1) mapping so that f(0)=0 and f(1)=1.
+ * ⚠️  Only valid when min >= 0. If min < 0 the scale is not a true log
+ *     amplitude scale — use lin-lin instead.
  */
 function normalizeLog(value: number, min: number, max: number): number {
-  const linear = normalizeLinear(value, min, max);
+  const safeMin = Math.max(0, min);
+  const safeMax = Math.max(safeMin + 1e-9, max);
+  const clamped = Math.max(safeMin, Math.min(safeMax, value));
+  const linear = (clamped - safeMin) / (safeMax - safeMin);
   return Math.log10(linear * 9 + 1);
 }
 
@@ -30,18 +35,24 @@ function denormalizeLinear(normalized: number, min: number, max: number): number
  * Inverse of normalizeLog.
  */
 function denormalizeLog(normalized: number, min: number, max: number): number {
+  const safeMin = Math.max(0, min);
+  const safeMax = Math.max(safeMin + 1e-9, max);
   const linear = (Math.pow(10, normalized) - 1) / 9;
-  return min + linear * (max - min);
+  return safeMin + linear * (safeMax - safeMin);
 }
 
 /**
  * Maps a value from Ember+ range to OSC range.
  *
  * scaleMode describes the nature of each scale:
- *   'lin-lin' : ember linear  → osc linear   (default, no curve)
- *   'log-lin' : ember log     → osc linear   (e.g. dB fader → 0..1 slider)
- *   'lin-log' : ember linear  → osc log      (rare)
- *   'log-log' : ember log     → osc log      (same curve, just remaps range)
+ *   'lin-lin' : both scales are linear/dB — pure proportional remap  (default)
+ *   'log-lin' : Ember+ is a linear amplitude (>= 0) → OSC is linear/dB
+ *               (log10 curve applied to Ember+ amplitude before remapping)
+ *   'lin-log' : Ember+ is linear/dB → OSC expects a linear amplitude
+ *               (log10 curve applied on OSC side)
+ *   'log-log' : both are linear amplitudes — same curve, different ranges
+ *
+ *   ⚠️  For dB↔dB conversions with negative values, use lin-lin.
  *
  * Legacy: if scaleMode is absent, falls back to the old curve parameter.
  */
