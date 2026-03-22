@@ -83,7 +83,7 @@ export class BridgeEngine extends EventEmitter {
     this.rateLimiter.setDirection(conn.id, 'ember-to-osc');
     this.rateLimiter.scheduleReset(conn.id, this.config.directionResetDelay);
 
-    logger.debug(`Ember→OSC: ${path} = ${value} → ${conn.oscAddress} = ${oscValue} [eMin=${conn.emberMin} eMax=${conn.emberMax} oMin=${conn.oscMin} oMax=${conn.oscMax} mode=${conn.scaleMode}]`);
+    logger.debug(`Ember→OSC: ${path} = ${value} → ${conn.oscAddress} = ${oscValue}`);
   }
 
   private handleOscMessage(address: string, args: OscArg[]): void {
@@ -124,7 +124,7 @@ export class BridgeEngine extends EventEmitter {
       this.rateLimiter.setDirection(conn.id, 'osc-to-ember');
       this.rateLimiter.scheduleReset(conn.id, this.config.directionResetDelay);
 
-      logger.debug(`OSC→Ember: ${address} = ${value} → ${conn.emberPath} = ${emberValue} [eMin=${conn.emberMin} eMax=${conn.emberMax} oMin=${conn.oscMin} oMax=${conn.oscMax} mode=${conn.scaleMode}]`);
+      logger.debug(`OSC→Ember: ${address} = ${value} → ${conn.emberPath} = ${emberValue}`);
     }
   }
 
@@ -139,7 +139,7 @@ export class BridgeEngine extends EventEmitter {
     this.rateLimiter.clear(conn.id);
   }
 
-  private mapEmberToOsc(value: unknown, conn: { parameterType: string; emberMin: number; emberMax: number; oscMin: number; oscMax: number; scaleMode: import('../../types/index.js').ScaleMode }): unknown {
+  private mapEmberToOsc(value: unknown, conn: { parameterType: string; emberMin: number; emberMax: number; oscMin: number; oscMax: number; scaleMode: import('../../types/index.js').ScaleMode; factor: number }): unknown {
     if (conn.parameterType === 'BOOLEAN') {
       return Boolean(value);
     }
@@ -153,11 +153,13 @@ export class BridgeEngine extends EventEmitter {
       conn.emberMax,
       conn.oscMin,
       conn.oscMax,
-      conn.scaleMode
+      conn.scaleMode,
+      undefined,
+      conn.factor
     );
   }
 
-  private mapOscToEmber(value: unknown, conn: { parameterType: string; emberMin: number; emberMax: number; oscMin: number; oscMax: number; scaleMode: import('../../types/index.js').ScaleMode }): unknown {
+  private mapOscToEmber(value: unknown, conn: { parameterType: string; emberMin: number; emberMax: number; oscMin: number; oscMax: number; scaleMode: import('../../types/index.js').ScaleMode; factor: number }): unknown {
     if (conn.parameterType === 'BOOLEAN') {
       return Boolean(value);
     }
@@ -171,7 +173,9 @@ export class BridgeEngine extends EventEmitter {
       conn.oscMax,
       conn.emberMin,
       conn.emberMax,
-      conn.scaleMode
+      conn.scaleMode,
+      undefined,
+      conn.factor
     );
 
     if (conn.parameterType === 'INTEGER' || conn.parameterType === 'ENUM') {

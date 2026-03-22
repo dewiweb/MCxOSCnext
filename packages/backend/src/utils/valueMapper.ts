@@ -63,8 +63,15 @@ export function emberToOsc(
   oscMin: number,
   oscMax: number,
   scaleMode: ScaleMode = 'lin-lin',
-  _curve?: CurveType
+  _curve?: CurveType,
+  factor: number = 1
 ): number {
+  if (factor !== 1) {
+    // Direct factor division: osc = ember / factor, clamped to osc range
+    const result = value / factor;
+    return Math.max(oscMin, Math.min(oscMax, result));
+  }
+
   const [emberCurve, oscCurve] = scaleMode.split('-') as [CurveType, CurveType];
 
   const normalized =
@@ -88,8 +95,15 @@ export function oscToEmber(
   emberMin: number,
   emberMax: number,
   scaleMode: ScaleMode = 'lin-lin',
-  _curve?: CurveType
+  _curve?: CurveType,
+  factor: number = 1
 ): number {
+  if (factor !== 1) {
+    // Direct factor multiplication: ember = osc * factor, clamped to ember range
+    const result = value * factor;
+    return Math.max(emberMin, Math.min(emberMax, result));
+  }
+
   const [emberCurve, oscCurve] = scaleMode.split('-') as [CurveType, CurveType];
 
   // Normalize from OSC space (inverse of osc curve)
