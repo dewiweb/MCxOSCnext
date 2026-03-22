@@ -83,7 +83,7 @@ export class BridgeEngine extends EventEmitter {
     this.rateLimiter.setDirection(conn.id, 'ember-to-osc');
     this.rateLimiter.scheduleReset(conn.id, this.config.directionResetDelay);
 
-    logger.debug(`Ember→OSC: ${path} = ${value} → ${conn.oscAddress} = ${oscValue}`);
+    logger.debug(`Ember→OSC: ${path} = ${value} → ${conn.oscAddress} = ${oscValue} [eMin=${conn.emberMin} eMax=${conn.emberMax} oMin=${conn.oscMin} oMax=${conn.oscMax} mode=${conn.scaleMode}]`);
   }
 
   private handleOscMessage(address: string, args: OscArg[]): void {
@@ -124,7 +124,7 @@ export class BridgeEngine extends EventEmitter {
       this.rateLimiter.setDirection(conn.id, 'osc-to-ember');
       this.rateLimiter.scheduleReset(conn.id, this.config.directionResetDelay);
 
-      logger.debug(`OSC→Ember: ${address} = ${value} → ${conn.emberPath} = ${emberValue}`);
+      logger.debug(`OSC→Ember: ${address} = ${value} → ${conn.emberPath} = ${emberValue} [eMin=${conn.emberMin} eMax=${conn.emberMax} oMin=${conn.oscMin} oMax=${conn.oscMax} mode=${conn.scaleMode}]`);
     }
   }
 
