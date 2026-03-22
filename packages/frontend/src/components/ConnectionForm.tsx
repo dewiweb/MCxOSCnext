@@ -63,7 +63,6 @@ export function ConnectionForm({
     editingConnection?.parameterType ?? defaults.paramType ?? 'INTEGER'
   );
   const [scaleMode, setScaleMode] = useState<ScaleMode>(editingConnection?.scaleMode ?? 'lin-lin');
-  const [factor, setFactor] = useState(String(editingConnection?.factor ?? 1));
   const [emberMin, setEmberMin] = useState(String(editingConnection?.emberMin ?? defaults.emberMin ?? 0));
   const [emberMax, setEmberMax] = useState(String(editingConnection?.emberMax ?? defaults.emberMax ?? 100));
   const [oscMin, setOscMin] = useState(String(editingConnection?.oscMin ?? defaults.oscMin ?? 0));
@@ -83,9 +82,6 @@ export function ConnectionForm({
       setEmberMax(String(d.emberMax ?? 100));
       setOscMin(String(d.oscMin ?? 0));
       setOscMax(String(d.oscMax ?? 1));
-      if (selectedNode.factor && selectedNode.factor !== 1) {
-        setFactor(String(selectedNode.factor));
-      }
     }
   }, [selectedNode, hierarchyPath, initialIdentifierPath, editingConnection]);
 
@@ -100,7 +96,6 @@ export function ConnectionForm({
         oscAddress: oscAddress.startsWith('/') ? oscAddress : `/${oscAddress}`,
         parameterType,
         scaleMode,
-        factor: Number(factor) || 1,
         emberMin: Number(emberMin),
         emberMax: Number(emberMax),
         oscMin: Number(oscMin),
@@ -205,7 +200,7 @@ export function ConnectionForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Ember Min</label>
             <input type="number" value={emberMin} onChange={(e) => setEmberMin(e.target.value)}
@@ -225,14 +220,6 @@ export function ConnectionForm({
             <label className="block text-sm text-gray-400 mb-1">OSC Max</label>
             <input type="number" step="0.01" value={oscMax} onChange={(e) => setOscMax(e.target.value)}
               className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-400 mb-1" title="Ember+ integer factor: osc = ember / factor">
-              Factor
-            </label>
-            <input type="number" step="1" min="1" value={factor} onChange={(e) => setFactor(e.target.value)}
-              className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
-            <p className="mt-1 text-xs text-gray-500">osc = ember / factor</p>
           </div>
         </div>
 
